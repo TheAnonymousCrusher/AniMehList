@@ -1,0 +1,36 @@
+name: HTML5 Validation
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  validate-html:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: HTML5Validator
+        uses: Cyb3r-Jak3/html5validator-action@v7.2.0
+        with:
+          root: .                    # checks root folder
+          blacklist: assets,screenshots  # skip these
+          log_level: WARNING
+
+      - name: Check email_pages separately
+        uses: Cyb3r-Jak3/html5validator-action@v7.2.0
+        with:
+          root: email_pages
+          blacklist: assets,screenshots
+          log_level: WARNING
+
+      - name: Upload log
+        uses: actions/upload-artifact@v3
+        with:
+          name: html-validation-log
+          path: log.log
