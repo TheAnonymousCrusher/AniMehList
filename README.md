@@ -11,10 +11,10 @@
 <div align="center">
   <img src="screenshots/01.png" width="30%" >
   <img src="screenshots/02.png" width="30%" >
-  <img src="screenshots/03.png" width="30%" >
-  <img src="screenshots/04.png" width="30%" >
-  <img src="screenshots/05.png" width="30%" >
   <img src="screenshots/06.png" width="30%" >
+  <img src="screenshots/04.png" width="30%" >
+  <img src="screenshots/03.png" width="30%" >
+  <img src="screenshots/05.png" width="30%" >
 </div>
 
 ---
@@ -26,6 +26,7 @@
     <img src="assets/site_btn.png" height="40"  alt="https://theanonymouscrusher.github.io/AniMehList/">
   </a>
 </div>
+
 
 
 
