@@ -18,14 +18,7 @@ jobs:
       - name: HTML5Validator
         uses: Cyb3r-Jak3/html5validator-action@v7.2.0
         with:
-          root: .                    # root folder
-          blacklist: assets,screenshots
-          log_level: WARNING
-
-      - name: Check email_pages separately
-        uses: Cyb3r-Jak3/html5validator-action@v7.2.0
-        with:
-          root: email_pages
+          root: .                    # only validate root folder
           blacklist: assets,screenshots
           log_level: WARNING
 
