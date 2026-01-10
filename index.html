@@ -1,0 +1,5463 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>AniMehList — Your Anime Shelf</title>
+    <link rel="icon" href="assets/logo.png" type="image/png" />
+
+    <!-- Fonts -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@400;600;700&family=Lato:wght@400;700;900&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Icons -->
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+      rel="stylesheet"
+    />
+
+    <style>
+      :root {
+        --bg: #0b0c10;
+        --panel: #0f1117;
+        --panel-2: #0b0f16;
+        --text: #e6e8ef;
+        --muted: #9aa3b2;
+        --brand: #7c3aed;
+        --brand-2: #22d3ee;
+        --ok: #22c55e;
+        --warn: #f59e0b;
+        --danger: #f56565;
+        --card: #151927;
+        --chip: #1d2336;
+        --ring: #2b2f45;
+        --shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
+        --radius: 14px;
+        --radius-sm: 10px;
+        --container: 1100px;
+        --title-font: "Orbitron", system-ui, -apple-system, "Segoe UI", Roboto;
+        --body-font: "Inter", system-ui, -apple-system, Segoe UI, Roboto, Arial;
+        --chat-font: "Lato", system-ui, -apple-system, Segoe UI, Roboto, Arial;
+        --ui-duration: 220ms;
+        --bp-mobile: 720px;
+        --bp-compact: 520px;
+        --bp-small: 600px;
+        --focus-ring: 0 0 0 4px rgba(124, 58, 237, 0.14);
+        --accent-1: #6ee7ff;
+        --accent-2: #a78bfa;
+        --accent-3: #22d3ee;
+
+        /* Susie: maroon/crimson */
+        --susie: #9f1239;
+
+        --stroke: rgba(255, 255, 255, 0.1);
+
+        /* Z layers (FIX: modal stacking, toasts above scroll-to-top) */
+        --z-header: 60;
+        --z-panel: 80;
+        --z-scrolltop: 90;
+
+        --z-modal: 300;
+        --z-chat: 330;
+        --z-auth: 340;
+        --z-confirm: 350;
+
+        --z-toast: 380;
+        --z-cover-progress: 385;
+        --z-loading: 390;
+
+        --z-preloader: 500;
+        --z-offline: 600;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+      img {
+        max-width: 100%;
+      }
+
+      /* Custom scrollbars */
+      * {
+        scrollbar-color: #374151 #0b0f16;
+        scrollbar-width: thin;
+      }
+      ::-webkit-scrollbar {
+        width: 10px;
+        height: 10px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #0b0f16;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: linear-gradient(180deg, #3b82f6, #a78bfa);
+        border-radius: 10px;
+        border: 2px solid #0b0f16;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: linear-gradient(180deg, #22d3ee, #7c3aed);
+      }
+
+      html,
+      body {
+        height: 100%;
+        overflow-x: hidden; /* keep this per user request */
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        margin: 0;
+        background: linear-gradient(180deg, #07070a, #0b0c10 40%);
+        color: var(--text);
+        font: 400 16px/1.55 var(--body-font);
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        -webkit-tap-highlight-color: transparent;
+        min-height: 100dvh;
+        display: flex;
+        flex-direction: column;
+      }
+
+      a {
+        color: inherit;
+      }
+
+      .container {
+        max-width: var(--container);
+        margin: 0 auto;
+        padding: 0 16px;
+        width: 100%;
+      }
+
+      .header {
+        position: sticky;
+        top: 0;
+        z-index: var(--z-header);
+        background: rgba(11, 12, 16, 0.9);
+        backdrop-filter: blur(6px);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      }
+
+      .nav {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        min-height: 66px;
+        padding: 6px 0;
+        flex-wrap: nowrap;
+      }
+
+      .logo {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-weight: 800;
+        letter-spacing: 0.3px;
+        min-width: 0;
+        flex: 1 1 auto;
+      }
+
+      .logo-img {
+        height: 34px;
+        border-radius: 5px;
+        object-fit: cover;
+        display: block;
+        flex: 0 0 auto;
+      }
+
+      .nav-cta {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        margin-left: auto;
+        flex-wrap: nowrap;
+      }
+
+      .btn {
+        appearance: none;
+        border: 0;
+        border-radius: 12px;
+        padding: 10px 14px;
+        background: var(--panel);
+        color: #e9ecf3;
+        cursor: pointer;
+        display: inline-flex;
+        gap: 8px;
+        align-items: center;
+        justify-content: center;
+        box-shadow: var(--shadow);
+        transition: transform var(--ui-duration) ease, opacity var(--ui-duration) ease,
+          background 0.2s ease;
+        user-select: none;
+        white-space: nowrap;
+      }
+
+      .btn:hover {
+        transform: translateY(-2px);
+      }
+
+      .btn:focus-visible {
+        outline: 0;
+        box-shadow: var(--focus-ring);
+      }
+
+      .btn.brand {
+        background: linear-gradient(90deg, var(--brand), var(--brand-2));
+        color: #fff;
+        font-weight: 700;
+      }
+
+      .btn.ghost {
+        background: #131826;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        box-shadow: none;
+      }
+
+      .btn.danger {
+        background: #2d1a25;
+        color: #fee2e2;
+        border: 1px solid rgba(255, 255, 255, 0.06);
+      }
+
+      .btn.sm {
+        padding: 8px 10px;
+        border-radius: 10px;
+        font-size: 13px;
+      }
+
+      .btn.icon {
+        padding: 8px 10px;
+        border-radius: 10px;
+        font-size: 14px;
+        box-shadow: none;
+        background: rgba(0, 0, 0, 0.35);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+      }
+
+      .btn.loading {
+        pointer-events: none;
+        opacity: 0.85;
+        position: relative;
+      }
+
+      .btn.loading::before {
+        content: "";
+        display: inline-block;
+        width: 14px;
+        height: 14px;
+        border: 2px solid #fff;
+        border-top-color: transparent;
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+        margin-right: 8px;
+      }
+
+      @keyframes spin {
+        0% {
+          transform: rotate(0);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
+      .tag {
+        display: inline-flex;
+        gap: 8px;
+        align-items: center;
+        background: #151a2b;
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        color: #b6bfd3;
+        border-radius: 999px;
+        padding: 6px 10px;
+        font-size: 12px;
+        white-space: nowrap;
+      }
+
+      .hamburger {
+        display: none;
+      }
+
+      @media (max-width: var(--bp-mobile)) {
+        .nav {
+          row-gap: 8px;
+          flex-direction: column;
+          align-items: center;
+        }
+        .nav-cta {
+          display: none;
+        }
+        .hamburger {
+          display: inline-flex;
+          margin-left: auto;
+        }
+        .logo-img {
+          width: 30px;
+          height: 30px;
+        }
+        .logo {
+          justify-content: center;
+          flex: none;
+        }
+        .toolbar-top {
+          flex-direction: column;
+          align-items: stretch;
+          gap: 8px;
+        }
+        .actions-row {
+          flex-direction: row;
+          justify-content: space-between;
+        }
+        .search {
+          width: 100%;
+        }
+        .view-toggle {
+          justify-content: center;
+          flex: 1 1 auto;
+        }
+        .btn.brand {
+          flex: 0 0 auto;
+        }
+      }
+
+      .menu-panel,
+      .account-panel {
+        position: fixed;
+        top: 66px;
+        right: 12px;
+        z-index: var(--z-panel);
+        width: min(360px, 94vw);
+        background: #101525;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 16px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+        transform-origin: top right;
+        transform: scale(0.98) translateY(-6px);
+        opacity: 0;
+        pointer-events: none;
+        transition: transform 0.2s ease, opacity 0.2s ease;
+      }
+      .menu-panel.open,
+      .account-panel.open {
+        transform: scale(1) translateY(0);
+        opacity: 1;
+        pointer-events: auto;
+      }
+
+      .menu-sec {
+        padding: 12px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      }
+      .menu-sec:last-child {
+        border-bottom: 0;
+      }
+
+      .menu-title {
+        font-family: var(--title-font);
+        font-size: 13px;
+        color: #cbd5f7;
+        margin-bottom: 8px;
+      }
+
+      .menu-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .menu-item {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        background: #12182a;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 12px;
+        padding: 10px 12px;
+      }
+
+      .menu-kv {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .menu-note {
+        font-size: 12px;
+        color: #9aa3b2;
+      }
+
+      /* Banner */
+      .banner {
+        position: relative;
+        display: block;
+        height: clamp(520px, 70vw, 880px);
+        width: 100vw;
+        margin-left: calc(50% - 50vw);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        overflow: hidden;
+      }
+
+      .banner-image {
+        position: absolute;
+        inset: 0;
+        background-position: center;
+        background-size: cover;
+        background-repeat: no-repeat;
+        opacity: 1;
+        filter: saturate(1.02) contrast(1.05) brightness(0.9);
+        transform: scale(1.02);
+      }
+
+      .banner::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(
+          180deg,
+          rgba(7, 8, 12, 0.6),
+          rgba(7, 8, 12, 0.75) 40%,
+          rgba(7, 8, 12, 0.9)
+        );
+        pointer-events: none;
+      }
+
+      .banner-inner {
+        position: relative;
+        z-index: 2;
+        height: 100%;
+        display: flex;
+        align-items: flex-end;
+        padding: 96px 0 40px;
+      }
+
+      .hero {
+        display: grid;
+        gap: 10px;
+        max-width: var(--container);
+        margin: 0 auto;
+        width: 100%;
+        padding: 0 16px;
+      }
+
+      .hero-box {
+        max-width: min(820px, 96%);
+        background: rgba(7, 8, 12, 0.45);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        padding: 14px 16px;
+        border-radius: 14px;
+        box-shadow: 0 14px 40px rgba(0, 0, 0, 0.45);
+        backdrop-filter: blur(4px);
+      }
+
+      .hero h1 {
+        margin: 0 0 6px 0;
+        font-size: clamp(22px, 3.2vw, 38px);
+        line-height: 1.1;
+        letter-spacing: 0.6px;
+        font-family: var(--title-font);
+        font-weight: 700;
+        text-shadow: 0 2px 6px rgba(0, 0, 0, 0.55);
+      }
+
+      .hero .sub {
+        color: #d4daf0;
+        font-size: 14px;
+        text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+      }
+
+      /* Toolbar */
+      .toolbar {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        margin: 14px 0 10px;
+      }
+
+      .toolbar-top {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        align-items: center;
+      }
+
+      .actions-row {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        flex-wrap: nowrap;
+      }
+
+      .search-container {
+        position: relative;
+        flex: 1;
+        min-width: 220px;
+      }
+
+      .search {
+        width: 100%;
+        background: #0f1424;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 12px;
+        color: #e8ecfa;
+        padding: 10px 40px 10px 12px;
+        outline: 0;
+      }
+
+      .search:focus {
+        box-shadow: var(--focus-ring);
+        border-color: rgba(124, 58, 237, 0.7);
+      }
+
+      .search-clear {
+        position: absolute;
+        right: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: 0 0;
+        border: none;
+        color: var(--muted);
+        cursor: pointer;
+        font-size: 16px;
+        display: none;
+      }
+
+      .search-clear.visible {
+        display: block;
+      }
+
+      .toolbar-tabs {
+        display: flex;
+        gap: 8px;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        white-space: nowrap;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+      }
+
+      .toolbar-tabs::-webkit-scrollbar {
+        display: none;
+      }
+
+      .tab {
+        padding: 8px 12px;
+        border-radius: 999px;
+        color: #c6cde0;
+        background: #141a2a;
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        cursor: pointer;
+        transition: transform 0.15s;
+        flex: 0 0 auto;
+      }
+
+      .tab:hover {
+        transform: translateY(-1px);
+      }
+
+      .tab.active {
+        background: linear-gradient(90deg, rgba(124, 58, 237, 0.25), rgba(34, 211, 238, 0.2));
+        color: #fff;
+        border-color: rgba(255, 255, 255, 0.12);
+      }
+
+      .tab .count {
+        opacity: 0.7;
+        margin-left: 6px;
+      }
+
+      /* Sort segmented control */
+      .sort-toggle,
+      .view-toggle {
+        display: inline-flex;
+        background: #11162a;
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 12px;
+        overflow: hidden;
+      }
+
+      .seg {
+        appearance: none;
+        background: 0 0;
+        color: #cfe0ff;
+        padding: 8px 12px;
+        border: 0;
+        cursor: pointer;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .seg:hover {
+        background: rgba(255, 255, 255, 0.04);
+      }
+
+      .seg.active {
+        background: linear-gradient(90deg, rgba(124, 58, 237, 0.25), rgba(34, 211, 238, 0.2));
+        color: #fff;
+      }
+
+      .toolbar .toolbar-top .view-toggle {
+        margin-left: auto;
+      }
+
+      .section {
+        margin-top: 18px;
+      }
+
+      .section-title {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin: 8px 0 10px;
+        font-family: var(--title-font);
+        font-size: 18px;
+        letter-spacing: 0.3px;
+        color: #d6dbef;
+      }
+
+      /* Grid/shelf */
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(12, 1fr);
+        gap: 12px;
+      }
+      .col {
+        grid-column: span 12;
+      }
+
+      .grid.view-grid .col {
+        grid-column: span 6;
+      }
+      @media (min-width: 540px) {
+        .grid.view-grid .col {
+          grid-column: span 4;
+        }
+      }
+      @media (min-width: 780px) {
+        .grid.view-grid .col {
+          grid-column: span 3;
+        }
+      }
+      @media (min-width: 1024px) {
+        .grid.view-grid .col {
+          grid-column: span 3;
+        }
+      }
+
+      .grid.view-compact .col {
+        grid-column: span 12;
+      }
+      @media (min-width: 900px) {
+        .grid.view-compact .col {
+          grid-column: span 6;
+        }
+      }
+      @media (min-width: 1200px) {
+        .grid.view-compact .col {
+          grid-column: span 4;
+        }
+      }
+
+      .card {
+        background: #12182a;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: var(--radius);
+        overflow: hidden;
+        box-shadow: 0 8px 20px rgba(1, 5, 18, 0.5);
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+      }
+
+      .cover {
+        position: relative;
+        width: 100%;
+        aspect-ratio: 1/1.4;
+        background: #0e1323;
+        overflow: hidden;
+      }
+      .cover img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+      }
+      .cover .ph {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(180deg, #1a2040, #11162e);
+        color: #aeb8d9;
+        font-weight: 800;
+        font-size: clamp(22px, 5vw, 36px);
+        letter-spacing: 0.8px;
+        text-transform: uppercase;
+      }
+
+      /* Per-card image loader */
+      .cover-loader {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        pointer-events: none;
+        background: linear-gradient(180deg, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.25));
+      }
+      .cover-loader i {
+        color: var(--brand-2);
+        font-size: 18px;
+        animation: spin 0.8s linear infinite;
+        filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.5));
+      }
+
+      .floating-actions {
+        position: absolute;
+        top: 6px;
+        right: 6px;
+        display: flex;
+        gap: 6px;
+        z-index: 2;
+      }
+      .floating-actions .icon-btn {
+        background: rgba(6, 9, 16, 0.7);
+        color: #e8ecfa;
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        padding: 6px;
+        border-radius: 8px;
+        cursor: pointer;
+      }
+      .floating-actions .icon-btn:hover {
+        background: rgba(6, 9, 16, 0.9);
+      }
+
+      .badge-bottom {
+        position: absolute;
+        right: 6px;
+        bottom: 6px;
+        background: rgba(0, 0, 0, 0.55);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        color: #eaf0ff;
+        font-size: 11px;
+        padding: 4px 6px;
+        border-radius: 999px;
+        display: flex;
+        gap: 6px;
+        align-items: center;
+        z-index: 1;
+      }
+
+      .card-body {
+        padding: 8px;
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+
+      .title-row {
+        display: grid;
+        grid-template-columns: 1fr;
+        align-items: center;
+        gap: 6px;
+        min-width: 0;
+      }
+
+      .title {
+        font-weight: 800;
+        letter-spacing: 0.5px;
+        font-family: var(--title-font);
+        font-size: 14px;
+        line-height: 1.2;
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+        height: 2.4em;
+      }
+
+      .chips {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+        align-items: center;
+        color: #b3bad2;
+        font-size: 11px;
+        margin: 2px 0 4px;
+      }
+
+      .chip {
+        font-size: 10px;
+        padding: 3px 6px;
+        border-radius: 999px;
+        background: #161c2e;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        color: #cfe0ff;
+      }
+
+      .controls {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        margin-top: 2px;
+        flex-wrap: wrap;
+      }
+
+      .control-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 36px;
+        height: 32px;
+        border-radius: 8px;
+        background: #1a2240;
+        color: #dfe6ff;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        cursor: pointer;
+        flex: 0 0 auto;
+      }
+      .control-btn:hover {
+        background: #1f2850;
+      }
+      .control-btn:disabled {
+        opacity: 0.35;
+        cursor: not-allowed;
+      }
+
+      .progress-readout {
+        display: inline-flex;
+        gap: 4px;
+        align-items: center;
+        padding: 6px 10px;
+        border-radius: 8px;
+        background: #131a2f;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        font-size: 12px;
+        color: #cfe0ff;
+        flex: 0 0 auto;
+        min-width: max-content;
+        max-width: 100%;
+      }
+
+      .move-select,
+      .select {
+        appearance: none;
+        background-color: #0f1424;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        color: #e8ecfa;
+        padding: 10px 38px 10px 12px;
+        outline: 0;
+        height: 38px;
+        line-height: 1;
+        position: relative;
+        cursor: pointer;
+        box-shadow: none;
+        background-image: linear-gradient(
+            180deg,
+            rgba(255, 255, 255, 0.06),
+            rgba(255, 255, 255, 0) 40%
+          ),
+          url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23cfe0ff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+        background-repeat: no-repeat, no-repeat;
+        background-position: 0 0, calc(100% - 12px) 50%;
+        background-size: auto, 14px;
+      }
+
+      .move-select {
+        height: 32px;
+        padding: 6px 34px 6px 8px;
+        border-radius: 8px;
+        margin-left: auto;
+      }
+
+      @media (max-width: 520px) {
+        .controls {
+          display: grid;
+          grid-template-columns: 32px max-content 32px;
+          align-items: center;
+          gap: 6px;
+        }
+        .control-btn {
+          height: 28px;
+          padding: 0;
+        }
+        .progress-readout {
+          padding: 4px 8px;
+          font-size: 12px;
+          min-width: max-content;
+          justify-self: center;
+        }
+        .move-select {
+          grid-column: 1 / -1;
+          width: 100%;
+          margin-left: 0;
+        }
+      }
+
+      .muted {
+        color: #9aa3b2;
+      }
+      .muted-small {
+        color: #9aa3b2;
+        font-size: 13px;
+      }
+
+      .card.row {
+        flex-direction: row;
+        align-items: stretch;
+        gap: 0;
+        flex-wrap: nowrap !important;
+        position: relative;
+      }
+      .card.row .cover {
+        width: 80px;
+        flex: 0 0 80px;
+        aspect-ratio: 1/1.4;
+      }
+      .card.row .badge-bottom {
+        display: none;
+      }
+      .card.row .card-body {
+        padding: 8px 10px;
+        gap: 6px;
+      }
+      .card.row .chips {
+        margin: 2px 0 2px;
+      }
+      .card.row .title {
+        height: 2.4em;
+      }
+      .card.row .controls {
+        margin-top: 2px;
+      }
+      .card.row .floating-actions {
+        top: 6px;
+        right: 6px;
+      }
+
+      /* Modal basics */
+      .modal {
+        position: fixed;
+        inset: 0;
+        background: rgba(5, 7, 12, 0.72);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 16px;
+        z-index: var(--z-modal);
+        transition: opacity var(--ui-duration) ease;
+      }
+      .modal.open {
+        display: flex;
+      }
+
+      /* Modal priority stacking */
+      #chat-modal {
+        z-index: var(--z-chat);
+      }
+      #auth-modal {
+        z-index: var(--z-auth);
+      }
+      #confirm-modal {
+        z-index: var(--z-confirm); /* FIX: confirm above import + other modals */
+      }
+      #offline-modal {
+        z-index: var(--z-offline);
+      }
+
+      .sheet {
+        background: #10162a;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 14px;
+        width: min(820px, 98%);
+        padding: 18px;
+        transform: translateY(8px) scale(0.995);
+        opacity: 0;
+        transition: transform 0.28s cubic-bezier(0.2, 0.9, 0.3, 1), opacity 0.2s ease;
+      }
+      .modal.open .sheet {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+      }
+
+      .sheet h3 {
+        margin: 0 0 8px;
+        font-family: var(--title-font);
+      }
+
+      .form {
+        display: grid;
+        gap: 10px;
+      }
+
+      .row {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+
+      .input-wrapper {
+        position: relative;
+        flex: 1;
+        min-width: 0;
+      }
+
+      .file,
+      .input,
+      .select {
+        background-color: #0f1424; /* IMPORTANT: don't wipe select background-image */
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 12px;
+        color: #e8ecfa;
+        padding: 12px 12px;
+        outline: 0;
+        width: 100%;
+      }
+
+      .input:focus,
+      .select:focus {
+        box-shadow: var(--focus-ring);
+        border-color: rgba(124, 58, 237, 0.7);
+      }
+
+      /* Labels: fixed spacing ABOVE fields (no overlap / no floating) */
+      .float-group {
+        display: grid;
+        gap: 6px;
+        align-items: start;
+        flex: 1 1 auto;
+        min-width: 0;
+      }
+
+      .float-group label {
+        position: static;
+        transform: none;
+        pointer-events: auto; /* clickable labels */
+        color: #cbd5f7;
+        font-size: 13px;
+        line-height: 1.2;
+        font-family: var(--title-font);
+        letter-spacing: 0.3px;
+        margin: 0;
+      }
+
+      .float-group:focus-within label {
+        color: #e9ecf3;
+      }
+
+      .float-group .field {
+        position: relative;
+        min-width: 0;
+      }
+
+      /* Default inputs in float-groups: room for clear button */
+      .float-group .input {
+        padding: 12px 40px 12px 12px;
+      }
+
+      /* Keep select arrow room */
+      .float-group .select.input {
+        padding-right: 44px;
+      }
+
+      /* Stepper inputs for Season/Episode */
+      .float-group.stepper .input {
+        text-align: center;
+        padding-left: 44px;
+        padding-right: 44px;
+      }
+
+      .stepper-btn {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 32px;
+        height: 32px;
+        border-radius: 10px;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        background: rgba(255, 255, 255, 0.06);
+        color: #e8ecfa;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 2;
+      }
+      .stepper-btn.dec {
+        left: 8px;
+      }
+      .stepper-btn.inc {
+        right: 8px;
+      }
+      .stepper-btn:disabled {
+        opacity: 0.35;
+        cursor: not-allowed;
+      }
+
+      /* Hide native number spinners */
+      input[type="number"]::-webkit-outer-spin-button,
+      input[type="number"]::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+      }
+      input[type="number"] {
+        -moz-appearance: textfield;
+      }
+
+      .clear-btn {
+        position: absolute;
+        right: 8px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: rgba(255, 255, 255, 0.06);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        color: #cfd6ea;
+        cursor: pointer;
+        font-size: 12px;
+        width: 24px;
+        height: 24px;
+        border-radius: 6px;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 3;
+      }
+      .clear-btn.visible {
+        display: inline-flex;
+      }
+      .clear-btn:focus-visible {
+        box-shadow: var(--focus-ring);
+      }
+
+      .hint {
+        color: #9aa3b2;
+        font-size: 12px;
+      }
+
+      .danger-text {
+        color: var(--danger);
+      }
+
+      .small {
+        font-size: 12px;
+      }
+
+      /* Small divider inside modals (FIX: colored like section separators) */
+      .modal-divider {
+        border: 0;
+        height: 2px;
+        border-radius: 999px;
+        margin: 12px 0;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(124, 58, 237, 0.75) 20%,
+          rgba(34, 211, 238, 0.75) 80%,
+          transparent
+        );
+        filter: drop-shadow(0 2px 10px rgba(124, 58, 237, 0.22));
+        opacity: 0.95;
+      }
+
+      /* Link-style actions (forgot password / resend email) */
+      .text-link {
+        color: #8ab4ff;
+        font-size: 13px;
+        cursor: pointer;
+        text-decoration: none;
+        user-select: none;
+      }
+      .text-link:hover {
+        text-decoration: underline;
+      }
+
+      /* Toasts (single, non-stacking via JS) */
+      #toasts {
+        position: fixed;
+        right: 18px;
+        bottom: 18px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        z-index: var(--z-toast); /* FIX: above scroll-to-top */
+      }
+      .toast {
+        min-width: 220px;
+        max-width: 420px;
+        padding: 12px 14px;
+        border-radius: 12px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+        color: #fff;
+        font-weight: 700;
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        transform: translateY(10px) scale(0.995);
+        opacity: 0;
+      }
+      .toast .msg {
+        font-weight: 700;
+        font-size: 14px;
+        white-space: normal;
+      }
+
+      .toast {
+        display: flex !important;
+        align-items: center !important;
+        gap: 10px !important;
+        white-space: normal !important;
+      }
+
+      .toast * {
+        white-space: normal !important;
+        min-width: 0 !important;
+        max-width: 100% !important;
+        flex-shrink: 1 !important;
+        overflow-wrap: break-word !important;
+        word-break: break-word !important;
+        display: block !important;
+      }
+
+      .toast.info {
+        background: #1b304a;
+      }
+      .toast.success {
+        background: linear-gradient(90deg, #16a34a, #22c55e);
+      }
+      .toast.error {
+        background: linear-gradient(90deg, var(--danger), #ef6b6b);
+      }
+      .toast.enter {
+        animation: toast-in 0.26s cubic-bezier(0.2, 0.9, 0.3, 1) forwards;
+      }
+      .toast.exit {
+        animation: toast-out 0.3s ease forwards;
+      }
+      @keyframes toast-in {
+        to {
+          transform: translateY(0) scale(1);
+          opacity: 1;
+        }
+      }
+      @keyframes toast-out {
+        to {
+          transform: translateY(8px) scale(0.98);
+          opacity: 0;
+        }
+      }
+
+      /* Cover progress toast (wide, centered bottom) */
+      #cover-progress {
+        position: fixed;
+        left: 50%;
+        transform: translateX(-50%);
+        bottom: 16px;
+        z-index: var(--z-cover-progress);
+        width: 320px;
+        max-width: 90vw;
+
+        padding: 12px 14px;
+        border-radius: 14px;
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        background: rgba(16, 22, 42, 0.92);
+        backdrop-filter: blur(8px);
+        box-shadow: 0 18px 44px rgba(0, 0, 0, 0.5);
+        display: none;
+      }
+      #cover-progress.visible {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      #cover-progress.success {
+        background: linear-gradient(90deg, #16a34a, #22c55e);
+      }
+      #cover-progress .cp-text {
+        text-align: center;
+        font-weight: 800;
+        color: #fff;
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+      }
+      #cover-progress .cp-text b {
+        font-variant-numeric: tabular-nums;
+      }
+      #cover-progress .cp-text i.spin {
+        animation: spin 0.9s linear infinite;
+      }
+
+      footer {
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
+        margin-top: auto;
+        background: #0f1117;
+      }
+      footer .foot-wrap {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 16px;
+        padding: 22px 0 26px;
+        flex-wrap: wrap;
+      }
+
+      .foot-left {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        min-width: 0;
+      }
+
+      .foot-brand {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        min-width: 0;
+      }
+
+      .foot-brand-top {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        min-width: 0;
+      }
+
+      .foot-brand-top i {
+        opacity: 0.7;
+        flex: 0 0 auto;
+      }
+
+      .foot-brand-name {
+        font-family: var(--title-font);
+        letter-spacing: 0.4px;
+        font-size: 15px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .foot-right {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 10px;
+      }
+
+      /* Social icons (FIX: GitHub white, bigger, grey on hover + add Discord/WhatsApp) */
+      .socials {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+
+      .social-link {
+        width: 25px;
+        height: 25px;
+/*         border-radius: 14px; */
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+/*         background: rgba(255, 255, 255, 0.06); */
+/*         border: 1px solid rgba(255, 255, 255, 0.12); */
+        transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+      }
+
+      .social-link i {
+        color: #ffffff; /* default fully white */
+        font-size:16px; /* bigger */
+        line-height: 1;
+      }
+
+      .social-link:hover {
+        transform: translateY(-2px);
+/*         background: rgba(255, 255, 255, 0.09); */
+/*         transform: scale(1.03); */
+        border-color: rgba(255, 255, 255, 0.18);
+      }
+
+      .social-link:hover i {
+        color: var(--accent-2);
+      }
+
+      .social-link:focus-visible {
+        outline: 0;
+        box-shadow: var(--focus-ring);
+      }
+
+      .center {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .hidden {
+        display: none !important;
+      }
+
+      /* Section divider — more visible */
+      .section-divider {
+        border: 0;
+        height: 3px;
+        border-radius: 999px;
+        margin: 24px 0;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(124, 58, 237, 0.7) 20%,
+          rgba(34, 211, 238, 0.7) 80%,
+          transparent
+        );
+        filter: drop-shadow(0 2px 10px rgba(124, 58, 237, 0.25));
+      }
+
+      /* global loading spinner (for blocking global ops) */
+      #loading-spinner {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: var(--z-loading);
+        display: none;
+        color: var(--brand);
+        font-size: 24px;
+        animation: spin 1s linear infinite;
+      }
+      #loading-spinner.active {
+        display: block;
+      }
+
+      /* Scroll to top — below toasts + below modals */
+      #scroll-to-top i {
+        font-size: 20px;
+      }
+      #scroll-to-top {
+        position: fixed;
+        width: 50px;
+        height: 50px;
+        background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+        color: #061220;
+        bottom: 30px;
+        right: 30px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        font-size: 22px;
+        z-index: var(--z-scrolltop); /* FIX: toasts above it, modals above both */
+        border: 1px solid var(--stroke);
+        -webkit-tap-highlight-color: transparent;
+        transition: all 0.2s ease;
+        transform: translateY(8px) scale(0.95);
+        opacity: 0;
+        pointer-events: none;
+      }
+      #scroll-to-top.visible {
+        pointer-events: auto;
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+      #scroll-to-top.visible:hover {
+        transform: translateY(-3px) scale(1.03);
+        box-shadow: 0 3px 12px rgba(34, 211, 238, 0.45), 0 0 14px rgba(167, 139, 250, 0.35);
+      }
+      #scroll-to-top.visible:active {
+        transform: translateY(1px) scale(0.93);
+      }
+
+      @media (max-width: 600px) {
+        #scroll-to-top {
+          height: 40px;
+          width: 40px;
+          font-size: 18px;
+          right: calc(50vw - 20px);
+          bottom: 18px;
+        }
+      }
+
+      @media (max-width: var(--bp-mobile)) {
+        .hero h1 {
+          font-size: 22px;
+        }
+        .toolbar-top {
+          gap: 8px;
+        }
+        .card.row .cover {
+          width: 68px;
+          flex: 0 0 68px;
+        }
+        footer .foot-wrap {
+          flex-direction: column;
+          text-align: center;
+        }
+        .foot-right {
+          justify-content: center;
+        }
+        .view-toggle .seg span {
+          display: none;
+        }
+        .view-toggle .seg {
+          padding: 8px;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        * {
+          transition: none !important;
+          animation: none !important;
+        }
+        html {
+          scroll-behavior: auto;
+        }
+      }
+
+      ::selection {
+        background: var(--accent-2);
+        color: #000;
+      }
+
+      /* Skeleton loading */
+      .skeleton-card {
+        background: #12182a;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: var(--radius);
+        overflow: hidden;
+        box-shadow: 0 8px 20px rgba(1, 5, 18, 0.5);
+        display: flex;
+        flex-direction: column;
+        animation: pulse 1.5s infinite ease-in-out;
+      }
+
+      .skeleton-cover {
+        width: 100%;
+        height: 0;
+        padding-bottom: 140%;
+        background: linear-gradient(90deg, #0e1323 25%, #12182a 50%, #0e1323 75%);
+        background-size: 200% 100%;
+        animation: shimmer 1.5s infinite;
+      }
+
+      .skeleton-body {
+        padding: 8px;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+
+      .skeleton-title {
+        height: 1.2em;
+        width: 80%;
+        background: #1a2240;
+        border-radius: 4px;
+      }
+
+      .skeleton-chip {
+        height: 1em;
+        width: 60%;
+        background: #1a2240;
+        border-radius: 4px;
+      }
+
+      .skeleton-controls {
+        display: flex;
+        gap: 6px;
+      }
+
+      .skeleton-btn {
+        height: 32px;
+        width: 36px;
+        background: #1a2240;
+        border-radius: 8px;
+      }
+
+      @keyframes pulse {
+        0% {
+          opacity: 0.85;
+        }
+        50% {
+          opacity: 0.6;
+        }
+        100% {
+          opacity: 0.85;
+        }
+      }
+
+      @keyframes shimmer {
+        0% {
+          background-position: -200% 0;
+        }
+        100% {
+          background-position: 200% 0;
+        }
+      }
+
+      /* Tabbed modal */
+      .tab-group {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 12px;
+      }
+
+      .tab-btn {
+        flex: 1;
+        padding: 8px;
+        border-radius: 8px;
+        background: #12182a;
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        color: #c6cde0;
+        cursor: pointer;
+      }
+      .tab-btn.active {
+        background: linear-gradient(90deg, rgba(124, 58, 237, 0.25), rgba(34, 211, 238, 0.2));
+        color: #fff;
+      }
+
+      /* Account panel */
+      .account-panel {
+        padding: 0;
+        overflow: hidden;
+      }
+
+      .account-header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 14px;
+        background: linear-gradient(135deg, rgba(124, 58, 237, 0.22), rgba(34, 211, 238, 0.15));
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      }
+
+      .account-avatar {
+        width: 44px;
+        height: 44px;
+        border-radius: 10px;
+        background: #1a2240;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 900;
+        font-family: var(--title-font);
+        letter-spacing: 0.5px;
+        color: #e9ecf3;
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        background-size: cover;
+        background-position: center;
+        overflow: hidden;
+      }
+
+      .account-id .name {
+        font-family: var(--title-font);
+        font-size: 15px;
+        letter-spacing: 0.3px;
+        color: #e9ecf3;
+      }
+
+      .account-id .email {
+        font-size: 12px;
+        color: #cbd3ea;
+        opacity: 0.9;
+      }
+
+      .account-stats {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+        padding: 12px;
+      }
+
+      .stat-card {
+        background: #12182a;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 12px;
+        padding: 10px 12px;
+      }
+
+      .stat-label {
+        font-size: 12px;
+        color: #aab3cf;
+        display: flex;
+        gap: 8px;
+        align-items: center;
+      }
+
+      .stat-value {
+        font-size: 20px;
+        font-weight: 800;
+        color: #e9f0ff;
+        margin-top: 2px;
+      }
+
+      .stat-card.total .stat-value {
+        color: var(--accent-2);
+      }
+      .stat-card.watch .stat-value {
+        color: var(--accent-1);
+      }
+      .stat-card.online .stat-value {
+        color: #86efac;
+      }
+
+      .account-actions {
+        padding: 12px;
+        border-top: 1px solid rgba(255, 255, 255, 0.06);
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .account-pref {
+        padding: 12px;
+        border-top: 1px solid rgba(255, 255, 255, 0.06);
+        display: grid;
+        gap: 12px;
+      }
+
+      /* Preferences: label then select on next line */
+      .pref-row {
+        display: grid;
+        gap: 6px;
+        align-items: start;
+      }
+
+      .pref-row label {
+        font-size: 13px;
+        color: #cbd5f7;
+        font-family: var(--title-font);
+        letter-spacing: 0.3px;
+      }
+
+      .pref-row .select {
+        width: 100%;
+        max-width: 340px;
+      }
+
+      /* Preloader (app-level) */
+      .preloader {
+        position: fixed;
+        inset: 0;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        background: radial-gradient(1200px 600px at 50% 30%, rgba(124, 58, 237, 0.1), transparent 70%),
+          rgba(7, 8, 12, 0.92);
+        z-index: var(--z-preloader);
+      }
+      .preloader.active {
+        display: flex;
+      }
+
+      .preloader-inner {
+        display: grid;
+        gap: 14px;
+        place-items: center;
+        text-align: center;
+        padding: 20px;
+      }
+
+      .preloader-logo {
+        font-family: var(--title-font);
+        font-weight: 900;
+        letter-spacing: 1px;
+        font-size: 20px;
+        color: #e9ecf3;
+      }
+
+      .preloader-spinner {
+        width: 38px;
+        height: 38px;
+        border-radius: 50%;
+        border: 3px solid rgba(255, 255, 255, 0.2);
+        border-top-color: #a78bfa;
+        animation: spin 0.9s linear infinite;
+        filter: drop-shadow(0 4px 12px rgba(167, 139, 250, 0.35));
+      }
+
+      .preloader-msg {
+        color: #cbd5f7;
+        font-size: 13px;
+      }
+
+      /* No results block (UX tweak: text left, +New right) */
+      .no-results {
+        border: 1px dashed rgba(255, 255, 255, 0.25);
+        border-radius: 12px;
+        padding: 16px;
+        text-align: left;
+        color: #cbd5f7;
+        margin: 10px 0;
+/*         background: linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.01)); */
+        background: linear-gradient(180deg, #0f1424, #171f38);
+      }
+
+      .no-results-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+
+      .no-results-text {
+        font-family: var(--title-font);
+        font-size: 18px;
+        font-weight: bold;
+        letter-spacing: 0.35px;
+        color: #e9ecf3;
+      }
+
+      @media (max-width: 520px) {
+        .no-results-row {
+          flex-direction: column;
+          align-items: stretch;
+        }
+        .no-results-row .btn {
+          width: 100%;
+          justify-content: center;
+        }
+      }
+
+      /* Import upload zone */
+      .upload-zone {
+        border: 1px dashed rgba(255, 255, 255, 0.18);
+        border-radius: 12px;
+        padding: 14px;
+        background: rgba(255, 255, 255, 0.02);
+        display: grid;
+        gap: 10px;
+      }
+
+      /* Chat modal */
+      .chat-sheet {
+        width: min(820px, 98%);
+        display: grid;
+        grid-template-rows: auto 1fr auto auto;
+        max-height: 86dvh;
+        font-family: var(--chat-font); /* chat-only font */
+      }
+
+      .chat-header {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        justify-content: space-between;
+        margin-bottom: 10px;
+      }
+
+      .chat-title {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-family: var(--title-font);
+        letter-spacing: 0.4px;
+      }
+
+      .chat-presence {
+        margin-left: auto;
+        margin-right: 8px;
+      }
+
+      .chat-body {
+        position: relative;
+        overflow: auto;
+        background: #0f1424;
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 12px;
+        padding: 10px;
+        min-height: 360px; /* stable */
+      }
+
+      .chat-loading {
+        position: absolute;
+        inset: 0;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        background: rgba(0, 0, 0, 0.25);
+        z-index: 2;
+      }
+      .chat-loading.visible {
+        display: flex;
+      }
+
+      .chat-composer {
+        display: grid;
+        grid-template-columns: 34px 1fr auto;
+        gap: 8px;
+        align-items: stretch; /* makes send match input height */
+        margin-top: 10px;
+      }
+
+      .chat-avatar {
+        width: 34px;
+        height: 34px;
+        border-radius: 8px;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        background: #101525;
+        object-fit: cover;
+        align-self: end;
+      }
+
+      .chat-input {
+        resize: none;
+        min-height: 38px;
+        max-height: 140px;
+        font-family: var(--chat-font);
+      }
+
+      /* Send button: match textarea height */
+      #chat-send {
+        width: 50px;
+        height: 42px;
+        justify-content: center;
+      }
+      #chat-send:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+
+      .msg {
+        display: grid;
+        grid-template-columns: 32px 1fr;
+        gap: 8px;
+        margin: 6px 0;
+        align-items: start;
+      }
+      .msg.mine {
+        grid-template-columns: 1fr 32px;
+      }
+
+      .msg .avatar {
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        background: #101525;
+        object-fit: cover;
+      }
+      .msg.mine .avatar {
+        grid-column: 2;
+      }
+
+      /* Bubble shrink-to-fit instead of stretching full width */
+      .bubble {
+        background: #12182a;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 10px;
+        padding: 8px 10px;
+        display: inline-block;
+        width: fit-content;
+        max-width: 90%;
+        justify-self: start;
+      }
+
+      .msg.mine .bubble {
+        background: linear-gradient(90deg, rgba(124, 58, 237, 0.18), rgba(34, 211, 238, 0.12));
+        border-color: rgba(255, 255, 255, 0.1);
+        justify-self: end;
+      }
+
+      .msg.susie .bubble {
+        background: linear-gradient(90deg, rgba(159, 18, 57, 0.32), rgba(159, 18, 57, 0.12));
+        border-color: rgba(159, 18, 57, 0.6);
+      }
+
+      .msg.susie .avatar {
+        border-color: rgba(159, 18, 57, 0.6);
+      }
+
+      .meta {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        color: #aab3cf;
+        font-size: 12px;
+        margin-bottom: 4px;
+      }
+
+      .meta .user {
+        font-weight: 800;
+      }
+
+      .meta .time {
+        color: #98a2c0;
+        font-variant-numeric: tabular-nums;
+      }
+
+      .content {
+        white-space: pre-wrap;
+        word-break: break-word;
+        color: #e8ecfa;
+      }
+
+      .content a {
+        color: #8ab4ff;
+        text-decoration: underline;
+      }
+
+      .chat-bottom-fab {
+        position: absolute;
+        right: 12px;
+        bottom: 12px;
+        z-index: 3;
+        display: none;
+        background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+        color: #061220;
+        border: none;
+        border-radius: 999px;
+        padding: 8px 10px;
+        box-shadow: var(--shadow);
+        cursor: pointer;
+      }
+      .chat-bottom-fab.visible {
+        display: inline-flex;
+      }
+
+      .chat-typing {
+        position: absolute;
+        left: 10px;
+        bottom: 10px;
+        background: rgba(255, 255, 255, 0.06);
+        color: #cbd5f7;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 999px;
+        padding: 4px 8px;
+        font-size: 12px;
+        pointer-events: none;
+        z-index: 3;
+        display: none;
+      }
+      .chat-typing.visible {
+        display: inline-flex;
+      }
+
+      @media (max-width: 520px) {
+        .chat-body {
+          padding: 8px;
+        }
+        .chat-composer {
+          grid-template-columns: 28px 1fr auto;
+        }
+        .chat-avatar {
+          width: 28px;
+          height: 28px;
+        }
+        .msg {
+          grid-template-columns: 28px 1fr;
+          gap: 6px;
+        }
+        .msg.mine {
+          grid-template-columns: 1fr 28px;
+        }
+        .msg .avatar {
+          width: 28px;
+          height: 28px;
+        }
+        #chat-send {
+          width: 44px;
+        }
+      }
+
+      /* Offline modal: make it stand out more */
+      #offline-modal {
+        background: rgba(5, 7, 12, 0.86);
+        backdrop-filter: blur(2px);
+      }
+
+      #offline-modal .sheet {
+        position: relative;
+        overflow: hidden;
+        border-color: rgba(245, 158, 11, 0.55);
+        background-color: #10162a;
+        /*background-image: linear-gradient(
+          180deg,
+          rgba(245, 158, 11, 0.16) 0%,
+          rgba(245, 158, 11, 0.1) 35%,
+          rgba(245, 158, 11, 0.04) 70%,
+          rgba(245, 158, 11, 0.02) 100%
+        );*/
+        background-image: linear-gradient(
+          180deg,
+          rgba(255, 165, 0, 0.30) 0%,
+          rgba(255, 149, 0, 0.20) 35%,
+          rgba(255, 140, 0, 0.15) 70%,
+          rgba(255, 130, 0, 0.20) 100%
+        );
+        box-shadow: 0 24px 80px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(245, 158, 11, 0.18);
+      }
+
+      #offline-modal .sheet::before {
+        content: "";
+        position: absolute;
+        inset: -2px;
+        background: radial-gradient(700px 260px at 30% 0%, rgba(245, 158, 11, 0.28), transparent 60%);
+        backdrop-filter: blur(6px);
+        z-index: -1;
+        pointer-events: none;
+      }
+
+      #offline-modal h3 i {
+        color: var(--warn);
+      }
+    </style>
+  </head>
+
+  <body>
+    <!-- App preloader -->
+    <div id="app-preloader" class="preloader" aria-hidden="true">
+      <div class="preloader-inner">
+        <div class="preloader-spinner" aria-hidden="true"></div>
+        <div class="preloader-logo">AniMehList</div>
+        <div id="preloader-msg" class="preloader-msg">Warming up the ramen…</div>
+      </div>
+    </div>
+
+    <header class="header">
+      <div class="container nav">
+        <div class="logo">
+          <img src="assets/wide_logo.png" alt="AniMehList" class="logo-img" />
+        </div>
+
+        <div class="nav-cta" id="auth-cta"></div>
+
+        <button
+          class="btn icon hamburger"
+          id="btn-menu"
+          aria-haspopup="true"
+          aria-expanded="false"
+          aria-controls="mobile-menu"
+          title="Menu"
+        >
+          <i class="fa-solid fa-bars"></i>
+        </button>
+      </div>
+
+      <!-- Mobile menu -->
+      <div class="menu-panel" id="mobile-menu" role="menu" aria-label="Navigation menu">
+        <div class="menu-sec">
+          <div class="menu-title">Quick actions</div>
+          <div class="menu-row">
+            <button class="btn brand" id="m-add"><i class="fa-solid fa-plus"></i>Add item</button>
+          </div>
+        </div>
+
+        <div class="menu-sec">
+          <div class="menu-title">Community</div>
+          <div class="menu-row">
+            <div class="menu-item">
+              <div class="menu-kv">
+                <i class="fa-solid fa-comments"></i>Global Chat
+                <span class="menu-note" id="m-chat-online">(0 online)</span>
+              </div>
+              <button class="btn ghost sm" id="m-open-chat">Open</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="menu-sec">
+          <div class="menu-title">View</div>
+          <div class="menu-row" role="group" aria-label="View toggle">
+            <div class="menu-item">
+              <div class="menu-kv"><i class="fa-solid fa-grip"></i>Grid</div>
+              <button class="btn ghost sm" id="m-view-grid">Use</button>
+            </div>
+            <div class="menu-item">
+              <div class="menu-kv"><i class="fa-solid fa-list"></i>Shelf</div>
+              <button class="btn ghost sm" id="m-view-compact">Use</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="menu-sec">
+          <div class="menu-title">Account</div>
+          <div class="menu-row">
+            <div class="menu-item" id="m-auth-row">
+              <div class="menu-kv">
+                <i class="fa-solid fa-user"></i><span id="m-user-email">Signed out</span>
+              </div>
+              <button class="btn ghost sm" id="m-login">
+                <i class="fa-solid fa-right-to-bracket"></i>Sign in
+              </button>
+              <button class="btn ghost sm hidden" id="m-logout">
+                <i class="fa-solid fa-right-from-bracket"></i>Sign out
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="menu-sec">
+          <div class="menu-title">Data</div>
+          <div class="menu-row">
+            <button class="btn ghost sm" id="m-import"><i class="fa-solid fa-file-import"></i>Import</button>
+            <button class="btn ghost sm" id="m-export"><i class="fa-solid fa-file-export"></i>Export JSON</button>
+            <div class="menu-note">Import via MAL XML, AniList JSON or our JSON.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Account panel -->
+      <div class="account-panel" id="account-panel" aria-label="Account panel">
+        <div class="account-header">
+          <div class="account-avatar" id="account-avatar">U</div>
+          <div class="account-id">
+            <div class="name" id="account-username"></div>
+            <div class="email" id="account-email"></div>
+          </div>
+        </div>
+
+        <div class="account-stats">
+          <div class="stat-card total">
+            <div class="stat-label"><i class="fa-solid fa-layer-group"></i> Total Items</div>
+            <div class="stat-value" id="account-total">0</div>
+          </div>
+          <div class="stat-card watch">
+            <div class="stat-label"><i class="fa-solid fa-eye"></i> Watching</div>
+            <div class="stat-value" id="account-watching">0</div>
+          </div>
+          <div class="stat-card online">
+            <div class="stat-label"><i class="fa-solid fa-signal"></i> Online now</div>
+            <div class="stat-value" id="account-online">0</div>
+          </div>
+        </div>
+
+        <!-- Preferences -->
+        <div class="account-pref">
+          <div class="pref-row">
+            <label for="pref-cover">Default cover source</label>
+            <select id="pref-cover" class="select">
+              <option value="ANILIST">AniList (Default — Recommended, high quality)</option>
+              <option value="JIKAN">Jikan (MAL) (Larger DB — lower quality / sometimes inaccurate)</option>
+              <option value="KITSU">Kitsu (High quality — often inaccurate)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="account-actions">
+          <button class="btn ghost sm" id="account-export"><i class="fa-solid fa-file-export"></i>Export JSON</button>
+          <button class="btn danger sm" id="account-clear-list"><i class="fa-solid fa-bomb"></i>Clear list</button>
+          <button class="btn ghost sm" id="account-logout"><i class="fa-solid fa-right-from-bracket"></i>Sign out</button>
+        </div>
+      </div>
+    </header>
+
+    <section class="banner" aria-label="Featured">
+      <div class="banner-image" id="banner-image" aria-hidden="true"></div>
+      <div class="banner-inner">
+        <div class="hero container">
+          <div class="hero-box">
+            <h1 id="hero-title">AniMehList — Anime Watchlist For The Bros</h1>
+            <div class="sub">Fast. Private. Built for bros who binge and forget where they left off.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <main class="container" id="main">
+      <div class="toolbar">
+        <div class="toolbar-top">
+          <div class="search-container">
+            <input
+              class="search"
+              id="search"
+              placeholder="Search title…"
+              aria-label="Search titles (press / to focus)"
+            />
+            <button class="search-clear" id="search-clear" aria-label="Clear search">
+              <i class="fa-solid fa-xmark"></i>
+            </button>
+          </div>
+
+          <div class="actions-row">
+            <button class="btn brand" id="btn-add"><i class="fa-solid fa-plus"></i>New</button>
+          </div>
+        </div>
+
+        <div class="toolbar-tabs" id="tabs"></div>
+
+        <div class="toolbar-top">
+          <div id="sort-toggle" class="sort-toggle" role="group" aria-label="Sort by">
+            <button class="seg" data-sort="recent" title="Newest"><i class="fa-solid fa-clock"></i></button>
+            <button class="seg" data-sort="az" title="A–Z"><i class="fa-solid fa-arrow-down-a-z"></i></button>
+            <button class="seg" data-sort="za" title="Z–A"><i class="fa-solid fa-arrow-down-z-a"></i></button>
+          </div>
+
+          <div class="view-toggle" role="group" aria-label="View mode">
+            <button class="seg" id="view-btn-grid" aria-pressed="true" title="Grid">
+              <i class="fa-solid fa-grip"></i>
+            </button>
+            <button class="seg" id="view-btn-compact" aria-pressed="false" title="Shelf">
+              <i class="fa-solid fa-list"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+<!--       <div id="empty" class="muted-small" style="display: none; margin: 16px 0">Sign in to start your shelf.</div> -->
+<div
+  id="empty"
+  style="
+    display: none;
+    margin: 35px 16px 20px 16px;
+    padding: 12px 16px;
+    font-size: 0.85rem;
+    color: #bbb;
+    text-align: center;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px dashed rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+  "
+>
+  Sign in to start your shelf.
+</div>
+
+
+      <br>
+      <div id="no-results" class="no-results hidden">
+      <div class="no-results-row">
+
+          <div class="no-results-text">
+            No anime found!
+            <span style="opacity: 0.5">( •_•)</span>
+
+            <p style="font-weight: normal; font-family: Lexend; margin: 0; font-size: 12px !important; opacity: 0.5">Try a different search or add a new entry.</p>
+
+          </div>
+
+          <button class="btn brand sm" id="no-results-new" type="button">
+
+
+            <i class="fa-solid fa-plus"></i>New
+          </button>
+        </div>
+      </div>
+
+      <div id="sections"></div>
+      <div class="grid" id="grid"></div>
+
+      <div
+        class="foot"
+        style="
+          margin: 22px 0 30px;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 10px;
+          flex-wrap: wrap;
+        "
+      >
+        <div class="muted small">
+          Pro tip: press / to search. Click -/+ to adjust EP (Shift = ±5). Use the gear to edit, trash to delete.
+        </div>
+
+        <div class="right" style="display: flex; gap: 8px; flex-wrap: wrap">
+          <button class="btn ghost small" id="btn-import"><i class="fa-solid fa-file-import"></i>Import</button>
+          <button class="btn ghost small" id="btn-export"><i class="fa-solid fa-file-export"></i>Export JSON</button>
+          <button class="btn ghost small" id="btn-refresh-covers"><i class="fa-solid fa-sync"></i>Refresh covers</button>
+        </div>
+      </div>
+    </main>
+
+    <!-- Add/Edit Modal -->
+    <div class="modal" id="modal" role="dialog" aria-modal="true" aria-hidden="true">
+      <div class="sheet" role="document">
+        <h3 id="modal-title"><i class="fa-solid fa-pen-to-square"></i>Add item</h3>
+
+        <div class="form">
+          <div class="row">
+            <div class="float-group input-wrapper">
+              <label for="f-title">Title</label>
+              <div class="field">
+                <input id="f-title" class="input" aria-label="Title" />
+                <button class="clear-btn" id="clear-title" aria-label="Clear title">
+                  <i class="fa-solid fa-xmark"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="float-group input-wrapper">
+              <label for="f-kind">Series/Movie</label>
+              <div class="field">
+                <select id="f-kind" class="select input" aria-label="Kind">
+                  <option value="SERIES" selected>Series</option>
+                  <option value="MOVIE">Movie</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="float-group input-wrapper">
+              <label for="f-status">Category</label>
+              <div class="field">
+                <select id="f-status" class="select input" aria-label="Status">
+                  <option value="WATCHING">WATCHING</option>
+                  <option value="PLAN" selected>PLAN</option>
+                  <option value="REWATCH">REWATCH</option>
+                  <option value="WAITING">WAITING</option>
+                  <option value="COMPLETED">COMPLETED</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="float-group input-wrapper stepper">
+              <label for="f-season">Season #</label>
+              <div class="field">
+                <button class="stepper-btn dec" id="season-dec" type="button" aria-label="Decrease season">
+                  <i class="fa-solid fa-minus"></i>
+                </button>
+                <input
+                  type="number"
+                  id="f-season"
+                  class="input"
+                  inputmode="numeric"
+                  aria-label="Season number"
+                  min="0"
+                />
+                <button class="stepper-btn inc" id="season-inc" type="button" aria-label="Increase season">
+                  <i class="fa-solid fa-plus"></i>
+                </button>
+              </div>
+            </div>
+
+            <div class="float-group input-wrapper stepper">
+              <label for="f-episode">Episode #</label>
+              <div class="field">
+                <button class="stepper-btn dec" id="episode-dec" type="button" aria-label="Decrease episode">
+                  <i class="fa-solid fa-minus"></i>
+                </button>
+                <input
+                  type="number"
+                  id="f-episode"
+                  class="input"
+                  inputmode="numeric"
+                  aria-label="Episode number"
+                  min="0"
+                />
+                <button class="stepper-btn inc" id="episode-inc" type="button" aria-label="Increase episode">
+                  <i class="fa-solid fa-plus"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Divider before cover section -->
+          <hr class="modal-divider" aria-hidden="true" />
+
+          <!-- Cover URL (full line) -->
+          <div class="row">
+            <div class="float-group input-wrapper">
+              <label for="f-image">Cover URL</label>
+              <div class="field">
+                <input id="f-image" class="input" aria-label="Image URL" />
+                <button class="clear-btn" id="clear-image" aria-label="Clear image URL">
+                  <i class="fa-solid fa-xmark"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Mobile: Auto cover + Source split -->
+          <div class="row" style="align-items: flex-end">
+            <button class="btn ghost" id="btn-autocover" title="Auto fetch cover by title" style="flex: 1">
+              <i class="fa-solid fa-wand-magic-sparkles"></i>Auto cover
+            </button>
+
+            <div class="float-group input-wrapper" style="flex: 1; min-width: 180px">
+              <label for="f-cover-source">Source</label>
+              <div class="field">
+                <select id="f-cover-source" class="select input" aria-label="Cover source override">
+                  <option value="" selected>Default</option>
+                  <option value="ANILIST">AniList</option>
+                  <option value="JIKAN">Jikan</option>
+                  <option value="KITSU">Kitsu</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Divider before notes -->
+          <hr class="modal-divider" aria-hidden="true" />
+
+          <div class="row">
+            <div class="float-group input-wrapper">
+              <label for="f-notes">Notes (optional)</label>
+              <div class="field">
+                <input id="f-notes" class="input" aria-label="Notes" />
+                <button class="clear-btn" id="clear-notes" aria-label="Clear notes">
+                  <i class="fa-solid fa-xmark"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div style="display: flex; gap: 8px; align-items: center">
+              <button class="btn brand" id="btn-save"><i class="fa-solid fa-floppy-disk"></i>Save</button>
+              <button class="btn ghost" id="btn-cancel"><i class="fa-solid fa-xmark"></i>Cancel</button>
+            </div>
+
+            <div style="margin-left: auto">
+              <button class="btn danger" id="btn-delete" style="display: none">
+                <i class="fa-solid fa-trash"></i>Delete
+              </button>
+            </div>
+          </div>
+
+          <div class="hint">
+            Covers are stored in your DB for sync. Background cover fetching respects per-anime source overrides.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Auth Modal -->
+    <div class="modal" id="auth-modal" role="dialog" aria-modal="true" aria-hidden="true">
+      <div class="sheet" role="document" style="max-width: 560px">
+        <h3 style="display: flex; align-items: center; gap: 10px">
+          <i class="fa-solid fa-right-to-bracket"></i>Account
+        </h3>
+
+        <div class="tab-group">
+          <button class="tab-btn active" id="tab-signin">Sign In</button>
+          <button class="tab-btn" id="tab-signup">Sign Up</button>
+        </div>
+
+        <div class="form" id="signin-form">
+          <div class="row">
+            <div class="float-group input-wrapper">
+              <label for="login-identifier">Username or email</label>
+              <div class="field">
+                <input id="login-identifier" class="input" aria-label="Username or email" />
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="float-group input-wrapper">
+              <label for="login-password">Password</label>
+              <div class="field">
+                <input id="login-password" class="input" type="password" aria-label="Password" />
+              </div>
+            </div>
+          </div>
+
+          <!-- Forgot password link (requested style/placement) -->
+          <div class="row" style="margin-top: -4px">
+            <a class="text-link" id="forgot-password" href="javascript:void(0)">Forgot password?</a>
+          </div>
+
+          <div class="row" style="justify-content: space-between; align-items: center">
+            <button class="btn brand" id="login-send"><i class="fa-solid fa-right-to-bracket"></i>Sign in</button>
+            <button class="btn ghost" id="auth-close"><i class="fa-solid fa-xmark"></i>Close</button>
+          </div>
+        </div>
+
+        <div class="form hidden" id="signup-form">
+          <div class="row">
+            <div class="float-group input-wrapper">
+              <label for="signup-username">Username</label>
+              <div class="field">
+                <input id="signup-username" class="input" aria-label="Username" />
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="float-group input-wrapper">
+              <label for="signup-email">Email</label>
+              <div class="field">
+                <input id="signup-email" class="input" type="email" aria-label="Email" />
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="float-group input-wrapper">
+              <label for="signup-password">Password</label>
+              <div class="field">
+                <input id="signup-password" class="input" type="password" aria-label="Password" />
+              </div>
+            </div>
+          </div>
+
+          <div class="row" style="margin-top: -4px">
+            <a class="text-link" id="resend-confirmation" href="javascript:void(0)">Resend confirmation email</a>
+          </div>
+
+          <div class="row" style="justify-content: space-between; align-items: center">
+            <button class="btn brand" id="signup-send"><i class="fa-solid fa-user-plus"></i>Sign up</button>
+            <button class="btn ghost" id="auth-close-2"><i class="fa-solid fa-xmark"></i>Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Email Verified Modal (static: cannot exit unless reload) -->
+    <div
+      class="modal"
+      id="verify-modal"
+      role="dialog"
+      aria-modal="true"
+      aria-hidden="true"
+      data-static="true"
+    >
+      <div class="sheet center" style="max-width: 520px">
+        <div style="width: 100%">
+          <h3><i class="fa-solid fa-circle-check"></i> Email verified</h3>
+          <p class="muted-small">
+            Your email is verified. Return to your original tab and sign in with your username/email and password.
+          </p>
+          <div style="display: flex; gap: 8px; justify-content: flex-end; margin-top: 12px">
+            <button class="btn brand" id="verify-reload"><i class="fa-solid fa-rotate-right"></i>Reload</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Offline modal -->
+    <div class="modal" id="offline-modal" role="dialog" aria-modal="true" aria-hidden="true" data-static="true">
+      <div class="sheet" role="document" style="max-width: 520px">
+        <h3><i class="fa-solid fa-wifi"></i> You’re offline</h3>
+        <p class="muted-small">
+          Your connection dropped. AniMehList will sync again automatically when you’re back online.
+        </p>
+        <p class="hint">Tip: keep this tab open — no need to reload.</p>
+      </div>
+    </div>
+
+    <!-- Confirm Modal -->
+    <div class="modal" id="confirm-modal" role="dialog" aria-modal="true" aria-hidden="true">
+      <div class="sheet center" style="max-width: 520px">
+        <div style="width: 100%">
+          <h3 id="confirm-title"><i class="fa-solid fa-triangle-exclamation"></i>Confirm</h3>
+          <p id="confirm-msg" class="muted-small">Are you sure?</p>
+          <div style="display: flex; gap: 8px; justify-content: flex-end; margin-top: 12px">
+            <button class="btn ghost" id="confirm-cancel"><i class="fa-solid fa-xmark"></i>Cancel</button>
+            <button class="btn danger" id="confirm-ok"><i class="fa-solid fa-check"></i>Yes, do it</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Import Modal (requested redesign) -->
+    <div class="modal" id="import-modal" role="dialog" aria-modal="true" aria-hidden="true">
+      <div class="sheet" role="document" style="max-width: 640px">
+        <h3><i class="fa-solid fa-file-import"></i> Import your list</h3>
+
+        <div class="form">
+          <div class="row">
+            <div class="float-group input-wrapper">
+              <label for="import-format">Import type</label>
+              <div class="field">
+                <select id="import-format" class="select input" aria-label="Import type">
+                  <option value="MAL">MyAnimeList (MAL) — XML</option>
+                  <option value="ANILIST">AniList — JSON</option>
+                  <option value="APP" selected>AniMehList (AML) — JSON</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="upload-zone">
+            <input type="file" id="import-picker" class="hidden" accept=".xml,.json,application/json,text/xml" />
+
+            <button class="btn ghost" id="import-browse">
+              <i class="fa-solid fa-upload"></i> Choose file
+            </button>
+
+            <div class="muted-small" id="import-file-name">No file selected</div>
+          </div>
+
+          <div class="row" style="justify-content: flex-end">
+            <button class="btn brand" id="import-run"><i class="fa-solid fa-cloud-arrow-up"></i>Import</button>
+            <button class="btn ghost" id="import-cancel"><i class="fa-solid fa-xmark"></i>Cancel</button>
+          </div>
+
+          <div class="hint">We’ll map statuses/kinds and fetch missing covers in the background.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Chat Modal -->
+    <div class="modal" id="chat-modal" role="dialog" aria-modal="true" aria-hidden="true">
+      <div class="sheet chat-sheet" role="document">
+        <div class="chat-header">
+          <div class="chat-title"><i class="fa-solid fa-comments"></i> Global Chat</div>
+
+          <span class="tag chat-presence" id="chat-presence"
+            ><i class="fa-solid fa-circle" style="color: var(--ok); font-size: 8px"></i
+            ><span id="chat-presence-text">0 online</span></span
+          >
+
+          <button class="btn ghost sm" id="chat-close"><i class="fa-solid fa-xmark"></i>Close</button>
+        </div>
+
+        <div id="chat-messages" class="chat-body" role="log" aria-live="polite">
+          <div class="chat-loading" id="chat-loading">
+            <i class="fa-solid fa-spinner" style="font-size: 20px" class="spin"></i>
+          </div>
+
+          <button class="chat-bottom-fab" id="chat-bottom-fab" title="Jump to bottom">
+            <i class="fa-solid fa-arrow-down"></i>
+          </button>
+
+          <div class="chat-typing" id="chat-typing">Someone is typing…</div>
+        </div>
+
+        <div class="chat-composer">
+          <img id="chat-self-avatar" class="chat-avatar" alt="" />
+          <textarea id="chat-input" class="input chat-input" placeholder="Type a message…" rows="1"></textarea>
+          <button id="chat-send" class="btn brand" title="Send">
+            <i class="fa-solid fa-paper-plane"></i>
+          </button>
+        </div>
+
+        <div class="muted-small" style="margin-top: 10px">The server keeps the latest 3000 messages.</div>
+      </div>
+    </div>
+
+    <div id="toasts" aria-live="polite"></div>
+
+    <div id="cover-progress" role="status" aria-live="polite">
+      <div class="cp-text" id="cover-progress-text">
+        <i class="fa-solid fa-spinner spin"></i> Fetching covers… <b id="cover-progress-count">0 / 0</b>
+      </div>
+    </div>
+
+    <div id="loading-spinner" aria-label="Loading">
+      <i class="fa-solid fa-spinner"></i>
+    </div>
+
+    <button id="scroll-to-top" aria-label="Scroll to top">
+      <i class="fa-solid fa-angle-up"></i>
+    </button>
+
+    <footer>
+      <div class="container foot-wrap">
+        <div class="foot-left">
+          <div class="foot-brand">
+            <div class="foot-brand-top">
+              <i class="fa-solid fa-layer-group" aria-hidden="true"></i>
+              <div class="foot-brand-name">AniMehList</div>
+            </div>
+            <div class="muted-small">Made with ramen &amp; chaos. © AniMehList</div>
+          </div>
+        </div>
+
+        <div class="foot-right socials" aria-label="Social links">
+          <a
+            class="social-link"
+            href="https://github.com/TheAnonymousCrusher/AniMehList"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="AniMehList GitHub repository"
+            title="GitHub"
+          >
+            <i class="fa-brands fa-github"></i>
+          </a>
+
+          <!--<a
+            class="social-link"
+            href="https://discord.com/"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="AniMehList Discord (dummy link)"
+            title="Discord"
+          >
+            <i class="fa-brands fa-discord"></i>
+          </a>
+
+          <a
+            class="social-link"
+            href="https://wa.me/0000000000"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="AniMehList WhatsApp (dummy link)"
+            title="WhatsApp"
+          >
+            <i class="fa-brands fa-whatsapp"></i>
+          </a>-->
+        </div>
+      </div>
+    </footer>
+
+    <script type="module">
+      // Supabase (updated import + project)
+      const SUPABASE_URL = "https://dgmjnqrrdsbpuzqwaqra.supabase.co";
+      const SUPABASE_ANON_KEY =
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRnbWpucXJyZHNicHV6cXdhcXJhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjcxMjcwNTksImV4cCI6MjA4MjcwMzA1OX0.rQpapzxl8o0NUnIynqNQeoeQbS9js6zHMVmKnsj7VTc";
+
+      import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+      const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+      // ---------- State ----------
+      const STATUSES = ["WATCHING", "PLAN", "REWATCH", "WAITING", "COMPLETED"];
+      const TABS = [
+        { id: "ALL", label: "All" },
+        { id: "WATCHING", label: "Watching" },
+        { id: "PLAN", label: "Plan to watch" },
+        { id: "REWATCH", label: "Rewatch" },
+        { id: "WAITING", label: "Waiting" },
+        { id: "COMPLETED_SERIES", label: "Completed (Series)" },
+        { id: "COMPLETED_MOVIES", label: "Completed (Movies)" },
+      ];
+
+      const SUSIE_NAME = "Susie the Ghost";
+      const SUSIE_AVATAR = "assets/susie.png";
+
+      let session = null;
+      let user = null;
+      let profile = null; // { username, cover_source }
+      let data = [];
+
+      let activeTab = "ALL";
+      let q = "";
+      let viewMode = "grid"; // 'grid' | 'compact'
+      let sortMode = "recent"; // 'recent' | 'az' | 'za'
+
+      let presenceCount = 0;
+
+      let defaultCoverSource = "ANILIST"; // from profile
+
+      // Realtime channels
+      let changesChannel = null;
+      let presenceChannel = null;
+      let chatChannel = null;
+      let typingChannel = null;
+
+      // Edit modal
+      let editingId = null;
+
+      // Cover worker queue
+      const coverQueue = new Set();
+      const coverAttemptedThisRun = new Set();
+      let coverWorkerRunning = false;
+      let coverWorkerActive = 0;
+      let coverTotal = 0;
+      let coverDone = 0;
+
+      // Chat cooldown + typing
+      let chatCooldownUntil = 0;
+      let chatCooldownTimer = null;
+      let chatSending = false;
+
+      // typingUsers: user_id -> { username, until }
+      const typingUsers = new Map();
+      let typingUiDebounce = null;
+      let typingLastBroadcastAt = 0;
+      let typingBroadcastTimer = null;
+
+      // Scroll-to-top inactivity
+      let scrollTopInactivityTimer = null;
+
+      // ---------- Elements ----------
+      const sectionsEl = document.getElementById("sections");
+      const gridEl = document.getElementById("grid");
+      const tabsEl = document.getElementById("tabs");
+
+      const searchEl = document.getElementById("search");
+      const searchClear = document.getElementById("search-clear");
+
+      const btnAdd = document.getElementById("btn-add");
+      const authCta = document.getElementById("auth-cta");
+      const bannerImage = document.getElementById("banner-image");
+
+      const emptyEl = document.getElementById("empty");
+      const noResultsEl = document.getElementById("no-results");
+      const noResultsNewBtn = document.getElementById("no-results-new");
+
+      const loadingSpinner = document.getElementById("loading-spinner");
+      const btnRefreshCovers = document.getElementById("btn-refresh-covers");
+
+      const coverProgressEl = document.getElementById("cover-progress");
+      const coverProgressText = document.getElementById("cover-progress-text");
+
+      // View toggle + sort
+      const viewBtnGrid = document.getElementById("view-btn-grid");
+      const viewBtnCompact = document.getElementById("view-btn-compact");
+      const sortToggle = document.getElementById("sort-toggle");
+
+      // Mobile menu
+      const menuBtn = document.getElementById("btn-menu");
+      const mobileMenu = document.getElementById("mobile-menu");
+      const mAdd = document.getElementById("m-add");
+      const mViewGrid = document.getElementById("m-view-grid");
+      const mViewCompact = document.getElementById("m-view-compact");
+      const mLogin = document.getElementById("m-login");
+      const mLogout = document.getElementById("m-logout");
+      const mUserEmail = document.getElementById("m-user-email");
+      const mImport = document.getElementById("m-import");
+      const mExport = document.getElementById("m-export");
+      const mOpenChat = document.getElementById("m-open-chat");
+      const mChatOnline = document.getElementById("m-chat-online");
+
+      // Account panel
+      const accountPanel = document.getElementById("account-panel");
+      const accountUsername = document.getElementById("account-username");
+      const accountEmail = document.getElementById("account-email");
+      const accountTotal = document.getElementById("account-total");
+      const accountWatching = document.getElementById("account-watching");
+      const accountLogout = document.getElementById("account-logout");
+      const accountAvatar = document.getElementById("account-avatar");
+      const accountOnline = document.getElementById("account-online");
+      const accountExport = document.getElementById("account-export");
+      const accountClearList = document.getElementById("account-clear-list");
+
+      const prefCover = document.getElementById("pref-cover");
+
+      // Add/Edit modal
+      const modal = document.getElementById("modal");
+      const mTitle = document.getElementById("modal-title");
+      const fTitle = document.getElementById("f-title");
+      const fKind = document.getElementById("f-kind");
+      const fStatus = document.getElementById("f-status");
+      const fSeason = document.getElementById("f-season");
+      const fEpisode = document.getElementById("f-episode");
+      const fImage = document.getElementById("f-image");
+      const fNotes = document.getElementById("f-notes");
+      const fCoverSource = document.getElementById("f-cover-source");
+
+      const btnSave = document.getElementById("btn-save");
+      const btnCancel = document.getElementById("btn-cancel");
+      const btnDelete = document.getElementById("btn-delete");
+      const btnAutoCover = document.getElementById("btn-autocover");
+
+      const seasonDec = document.getElementById("season-dec");
+      const seasonInc = document.getElementById("season-inc");
+      const episodeDec = document.getElementById("episode-dec");
+      const episodeInc = document.getElementById("episode-inc");
+
+      // Auth modal
+      const authModal = document.getElementById("auth-modal");
+      const tabSignin = document.getElementById("tab-signin");
+      const tabSignup = document.getElementById("tab-signup");
+      const signinForm = document.getElementById("signin-form");
+      const signupForm = document.getElementById("signup-form");
+
+      const loginIdentifier = document.getElementById("login-identifier");
+      const loginPassword = document.getElementById("login-password");
+      const loginSend = document.getElementById("login-send");
+
+      const signupUsername = document.getElementById("signup-username");
+      const signupEmail = document.getElementById("signup-email");
+      const signupPassword = document.getElementById("signup-password");
+      const signupSend = document.getElementById("signup-send");
+
+      const authClose = document.getElementById("auth-close");
+      const authClose2 = document.getElementById("auth-close-2");
+      const forgotPasswordLink = document.getElementById("forgot-password");
+      const resendConfirmationLink = document.getElementById("resend-confirmation");
+
+      // Verify modal
+      const verifyModal = document.getElementById("verify-modal");
+      const verifyReload = document.getElementById("verify-reload");
+
+      // Offline modal
+      const offlineModal = document.getElementById("offline-modal");
+
+      // Confirm modal
+      const confirmModal = document.getElementById("confirm-modal");
+      const confirmTitle = document.getElementById("confirm-title");
+      const confirmMsg = document.getElementById("confirm-msg");
+      const confirmOk = document.getElementById("confirm-ok");
+      const confirmCancel = document.getElementById("confirm-cancel");
+
+      // Import modal
+      const importModal = document.getElementById("import-modal");
+      const importPicker = document.getElementById("import-picker");
+      const importFormat = document.getElementById("import-format");
+      const importBrowse = document.getElementById("import-browse");
+      const importFileName = document.getElementById("import-file-name");
+      const importRun = document.getElementById("import-run");
+      const importCancel = document.getElementById("import-cancel");
+
+      // Chat modal
+      const chatModal = document.getElementById("chat-modal");
+      const chatMessagesEl = document.getElementById("chat-messages");
+      const chatInput = document.getElementById("chat-input");
+      const chatSend = document.getElementById("chat-send");
+      const chatClose = document.getElementById("chat-close");
+      const chatPresenceText = document.getElementById("chat-presence-text");
+      const chatSelfAvatar = document.getElementById("chat-self-avatar");
+      const chatLoading = document.getElementById("chat-loading");
+      const chatTypingEl = document.getElementById("chat-typing");
+      const chatBottomFab = document.getElementById("chat-bottom-fab");
+
+      // Toast
+      const toasts = document.getElementById("toasts");
+      let activeToast = null;
+
+      // Clear buttons
+      const clearTitle = document.getElementById("clear-title");
+      const clearImage = document.getElementById("clear-image");
+      const clearNotes = document.getElementById("clear-notes");
+
+      // Scroll to top
+      const scrollToTop = document.getElementById("scroll-to-top");
+
+      // Preloader
+      const appPreloader = document.getElementById("app-preloader");
+      const preloaderMsg = document.getElementById("preloader-msg");
+
+      // ---------- Helpers ----------
+      const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+      function escapeHtml(s) {
+        return String(s).replace(
+          /[&<>"']/g,
+          (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])
+        );
+      }
+
+      function linkify(text) {
+        const safe = escapeHtml(text);
+        return safe.replace(
+          /(https?:\/\/[^\s<]+)/g,
+          (m) => `<a href="${m}" target="_blank" rel="noopener noreferrer">${m}</a>`
+        );
+      }
+
+      function showToast(type, msg, ms = 2000) {
+        // Non-stacking: replace current toast
+        if (activeToast) activeToast.remove();
+
+        const t = document.createElement("div");
+        t.className = "toast " + (type || "info");
+        const icon =
+          type === "success"
+            ? "fa-circle-check"
+            : type === "error"
+              ? "fa-triangle-exclamation"
+              : "fa-circle-info";
+
+        t.innerHTML = `<i class="fa-solid ${icon}"></i><div class="msg">${escapeHtml(msg)}</div>`;
+        toasts.appendChild(t);
+        activeToast = t;
+
+        requestAnimationFrame(() => t.classList.add("enter"));
+
+        const hideAfter = Math.max(1200, ms);
+        setTimeout(() => {
+          t.classList.remove("enter");
+          t.classList.add("exit");
+        }, hideAfter);
+
+        setTimeout(() => {
+          if (activeToast === t) activeToast = null;
+          t.remove();
+        }, hideAfter + 320);
+
+        return t;
+      }
+
+      function showLoading(show = true) {
+        loadingSpinner.classList.toggle("active", show);
+      }
+
+      function showPreloader(message = "") {
+        if (message) preloaderMsg.textContent = message;
+        appPreloader.classList.add("active");
+        appPreloader.setAttribute("aria-hidden", "false");
+      }
+
+      function updatePreloader(message = "") {
+        if (message) preloaderMsg.textContent = message;
+      }
+
+      function hidePreloader() {
+        appPreloader.classList.remove("active");
+        appPreloader.setAttribute("aria-hidden", "true");
+      }
+
+      function pad2(n) {
+        return String(n).padStart(2, "0");
+      }
+
+      function fmtTime(ts) {
+        const d = new Date(ts);
+        return `${pad2(d.getHours())}:${pad2(d.getMinutes())} ${pad2(d.getDate())}/${pad2(d.getMonth() + 1)}`;
+      }
+
+      function getUsername() {
+        const fromProfile = profile?.username ? String(profile.username) : "";
+        const fromMeta = user?.user_metadata?.username ? String(user.user_metadata.username) : "";
+        const fromEmail = user?.email ? String(user.email).split("@")[0] : "";
+        return (fromProfile || fromMeta || fromEmail || "bro").trim() || "bro";
+      }
+
+      function diceAvatar(seed) {
+        return `https://api.dicebear.com/7.x/bottts-neutral/svg?seed=${encodeURIComponent(seed || "bro")}`;
+      }
+
+      function userColor(name) {
+        const s = String(name || "bro");
+        let h = 0;
+        for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) % 360;
+        return `hsl(${h} 70% 65%)`;
+      }
+
+      function setRandomBanner() {
+        const n = Math.floor(Math.random() * 10) + 1;
+        bannerImage.style.backgroundImage = `url('assets/banner-${n}.png')`;
+        bannerImage.style.opacity = "1";
+      }
+
+      function initials(title) {
+        const parts = String(title).trim().toUpperCase().split(/\s+/).slice(0, 2);
+        return parts.map((p) => p[0]).join("");
+      }
+
+      function progressText(row) {
+        const ep = Number(row?.episode ?? 0) || 0;
+        const season = row?.season != null ? Number(row.season) : null;
+        if (season != null && season !== 0) return `S${season} EP ${ep}`;
+        return `EP ${ep}`;
+      }
+
+      function chipEl(text) {
+        const s = document.createElement("span");
+        s.className = "chip";
+        s.textContent = text;
+        return s;
+      }
+
+      // ---------- URL sync ----------
+      function readURL() {
+        const params = new URLSearchParams(window.location.search);
+        const t = params.get("tab");
+        const found = TABS.find((x) => x.id === t);
+        activeTab = found ? found.id : "ALL";
+
+        const qq = params.get("q") || "";
+        q = qq.trim().toLowerCase();
+        searchEl.value = qq;
+
+        const v = params.get("view");
+        viewMode = v === "compact" || v === "grid" ? v : "grid";
+
+        const s = params.get("sort");
+        sortMode = ["recent", "az", "za"].includes(s) ? s : "recent";
+
+        const chatFlag = params.get("chat") === "1";
+        return { chatFlag };
+      }
+
+      function updateURL() {
+        const params = new URLSearchParams(window.location.search);
+        params.set("tab", activeTab);
+        params.set("view", viewMode);
+        params.set("sort", sortMode);
+
+        if (q) params.set("q", q);
+        else params.delete("q");
+
+        if (chatModal.classList.contains("open")) params.set("chat", "1");
+        else params.delete("chat");
+
+        const qs = params.toString();
+        history.replaceState(null, "", `${location.pathname}${qs ? "?" + qs : ""}`);
+      }
+
+      // ---------- Modals + focus trap ----------
+      let lastFocused = null;
+
+      function isStaticModal(el) {
+        return el?.dataset?.static === "true";
+      }
+
+      function trapFocus(modalEl) {
+        lastFocused = document.activeElement;
+        const focusable = modalEl.querySelectorAll("button, a, input, select, textarea");
+        if (focusable[0]) focusable[0].focus();
+        document.addEventListener("keydown", onKeyDownModal, true);
+      }
+
+      function releaseFocus() {
+        document.removeEventListener("keydown", onKeyDownModal, true);
+        if (lastFocused) lastFocused.focus();
+      }
+
+      function openModal(el) {
+        el.classList.add("open");
+        el.setAttribute("aria-hidden", "false");
+        trapFocus(el);
+      }
+
+      function closeModal(el) {
+        el.classList.remove("open");
+        el.setAttribute("aria-hidden", "true");
+
+        // If confirm closes by backdrop/Esc, don't leave a live callback around
+        if (el === confirmModal) confirmCallback = null;
+
+        // only release focus trap if no other modal open
+        if (!document.querySelector(".modal.open")) releaseFocus();
+      }
+
+      function onKeyDownModal(e) {
+        // Slash behavior: in chat modal, "/" jumps to main search
+        if (e.key === "/") {
+          if (chatModal.classList.contains("open")) {
+            e.preventDefault();
+            e.stopPropagation();
+            closeChat();
+            setTimeout(() => searchEl.focus(), 0);
+            return;
+          }
+          // other modals: don't trigger global "/" handler, but allow typing "/" into inputs
+          e.stopPropagation();
+          return;
+        }
+
+        if (e.key === "Escape") {
+          // Don't allow closing static modals with Escape
+          const openModals = [...document.querySelectorAll(".modal.open")];
+          if (openModals.some(isStaticModal)) return;
+
+          // FIX: make sure closing chat via Escape removes ?chat=1 too
+          openModals.forEach((m) => {
+            if (m === chatModal) closeChat();
+            else closeModal(m);
+          });
+        }
+      }
+
+      // Close things when clicking outside (but NOT static modals)
+      document.addEventListener("click", (e) => {
+        document.querySelectorAll(".modal.open").forEach((m) => {
+          if (e.target === m) {
+            if (isStaticModal(m)) return;
+
+            // FIX: if chat modal closes via backdrop, remove ?chat=1
+            if (m === chatModal) return closeChat();
+
+            closeModal(m);
+          }
+        });
+
+        if (mobileMenu.classList.contains("open")) {
+          const within = mobileMenu.contains(e.target) || menuBtn.contains(e.target);
+          if (!within) closeMenu();
+        }
+
+        if (accountPanel.classList.contains("open")) {
+          const within = accountPanel.contains(e.target) || document.getElementById("btn-account")?.contains(e.target);
+          if (!within) accountPanel.classList.remove("open");
+        }
+      });
+
+      // Global "/" focuses search ONLY when no modal open
+      document.addEventListener("keydown", (e) => {
+        if (document.querySelector(".modal.open")) return;
+        if (e.key === "/") {
+          e.preventDefault();
+          searchEl.focus();
+        }
+      });
+
+      // ---------- Confirm modal ----------
+      let confirmCallback = null;
+
+      function openConfirm(title, message, onOk) {
+        confirmTitle.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> ${escapeHtml(title || "Confirm")}`;
+        confirmMsg.textContent = message || "Are you sure?";
+        confirmCallback = onOk;
+        openModal(confirmModal);
+      }
+
+      confirmOk.onclick = async () => {
+        // FIX: allow nested confirms (clear-list triple confirm, etc.)
+        const cb = confirmCallback;
+        confirmCallback = null;
+        closeModal(confirmModal);
+
+        if (!cb) return;
+
+        try {
+          await cb();
+        } catch (e) {
+          console.error(e);
+          showToast("error", e.message || "Error");
+        }
+      };
+
+      confirmCancel.onclick = () => {
+        confirmCallback = null;
+        closeModal(confirmModal);
+      };
+
+      // ---------- Floating labels (kept for "filled" state, but labels are no longer overlay) ----------
+      function setFloatGroupState(el) {
+        const input = el.querySelector("input, textarea, select");
+        if (!input) return;
+        const val = String(input.value ?? "").trim();
+        el.classList.toggle("filled", val !== "");
+      }
+
+      function initFloatingLabels(scope = document) {
+        const groups = scope.querySelectorAll(".float-group");
+        groups.forEach((g) => {
+          const input = g.querySelector("input, textarea, select");
+          if (!input) return;
+          const update = () => setFloatGroupState(g);
+          input.addEventListener("input", update);
+          input.addEventListener("change", update);
+          input.addEventListener("blur", update);
+          input.addEventListener("focus", () => g.classList.add("filled"));
+          update();
+        });
+      }
+
+      // ---------- Stepper logic ----------
+      function clampNonNegativeInt(v) {
+        const n = Number(v);
+        if (!Number.isFinite(n)) return null;
+        return Math.max(0, Math.trunc(n));
+      }
+
+      function updateStepperButtons() {
+        const s = clampNonNegativeInt(fSeason.value);
+        const e = clampNonNegativeInt(fEpisode.value);
+        seasonDec.disabled = !s || s <= 0;
+        episodeDec.disabled = !e || e <= 0;
+      }
+
+      function stepInput(input, delta) {
+        const cur = clampNonNegativeInt(input.value);
+        const next = Math.max(0, (cur ?? 0) + delta);
+        input.value = String(next);
+        initFloatingLabels(modal);
+        updateStepperButtons();
+      }
+
+      seasonDec.onclick = () => stepInput(fSeason, -1);
+      seasonInc.onclick = () => stepInput(fSeason, +1);
+      episodeDec.onclick = () => stepInput(fEpisode, -1);
+      episodeInc.onclick = () => stepInput(fEpisode, +1);
+
+      [fSeason, fEpisode].forEach((el) => {
+        el.addEventListener("input", () => {
+          updateStepperButtons();
+          initFloatingLabels(modal);
+        });
+      });
+
+      // ---------- Tabs ----------
+      function countBadge(tabId) {
+        if (tabId === "ALL") return data.length;
+        if (tabId === "COMPLETED_SERIES")
+          return data.filter((d) => d.status === "COMPLETED" && d.kind === "SERIES").length;
+        if (tabId === "COMPLETED_MOVIES")
+          return data.filter((d) => d.status === "COMPLETED" && d.kind === "MOVIE").length;
+        return data.filter((d) => d.status === tabId).length;
+      }
+
+      function renderTabs() {
+        tabsEl.innerHTML = "";
+        TABS.forEach((t) => {
+          const b = document.createElement("button");
+          b.className = "tab" + (activeTab === t.id ? " active" : "");
+          b.innerHTML = `${t.label} <span class="count">${countBadge(t.id)}</span>`;
+          b.onclick = () => {
+            activeTab = t.id;
+            updateURL();
+            render();
+          };
+          tabsEl.appendChild(b);
+        });
+      }
+
+      function displayTitle(row) {
+        // FIX: remove title language preference entirely (prefTitle was breaking the app)
+        const typed = row?.title != null ? String(row.title).trim() : "";
+        if (typed) return typed;
+
+        return (
+          String(row?.title_romaji || "").trim() ||
+          String(row?.title_english || "").trim() ||
+          String(row?.title_native || "").trim() ||
+          ""
+        );
+      }
+
+      function filteredRows() {
+        let rows = data.slice();
+
+        if (activeTab !== "ALL") {
+          if (activeTab === "COMPLETED_SERIES")
+            rows = rows.filter((r) => r.status === "COMPLETED" && r.kind === "SERIES");
+          else if (activeTab === "COMPLETED_MOVIES")
+            rows = rows.filter((r) => r.status === "COMPLETED" && r.kind === "MOVIE");
+          else rows = rows.filter((r) => r.status === activeTab);
+        }
+
+        if (q) rows = rows.filter((r) => displayTitle(r).toLowerCase().includes(q));
+
+        if (sortMode === "az") rows.sort((a, b) => displayTitle(a).localeCompare(displayTitle(b)));
+        else if (sortMode === "za") rows.sort((a, b) => displayTitle(b).localeCompare(displayTitle(a)));
+        else rows.sort((a, b) => (b.created_at?.localeCompare?.(a.created_at) || 0));
+
+        return rows;
+      }
+
+      function titleNode(text) {
+        const t = document.createElement("div");
+        t.className = "title";
+        t.textContent = text;
+        return t;
+      }
+
+      function makeGridCard(row) {
+        const col = document.createElement("div");
+        col.className = "col";
+
+        const card = document.createElement("div");
+        card.className = "card";
+
+        const cover = document.createElement("div");
+        cover.className = "cover";
+
+        const loader = document.createElement("div");
+        loader.className = "cover-loader";
+        loader.innerHTML = '<i class="fa-solid fa-spinner"></i>';
+
+        const imgUrl = row.image_url || "";
+        const img = document.createElement("img");
+        img.alt = `Cover for ${displayTitle(row) || "anime"}`;
+        img.loading = "lazy";
+
+        const ph = document.createElement("div");
+        ph.className = "ph";
+        ph.textContent = initials(displayTitle(row) || "");
+        ph.style.display = imgUrl ? "none" : "flex";
+
+        if (imgUrl) img.src = imgUrl;
+
+        img.onload = () => {
+          loader.remove();
+          ph.style.display = "none";
+        };
+        img.onerror = () => {
+          ph.style.display = "flex";
+          loader.remove();
+          img.remove();
+        };
+
+        cover.append(ph, loader);
+        if (imgUrl) cover.appendChild(img);
+
+        const float = document.createElement("div");
+        float.className = "floating-actions";
+        const editBtn = document.createElement("button");
+        editBtn.className = "icon-btn";
+        editBtn.title = "Edit";
+        editBtn.setAttribute("aria-label", "Edit entry");
+        editBtn.innerHTML = '<i class="fa-solid fa-gear"></i>';
+        editBtn.onclick = () => openModalFor(row);
+        float.append(editBtn);
+        cover.appendChild(float);
+
+        const badge = document.createElement("div");
+        badge.className = "badge-bottom";
+        badge.innerHTML = `<i class="fa-solid fa-film"></i> ${progressText(row)}`;
+        cover.appendChild(badge);
+
+        const body = document.createElement("div");
+        body.className = "card-body";
+
+        const titleRow = document.createElement("div");
+        titleRow.className = "title-row";
+        titleRow.append(titleNode(displayTitle(row)));
+
+        const chips = document.createElement("div");
+        chips.className = "chips";
+        chips.appendChild(chipEl(row.kind === "MOVIE" ? "Movie" : "Series"));
+        chips.appendChild(chipEl(progressText(row)));
+
+        const controls = buildControls(row);
+
+        body.append(titleRow, chips, controls);
+        card.append(cover, body);
+        col.appendChild(card);
+        return col;
+      }
+
+      function makeCompactCard(row) {
+        const col = document.createElement("div");
+        col.className = "col";
+
+        const card = document.createElement("div");
+        card.className = "card row";
+
+        const cover = document.createElement("div");
+        cover.className = "cover";
+
+        const loader = document.createElement("div");
+        loader.className = "cover-loader";
+        loader.innerHTML = '<i class="fa-solid fa-spinner"></i>';
+
+        const imgUrl = row.image_url || "";
+        const img = document.createElement("img");
+        img.alt = `Thumbnail for ${displayTitle(row) || "anime"}`;
+        img.loading = "lazy";
+
+        const ph = document.createElement("div");
+        ph.className = "ph";
+        ph.textContent = initials(displayTitle(row) || "");
+        ph.style.display = imgUrl ? "none" : "flex";
+
+        if (imgUrl) img.src = imgUrl;
+
+        img.onload = () => {
+          loader.remove();
+          ph.style.display = "none";
+        };
+        img.onerror = () => {
+          ph.style.display = "flex";
+          loader.remove();
+          img.remove();
+        };
+
+        cover.append(ph, loader);
+        if (imgUrl) cover.appendChild(img);
+
+        const float = document.createElement("div");
+        float.className = "floating-actions";
+        const editBtn = document.createElement("button");
+        editBtn.className = "icon-btn";
+        editBtn.title = "Edit";
+        editBtn.setAttribute("aria-label", "Edit entry");
+        editBtn.innerHTML = '<i class="fa-solid fa-gear"></i>';
+        editBtn.onclick = () => openModalFor(row);
+        float.append(editBtn);
+
+        const body = document.createElement("div");
+        body.className = "card-body";
+
+        const titleRow = document.createElement("div");
+        titleRow.className = "title-row";
+        titleRow.append(titleNode(displayTitle(row)));
+
+        const meta = document.createElement("div");
+        meta.className = "chips";
+        meta.append(chipEl(row.kind === "MOVIE" ? "Movie" : "Series"), chipEl(progressText(row)));
+
+        const controls = buildControls(row);
+
+        body.append(titleRow, meta, controls);
+        card.append(cover, body, float);
+        col.appendChild(card);
+        return col;
+      }
+
+      function buildControls(row) {
+        const controls = document.createElement("div");
+        controls.className = "controls";
+
+        const dec = document.createElement("button");
+        dec.className = "control-btn";
+        dec.title = "-1 episode";
+        dec.setAttribute("aria-label", "Decrease episode");
+        dec.innerHTML = '<i class="fa-solid fa-minus"></i>';
+
+        const currentEp = Math.max(0, Number(row.episode ?? 0) || 0);
+        dec.disabled = currentEp <= 0;
+        dec.onclick = (e) => adjustEpisode(row, e.shiftKey ? -5 : -1);
+
+        const prog = document.createElement("div");
+        prog.className = "progress-readout";
+        prog.innerHTML = `<i class="fa-solid fa-tv"></i> <span>${progressText(row)}</span>`;
+
+        const inc = document.createElement("button");
+        inc.className = "control-btn";
+        inc.title = "+1 episode";
+        inc.setAttribute("aria-label", "Increase episode");
+        inc.innerHTML = '<i class="fa-solid fa-plus"></i>';
+        inc.onclick = (e) => adjustEpisode(row, e.shiftKey ? +5 : +1);
+
+        const move = document.createElement("select");
+        move.className = "move-select";
+        move.setAttribute("aria-label", "Move to list");
+        move.innerHTML = STATUSES.map((s) => `<option ${row.status === s ? "selected" : ""}>${s}</option>`).join("");
+
+        move.onchange = async (e) => {
+          try {
+            const next = e.target.value;
+            const { error } = await supabase.from("entries").update({ status: next }).eq("id", row.id);
+            if (error) throw error;
+
+            // local update (instant)
+            const i = data.findIndex((r) => r.id === row.id);
+            if (i >= 0) data[i] = { ...data[i], status: next };
+
+            showToast("success", "Moved to " + next);
+            render();
+          } catch (err) {
+            showToast("error", err.message || "Failed");
+          }
+        };
+
+        controls.append(dec, prog, inc, move);
+        return controls;
+      }
+
+      function renderSkeletons(count = 6) {
+        gridEl.innerHTML = "";
+        sectionsEl.innerHTML = "";
+
+        const gridClass = viewMode === "compact" ? "grid view-compact" : "grid view-grid";
+        gridEl.className = gridClass;
+
+        for (let i = 0; i < count; i++) {
+          const col = document.createElement("div");
+          col.className = "col";
+
+          const card = document.createElement("div");
+          card.className = "skeleton-card";
+
+          const cover = document.createElement("div");
+          cover.className = "skeleton-cover";
+
+          const body = document.createElement("div");
+          body.className = "skeleton-body";
+
+          const title = document.createElement("div");
+          title.className = "skeleton-title";
+
+          const chip = document.createElement("div");
+          chip.className = "skeleton-chip";
+
+          const controls = document.createElement("div");
+          controls.className = "skeleton-controls";
+
+          for (let j = 0; j < 3; j++) {
+            const btn = document.createElement("div");
+            btn.className = "skeleton-btn";
+            controls.appendChild(btn);
+          }
+
+          body.append(title, chip, controls);
+          card.append(cover, body);
+          col.append(card);
+          gridEl.append(col);
+        }
+      }
+
+      let renderDebounce = null;
+      function render() {
+        if (renderDebounce) clearTimeout(renderDebounce);
+        renderDebounce = setTimeout(() => {
+          renderTabs();
+          sectionsEl.innerHTML = "";
+          gridEl.innerHTML = "";
+
+          noResultsEl.classList.add("hidden");
+
+          if (!user) {
+            emptyEl.style.display = "";
+            updateAccountUI();
+            return;
+          } else {
+            emptyEl.style.display = "none";
+          }
+
+          // Only show "No anime found" for SEARCH, not for empty tabs
+          const showNoResultsForSearchOnly = !!q;
+
+          const renderItem = viewMode === "compact" ? makeCompactCard : makeGridCard;
+          const gridClass = viewMode === "compact" ? "grid view-compact" : "grid view-grid";
+
+          let any = false;
+
+          if (activeTab === "ALL") {
+            const groups = [
+              { id: "WATCHING", label: "Watching", icon: "fa-eye" },
+              { id: "PLAN", label: "Plan to watch", icon: "fa-list-check" },
+              { id: "REWATCH", label: "Rewatch", icon: "fa-rotate-left" },
+              { id: "WAITING", label: "Waiting", icon: "fa-hourglass-half" },
+              { id: "COMPLETED", label: "Completed", icon: "fa-check-double" },
+            ];
+
+            groups.forEach((g) => {
+              let rows = data.filter((r) => r.status === g.id);
+              if (q) rows = rows.filter((r) => displayTitle(r).toLowerCase().includes(q));
+
+              if (sortMode === "az") rows.sort((a, b) => displayTitle(a).localeCompare(displayTitle(b)));
+              else if (sortMode === "za") rows.sort((a, b) => displayTitle(b).localeCompare(displayTitle(a)));
+              else rows.sort((a, b) => (b.created_at?.localeCompare?.(a.created_at) || 0));
+
+              if (!rows.length) return;
+
+              const section = document.createElement("div");
+              section.className = "section";
+
+              const h = document.createElement("div");
+              h.className = "section-title";
+              h.innerHTML = `<i class="fa-solid ${g.icon}"></i> ${g.label} <span class="muted-small">(${rows.length})</span>`;
+              section.appendChild(h);
+
+              const grid = document.createElement("div");
+              grid.className = gridClass;
+
+              rows.forEach((row) => grid.appendChild(renderItem(row)));
+
+              section.appendChild(grid);
+              sectionsEl.appendChild(section);
+
+              const hr = document.createElement("hr");
+              hr.className = "section-divider";
+              sectionsEl.appendChild(hr);
+
+              any = true;
+            });
+          } else {
+            gridEl.className = gridClass;
+            const rows = filteredRows();
+            rows.forEach((row) => gridEl.appendChild(renderItem(row)));
+            any = rows.length > 0;
+          }
+
+          if (!any && user && showNoResultsForSearchOnly) noResultsEl.classList.remove("hidden");
+
+          updateViewToggleUI();
+          updateSortToggleUI();
+          updateMobileMenuUI();
+          updateAccountUI();
+        }, 70);
+      }
+
+      // ---------- Data updates ----------
+      async function adjustEpisode(row, delta) {
+        const current = Math.max(0, Number(row.episode ?? 0) || 0);
+        const next = Math.max(0, current + delta);
+
+        try {
+          const { error } = await supabase.from("entries").update({ episode: next }).eq("id", row.id);
+          if (error) throw error;
+
+          // local update instantly
+          const i = data.findIndex((r) => r.id === row.id);
+          if (i >= 0) data[i] = { ...data[i], episode: next };
+
+          showToast("success", `${delta > 0 ? `+${delta}` : delta} EP`);
+          render();
+        } catch (e) {
+          showToast("error", e.message || "Failed to update");
+        }
+      }
+
+      // ---------- Auth UI ----------
+      function updateAuthUI() {
+        authCta.innerHTML = "";
+
+        const chatBtn = document.createElement("button");
+        chatBtn.className = "btn ghost";
+        chatBtn.id = "btn-chat";
+        chatBtn.innerHTML = '<i class="fa-solid fa-comments"></i> Chat';
+        chatBtn.onclick = () => openChatFromClick();
+        authCta.append(chatBtn);
+
+        if (user) {
+          const btn = document.createElement("button");
+          btn.className = "btn ghost";
+          btn.id = "btn-account";
+          btn.innerHTML = '<i class="fa-solid fa-user"></i> Account';
+          btn.onclick = () => accountPanel.classList.toggle("open");
+          authCta.append(btn);
+        } else {
+          const btn = document.createElement("button");
+          btn.className = "btn ghost";
+          btn.innerHTML = '<i class="fa-solid fa-right-to-bracket"></i> Sign in';
+          btn.onclick = () => openModal(authModal);
+          authCta.append(btn);
+        }
+
+        updateMobileMenuUI();
+        updateAccountUI();
+      }
+
+      function updateAccountUI() {
+        if (!user) return;
+
+        const name = getUsername();
+        accountUsername.textContent = name;
+        accountEmail.textContent = user.email || "Unknown";
+
+        accountTotal.textContent = data.length;
+        accountWatching.textContent = data.filter((d) => d.status === "WATCHING").length;
+        accountOnline.textContent = presenceCount;
+
+        accountAvatar.textContent = "";
+        accountAvatar.style.backgroundImage = `url('${diceAvatar(name)}')`;
+
+        // prefs
+        if (prefCover) prefCover.value = defaultCoverSource;
+      }
+
+      // ---------- Load profile ----------
+      async function loadProfile() {
+        if (!user) return;
+
+        // FIX: prefTitle removed entirely; don't select title_pref anymore.
+        const { data: p, error } = await supabase.from("profiles").select("username,cover_source").eq("id", user.id).single();
+
+        if (error) {
+          console.warn("Profile load error:", error.message);
+          profile = null;
+          return;
+        }
+
+        profile = p || null;
+        defaultCoverSource = profile?.cover_source || "ANILIST";
+      }
+
+      // ---------- Load entries ----------
+      async function loadEntries() {
+        if (!user) return;
+        renderSkeletons(8);
+        updatePreloader("Loading your shelf…");
+        try {
+          const { data: rows, error } = await supabase.from("entries").select("*").order("created_at", { ascending: false });
+          if (error) throw error;
+          data = rows || [];
+          render();
+
+          // background covers (do NOT block preloader)
+          enqueueMissingCovers(data);
+        } catch (e) {
+          console.error(e);
+          showToast("error", e.message || "Failed to load");
+        }
+      }
+
+      // ---------- Realtime ----------
+      function setupRealtime() {
+        if (changesChannel) supabase.removeChannel(changesChannel);
+        if (!user) return;
+
+        changesChannel = supabase
+          .channel("entries-db")
+          .on(
+            "postgres_changes",
+            { event: "*", schema: "public", table: "entries", filter: `user_id=eq.${user.id}` },
+            (payload) => {
+              const { eventType, new: n, old: o } = payload;
+
+              if (eventType === "INSERT") {
+                if (!data.some((r) => r.id === n.id)) data.unshift(n);
+                enqueueMissingCovers([n]);
+              } else if (eventType === "UPDATE") {
+                const i = data.findIndex((r) => r.id === n.id);
+                if (i >= 0) data[i] = n;
+              } else if (eventType === "DELETE") {
+                const i = data.findIndex((r) => r.id === o.id);
+                if (i >= 0) data.splice(i, 1);
+              }
+
+              render();
+            }
+          )
+          .subscribe();
+      }
+
+      // ---------- Presence ----------
+      function setupPresence() {
+        if (presenceChannel) supabase.removeChannel(presenceChannel);
+
+        const key = user?.id || `anon_${Math.random().toString(36).slice(2)}`;
+        presenceChannel = supabase.channel("room:lobby", { config: { presence: { key } } });
+
+        presenceChannel.on("presence", { event: "sync" }, () => {
+          const state = presenceChannel.presenceState();
+          const all = new Set();
+          Object.values(state).forEach((arr) => arr.forEach((v) => all.add(v.presence_ref)));
+          presenceCount = all.size;
+
+          chatPresenceText.textContent = `${presenceCount} online`;
+          mChatOnline.textContent = `(${presenceCount} online)`;
+
+          updateAccountUI();
+        });
+
+        presenceChannel.subscribe(async (status) => {
+          if (status === "SUBSCRIBED") {
+            await presenceChannel.track({ at: Date.now() });
+          }
+        });
+      }
+
+      // ---------- Add/Edit modal ----------
+      btnAdd.onclick = () => openModalFor();
+      btnCancel.onclick = () => closeModal(modal);
+      btnSave.onclick = saveModal;
+      btnDelete.onclick = removeModal;
+
+      function openModalFor(row) {
+        editingId = row?.id || null;
+
+        mTitle.innerHTML = `<i class="fa-solid fa-pen-to-square"></i> ${editingId ? "Edit item" : "Add item"}`;
+
+        fTitle.value = displayTitle(row || {}) || "";
+        fKind.value = row?.kind || "SERIES";
+        fStatus.value = row?.status || "PLAN";
+        fSeason.value = row?.season ?? "";
+        fEpisode.value = row?.episode ?? "";
+        fImage.value = row?.image_url || "";
+        fNotes.value = row?.notes || "";
+        fCoverSource.value = row?.cover_source || "";
+
+        btnDelete.style.display = editingId ? "" : "none";
+
+        openModal(modal);
+        fTitle.focus();
+        toggleClearButtons();
+        initFloatingLabels(modal);
+        updateStepperButtons();
+      }
+
+      async function saveModal() {
+        if (!user) return showToast("error", "Sign in first");
+
+        const title = (fTitle.value || "").trim();
+        const kind = String(fKind.value || "").trim();
+        const status = String(fStatus.value || "").trim();
+
+        if (!title) return showToast("error", "Title required");
+        if (!kind) return showToast("error", "Series/Movie required");
+        if (!status) return showToast("error", "Category required");
+
+        const row = {
+          title,
+          kind,
+          status,
+          season: fSeason.value !== "" ? clampNonNegativeInt(fSeason.value) : null,
+          episode: fEpisode.value !== "" ? clampNonNegativeInt(fEpisode.value) : null,
+          image_url: fImage.value.trim() || null,
+          notes: fNotes.value.trim() || null,
+          cover_source: fCoverSource.value || null,
+          user_id: user.id,
+        };
+
+        // Save button: spinner + text
+        btnSave.classList.add("loading");
+        btnSave.innerHTML = "Save";
+
+        try {
+          if (editingId) {
+            const { data: upd, error } = await supabase.from("entries").update(row).eq("id", editingId).select().single();
+            if (error) throw error;
+
+            const i = data.findIndex((r) => r.id === editingId);
+            if (i >= 0) data[i] = upd;
+
+            showToast("success", "Saved");
+          } else {
+            const { data: ins, error } = await supabase.from("entries").insert(row).select().single();
+            if (error) throw error;
+
+            if (!data.some((r) => r.id === ins.id)) data.unshift(ins);
+
+            showToast("success", "Added");
+            enqueueMissingCovers([ins]);
+          }
+
+          render();
+          closeModal(modal);
+        } catch (e) {
+          showToast("error", e.message || "Failed to save");
+        } finally {
+          btnSave.classList.remove("loading");
+          btnSave.innerHTML = '<i class="fa-solid fa-floppy-disk"></i>Save';
+        }
+      }
+
+      async function removeModal() {
+        if (!editingId) return;
+
+        openConfirm("Delete item", "Delete this anime from your shelf?", async () => {
+          const id = editingId;
+          const { error } = await supabase.from("entries").delete().eq("id", id);
+          if (error) throw error;
+
+          // local update immediately
+          const i = data.findIndex((r) => r.id === id);
+          if (i >= 0) data.splice(i, 1);
+
+          showToast("success", "Deleted");
+          render();
+          closeModal(modal);
+        });
+      }
+
+      // ---------- Clear buttons ----------
+      function toggleClearButtons() {
+        const toggle = (btn, input) => btn.classList.toggle("visible", String(input.value ?? "").trim() !== "");
+        toggle(clearTitle, fTitle);
+        toggle(clearImage, fImage);
+        toggle(clearNotes, fNotes);
+
+        searchClear.classList.toggle("visible", searchEl.value.trim() !== "");
+
+        initFloatingLabels(modal);
+      }
+
+      [fTitle, fImage, fNotes].forEach((input) => input.addEventListener("input", toggleClearButtons));
+
+      clearTitle.onclick = () => {
+        fTitle.value = "";
+        toggleClearButtons();
+        fTitle.focus();
+      };
+      clearImage.onclick = () => {
+        fImage.value = "";
+        toggleClearButtons();
+        fImage.focus();
+      };
+      clearNotes.onclick = () => {
+        fNotes.value = "";
+        toggleClearButtons();
+        fNotes.focus();
+      };
+
+      // ---------- Search ----------
+      let searchTimer = null;
+      searchEl.oninput = () => {
+        clearTimeout(searchTimer);
+        searchTimer = setTimeout(() => {
+          q = searchEl.value.trim().toLowerCase();
+          updateURL();
+          render();
+          searchClear.classList.toggle("visible", searchEl.value.trim() !== "");
+        }, 120);
+      };
+
+      searchClear.onclick = () => {
+        searchEl.value = "";
+        q = "";
+        updateURL();
+        render();
+        searchClear.classList.remove("visible");
+        searchEl.focus();
+      };
+
+      // No-results "+ New" button
+      noResultsNewBtn.addEventListener("click", () => {
+        if (!user) {
+          showToast("info", "Sign in to add items");
+          openModal(authModal);
+          return;
+        }
+        openModalFor();
+      });
+
+      // ---------- Export ----------
+      document.getElementById("btn-export").onclick = doExport;
+      accountExport.onclick = doExport;
+
+      function doExport() {
+        const rows = data.map(({ id, user_id, created_at, updated_at, ...rest }) => rest);
+        const blob = new Blob([JSON.stringify(rows, null, 2)], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "animehlist-export.json";
+        a.click();
+        URL.revokeObjectURL(url);
+        showToast("success", "Exported");
+      }
+
+      // ---------- Import (modal redesign) ----------
+      document.getElementById("btn-import").onclick = () => openModal(importModal);
+      mImport.addEventListener("click", () => {
+        closeMenu();
+        openModal(importModal);
+      });
+
+      importCancel.onclick = () => closeModal(importModal);
+
+      importBrowse.onclick = () => importPicker.click();
+      importPicker.addEventListener("change", () => {
+        const file = importPicker.files?.[0];
+        importFileName.textContent = file ? file.name : "No file selected";
+      });
+
+      importRun.onclick = () => {
+        const file = importPicker.files?.[0];
+        if (!file) return showToast("error", "Choose a file first");
+
+        openConfirm("Import list", "This will add items to your shelf. Continue?", async () => {
+          await importFromFile(file, importFormat.value);
+          importPicker.value = "";
+          importFileName.textContent = "No file selected";
+          closeModal(importModal);
+        });
+      };
+
+      async function importFromFile(file, source) {
+        if (!user) throw new Error("Sign in first");
+
+        showLoading(true);
+        try {
+          const normalized = await parseImport(file, source);
+          if (!Array.isArray(normalized)) throw new Error("Invalid import: expected an array of entries");
+
+          const rows = normalized
+            .map(normalizeImport)
+            .filter((r) => r.title && r.title.trim().length > 0)
+            .map((r) => ({ ...r, user_id: user.id }));
+
+          if (!rows.length) {
+            showToast("error", "No valid entries found in file");
+            return;
+          }
+
+          const { data: inserted, error } = await supabase.from("entries").insert(rows).select();
+          if (error) throw error;
+
+          // local update immediately
+          for (const ins of inserted || []) {
+            if (!data.some((r) => r.id === ins.id)) data.unshift(ins);
+          }
+
+          render();
+          enqueueMissingCovers(inserted || []);
+
+          showToast("success", `Imported ${inserted?.length || 0} items`);
+        } finally {
+          showLoading(false);
+        }
+      }
+
+      async function parseImport(file, source) {
+        if (source === "MAL") {
+          const text = await file.text();
+          return normalizeMAL(text);
+        }
+        if (source === "ANILIST") {
+          const text = await file.text();
+          return normalizeAniList(text);
+        }
+        // APP / AML JSON
+        const text = await file.text();
+        const json = JSON.parse(text);
+        if (!Array.isArray(json)) throw new Error("Invalid JSON: expected an array");
+        return json;
+      }
+
+      function normalizeImport(o) {
+        const t = String(o.title || "").trim();
+
+        const kind = String(o.kind || "SERIES").toUpperCase() === "MOVIE" ? "MOVIE" : "SERIES";
+
+        let status = String(o.status || "PLAN").toUpperCase();
+        if (!STATUSES.includes(status)) status = "PLAN";
+
+        const season = o.season === "" || o.season == null ? null : clampNonNegativeInt(o.season);
+        const episode = o.episode === "" || o.episode == null ? null : clampNonNegativeInt(o.episode);
+
+        // Ignore absolute_episode completely
+        const notes = String(o.notes || "").trim() || null;
+
+        let image_url = String(o.image_url || "").trim() || null;
+        // Browser cannot use file:// covers
+        if (image_url && image_url.startsWith("file://")) image_url = null;
+
+        const title_romaji = String(o.title_romaji || "").trim() || null;
+        const title_english = String(o.title_english || "").trim() || null;
+        const title_native = String(o.title_native || "").trim() || null;
+
+        const anilist_id = Number.isFinite(Number(o.anilist_id)) ? Number(o.anilist_id) : null;
+
+        const cover_source = o.cover_source ? String(o.cover_source).toUpperCase() : null;
+
+        return {
+          title: t,
+          kind,
+          status,
+          season,
+          episode,
+          notes,
+          image_url,
+          title_romaji,
+          title_english,
+          title_native,
+          anilist_id,
+          cover_source: cover_source && ["ANILIST", "JIKAN", "KITSU"].includes(cover_source) ? cover_source : null,
+        };
+      }
+
+      function normalizeMAL(xmlText) {
+        const doc = new DOMParser().parseFromString(xmlText, "application/xml");
+        const items = [...doc.querySelectorAll("anime")];
+
+        const mapStatus = (s) => {
+          s = String(s || "").toLowerCase();
+          if (s.includes("watching")) return "WATCHING";
+          if (s.includes("plan")) return "PLAN";
+          if (s.includes("completed")) return "COMPLETED";
+          if (s.includes("on-hold")) return "WAITING";
+          if (s.includes("dropped")) return "PLAN";
+          return "PLAN";
+        };
+
+        const mapKind = (t) => {
+          const code = Number(t || 1); // 1=TV, 3=Movie, etc.
+          if (code === 3) return "MOVIE";
+          return "SERIES";
+        };
+
+        return items.map((anime) => {
+          const title = String(anime.querySelector("series_title")?.textContent || "").trim();
+          const status = mapStatus(anime.querySelector("my_status")?.textContent);
+          const kind = mapKind(anime.querySelector("series_type")?.textContent);
+          const episode = Number(anime.querySelector("my_watched_episodes")?.textContent || 0) || null;
+          return { title, status, kind, episode };
+        });
+      }
+
+      function normalizeAniList(jsonText) {
+        let obj;
+        try {
+          obj = JSON.parse(jsonText);
+        } catch {
+          throw new Error("Invalid JSON");
+        }
+
+        // Try multiple known shapes
+        const tryLists = obj?.data?.MediaListCollection?.lists || obj?.MediaListCollection?.lists || obj?.lists || null;
+
+        const statusMap = {
+          CURRENT: "WATCHING",
+          PLANNING: "PLAN",
+          COMPLETED: "COMPLETED",
+          PAUSED: "WAITING",
+          DROPPED: "PLAN",
+          REPEATING: "REWATCH",
+        };
+
+        const out = [];
+
+        if (Array.isArray(tryLists)) {
+          for (const L of tryLists) {
+            for (const e of L.entries || []) {
+              const media = e.media || {};
+              const title =
+                media.title?.romaji || media.title?.english || media.title?.native || e.notes || "";
+              const kind = media.format === "MOVIE" ? "MOVIE" : "SERIES";
+              const status = statusMap[e.status] || "PLAN";
+              const episode = Number(e.progress || 0) || null;
+
+              out.push({
+                title,
+                status,
+                kind,
+                episode,
+                title_romaji: media.title?.romaji || null,
+                title_english: media.title?.english || null,
+                title_native: media.title?.native || null,
+                anilist_id: media.id || null,
+              });
+            }
+          }
+          return out;
+        }
+
+        if (Array.isArray(obj)) return obj;
+        if (Array.isArray(obj?.entries)) return obj.entries;
+
+        throw new Error("Unrecognized AniList export shape");
+      }
+
+      // ---------- Mobile menu ----------
+      function openMenu() {
+        mobileMenu.classList.add("open");
+        menuBtn.setAttribute("aria-expanded", "true");
+      }
+      function closeMenu() {
+        mobileMenu.classList.remove("open");
+        menuBtn.setAttribute("aria-expanded", "false");
+      }
+
+      menuBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        mobileMenu.classList.contains("open") ? closeMenu() : openMenu();
+      });
+
+      mAdd.addEventListener("click", () => {
+        closeMenu();
+        openModalFor();
+      });
+
+      mViewGrid.addEventListener("click", () => {
+        viewMode = "grid";
+        updateURL();
+        closeMenu();
+        render();
+      });
+
+      mViewCompact.addEventListener("click", () => {
+        viewMode = "compact";
+        updateURL();
+        closeMenu();
+        render();
+      });
+
+      mLogin.addEventListener("click", () => {
+        closeMenu();
+        openModal(authModal);
+      });
+
+      mLogout.addEventListener("click", () =>
+        openConfirm("Sign out", "Are you sure you want to sign out?", async () => {
+          await supabase.auth.signOut();
+          location.reload();
+        })
+      );
+
+      mExport.addEventListener("click", () => {
+        closeMenu();
+        doExport();
+      });
+
+      mOpenChat.addEventListener("click", () => {
+        closeMenu();
+        openChatFromClick();
+      });
+
+      function updateMobileMenuUI() {
+        if (user) {
+          mUserEmail.textContent = user.email || "user";
+          mLogin.classList.add("hidden");
+          mLogout.classList.remove("hidden");
+        } else {
+          mUserEmail.textContent = "Signed out";
+          mLogin.classList.remove("hidden");
+          mLogout.classList.add("hidden");
+        }
+        mChatOnline.textContent = `(${presenceCount} online)`;
+      }
+
+      // ---------- View toggle / sort ----------
+      function updateViewToggleUI() {
+        if (viewMode === "grid") {
+          viewBtnGrid.classList.add("active");
+          viewBtnGrid.setAttribute("aria-pressed", "true");
+          viewBtnCompact.classList.remove("active");
+          viewBtnCompact.setAttribute("aria-pressed", "false");
+        } else {
+          viewBtnCompact.classList.add("active");
+          viewBtnCompact.setAttribute("aria-pressed", "true");
+          viewBtnGrid.classList.remove("active");
+          viewBtnGrid.setAttribute("aria-pressed", "false");
+        }
+      }
+
+      function updateSortToggleUI() {
+        sortToggle.querySelectorAll(".seg").forEach((b) => b.classList.toggle("active", b.dataset.sort === sortMode));
+      }
+
+      sortToggle.addEventListener("click", (e) => {
+        const btn = e.target.closest(".seg[data-sort]");
+        if (!btn) return;
+        sortMode = btn.dataset.sort;
+        updateURL();
+        updateSortToggleUI();
+        render();
+      });
+
+      viewBtnGrid.addEventListener("click", () => {
+        viewMode = "grid";
+        updateURL();
+        render();
+      });
+
+      viewBtnCompact.addEventListener("click", () => {
+        viewMode = "compact";
+        updateURL();
+        render();
+      });
+
+      // ---------- Scroll to top (robust with overflow-x hidden) ----------
+      function getPageScrollTop() {
+        const se = document.scrollingElement;
+        return (
+          (se && se.scrollTop) ||
+          window.scrollY ||
+          document.documentElement.scrollTop ||
+          document.body.scrollTop ||
+          0
+        );
+      }
+
+      function scrollPageToTop() {
+        const opts = { top: 0, left: 0, behavior: "smooth" };
+        const se = document.scrollingElement || document.documentElement;
+
+        try {
+          se.scrollTo(opts);
+        } catch {}
+
+        try {
+          window.scrollTo(opts);
+        } catch {}
+
+        try {
+          document.documentElement.scrollTo(opts);
+        } catch {}
+
+        try {
+          document.body.scrollTo(opts);
+        } catch {}
+      }
+
+      function scheduleScrollTopHide() {
+        if (scrollTopInactivityTimer) clearTimeout(scrollTopInactivityTimer);
+        scrollTopInactivityTimer = setTimeout(() => {
+          scrollToTop.classList.remove("visible");
+        }, 3000);
+      }
+
+      function refreshScrollTopVisibilityFromActivity() {
+        const y = getPageScrollTop();
+        if (y > 200) {
+          scrollToTop.classList.add("visible");
+          scheduleScrollTopHide();
+        }
+      }
+
+      scrollToTop.onclick = () => {
+        scrollPageToTop();
+      };
+
+      const onAnyScroll = () => {
+        const y = getPageScrollTop();
+        if (y > 200) {
+          scrollToTop.classList.add("visible");
+          scheduleScrollTopHide();
+        } else {
+          scrollToTop.classList.remove("visible");
+        }
+      };
+
+      window.addEventListener("scroll", onAnyScroll, { passive: true });
+      document.addEventListener("scroll", onAnyScroll, { passive: true, capture: true });
+
+      ["touchstart", "mousemove", "keydown"].forEach((evt) => {
+        window.addEventListener(evt, refreshScrollTopVisibilityFromActivity, { passive: true });
+      });
+
+      // ---------- Preferences ----------
+      if (prefCover) {
+        prefCover.addEventListener("change", async () => {
+          try {
+            defaultCoverSource = prefCover.value;
+            await supabase.from("profiles").update({ cover_source: defaultCoverSource }).eq("id", user.id);
+            showToast("success", "Cover source set to " + defaultCoverSource);
+            enqueueMissingCovers(data);
+          } catch {
+            showToast("error", "Failed to save preference");
+          }
+        });
+      }
+
+      // ---------- Clear list (TRIPLE confirm) — FIXED ----------
+      accountClearList.onclick = () => {
+        if (!user) return showToast("error", "Sign in first");
+
+        openConfirm("Clear your entire list (1/3)", "Recommended: Export JSON first. Continue?", async () => {
+          openConfirm("Double-check (2/3)", "This will permanently delete ALL items. Proceed?", async () => {
+            openConfirm("Last chance (3/3)", "No undo. Delete everything now?", async () => {
+              showLoading(true);
+              try {
+                // delete directly (no RPC)
+                const { error } = await supabase.from("entries").delete().eq("user_id", user.id);
+                if (error) throw error;
+
+                data = [];
+                render();
+                showToast("success", "Your list was cleared");
+              } catch (e) {
+                console.error(e);
+                showToast("error", e.message || "Failed to clear list");
+              } finally {
+                showLoading(false);
+              }
+            });
+          });
+        });
+      };
+
+      accountLogout.onclick = () =>
+        openConfirm("Sign out", "Are you sure you want to sign out?", async () => {
+          await supabase.auth.signOut();
+          location.reload();
+        });
+
+      // ---------- Cover sources (AniList / Jikan / Kitsu) ----------
+      function normalizeStr(s) {
+        return String(s || "")
+          .toLowerCase()
+          .replace(/’|‘|“|”/g, '"')
+          .replace(/[^a-z0-9\s]/g, " ")
+          .replace(/\s+/g, " ")
+          .trim();
+      }
+
+      function tokenSet(str) {
+        return new Set(
+          normalizeStr(str)
+            .split(" ")
+            .filter(Boolean)
+            .filter((w) => !["the", "a", "an", "and", "of"].includes(w))
+        );
+      }
+
+      function jaccard(aStr, bStr) {
+        const a = tokenSet(aStr),
+          b = tokenSet(bStr);
+        if (!a.size || !b.size) return 0;
+        let inter = 0;
+        a.forEach((x) => b.has(x) && inter++);
+        const union = a.size + b.size - inter;
+        return inter / union;
+      }
+
+      function scoreCandidate(query, media) {
+        const titles = [media?.title?.romaji, media?.title?.english, media?.title?.native, ...(media?.synonyms || [])].filter(Boolean);
+        let best = 0;
+        for (const t of titles) best = Math.max(best, jaccard(query, t));
+        const pop = media?.popularity || 0;
+        const popBias = Math.min(0.05, (pop / 1000000) * 0.05);
+        return best + popBias;
+      }
+
+      async function fetchAniListMeta(title) {
+        const query = `
+          query ($search: String) {
+            Page(perPage: 6) {
+              media(search: $search, type: ANIME) {
+                id
+                title { romaji english native }
+                synonyms
+                format
+                popularity
+                coverImage { large extraLarge color }
+              }
+            }
+          }
+        `;
+
+        const res = await fetch("https://graphql.anilist.co", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Accept: "application/json" },
+          body: JSON.stringify({ query, variables: { search: title } }),
+        });
+
+        if (!res.ok) throw new Error("AniList search failed");
+        const json = await res.json();
+        const items = json?.data?.Page?.media || [];
+        items.forEach((m) => (m._score = scoreCandidate(title, m)));
+        items.sort((a, b) => b._score - a._score);
+        const top = items[0];
+
+        const image = top?.coverImage?.extraLarge || top?.coverImage?.large || null;
+        return {
+          image,
+          titles: {
+            romaji: top?.title?.romaji || null,
+            english: top?.title?.english || null,
+            native: top?.title?.native || null,
+          },
+          anilist_id: top?.id || null,
+        };
+      }
+
+      async function fetchJikanCover(title) {
+        const url = `https://api.jikan.moe/v4/anime?q=${encodeURIComponent(title)}&limit=3&sfw`;
+        const res = await fetch(url);
+        if (!res.ok) throw new Error("Jikan search failed");
+        const json = await res.json();
+        const pick = (json?.data || [])[0];
+        return {
+          image:
+            pick?.images?.webp?.large_image_url ||
+            pick?.images?.jpg?.large_image_url ||
+            pick?.images?.webp?.image_url ||
+            null,
+        };
+      }
+
+      async function fetchKitsuCover(title) {
+        const url = `https://kitsu.io/api/edge/anime?filter[text]=${encodeURIComponent(title)}&page[limit]=3`;
+        const res = await fetch(url);
+        if (!res.ok) throw new Error("Kitsu search failed");
+        const json = await res.json();
+        const pick = (json?.data || [])[0];
+        const img = pick?.attributes?.posterImage?.original || pick?.attributes?.posterImage?.large || null;
+        return { image: img || null };
+      }
+
+      function sourceOrder(preferred) {
+        if (preferred === "JIKAN") return ["JIKAN", "ANILIST", "KITSU"];
+        if (preferred === "KITSU") return ["KITSU", "ANILIST", "JIKAN"];
+        return ["ANILIST", "JIKAN", "KITSU"];
+      }
+
+      async function autoFetchCover(title, preferredSource, strict = false) {
+        if (!title) return { image: null, titles: null, anilist_id: null };
+
+        const pref = preferredSource || "ANILIST";
+        const order = strict ? [pref] : sourceOrder(pref);
+
+        const result = { image: null, titles: null, anilist_id: null };
+
+        for (const src of order) {
+          try {
+            if (src === "ANILIST") {
+              const r = await fetchAniListMeta(title);
+              if (r.image) {
+                result.image = r.image;
+                result.titles = r.titles;
+                result.anilist_id = r.anilist_id;
+                break;
+              }
+            } else if (src === "JIKAN") {
+              const r = await fetchJikanCover(title);
+              if (r.image) {
+                result.image = r.image;
+                break;
+              }
+            } else if (src === "KITSU") {
+              const r = await fetchKitsuCover(title);
+              if (r.image) {
+                result.image = r.image;
+                break;
+              }
+            }
+          } catch {
+            // continue
+          }
+        }
+
+        return result;
+      }
+
+      // Auto cover button
+      btnAutoCover.addEventListener("click", async () => {
+        const title = fTitle.value?.trim();
+        if (!title) return showToast("error", "Enter title first");
+
+        btnAutoCover.classList.add("loading");
+        btnAutoCover.innerHTML = "Auto cover";
+
+        try {
+          const override = fCoverSource.value || null;
+          const preferred = override || defaultCoverSource;
+          const strict = !!override; // per-anime override = no fallback
+          const r = await autoFetchCover(title, preferred, strict);
+
+          if (r?.image) {
+            fImage.value = r.image;
+            initFloatingLabels(modal);
+            toggleClearButtons();
+            showToast("success", "Cover set");
+          } else {
+            showToast("error", "No cover found");
+          }
+        } finally {
+          btnAutoCover.classList.remove("loading");
+          btnAutoCover.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i>Auto cover';
+        }
+      });
+
+      // ---------- Background cover worker ----------
+      function showCoverProgress() {
+        coverProgressEl.classList.add("visible");
+        coverProgressEl.classList.remove("success");
+        coverProgressText.innerHTML = `<i class="fa-solid fa-spinner spin"></i> Fetching covers… <b id="cover-progress-count">${coverDone} / ${coverTotal}</b>`;
+      }
+
+      function updateCoverProgress() {
+        if (!coverProgressEl.classList.contains("visible")) showCoverProgress();
+        const b = coverProgressEl.querySelector("b");
+        if (b) b.textContent = `${coverDone} / ${coverTotal}`;
+      }
+
+      function finishCoverProgress() {
+        coverProgressEl.classList.add("success");
+        coverProgressText.innerHTML = `<i class="fa-solid fa-circle-check"></i> Covers updated ✔`;
+        setTimeout(() => {
+          coverProgressEl.classList.remove("visible");
+          coverProgressEl.classList.remove("success");
+        }, 2000);
+      }
+
+      function enqueueMissingCovers(rows) {
+        const list = Array.isArray(rows) ? rows : data;
+        let added = 0;
+
+        for (const r of list) {
+          if (!r?.id) continue;
+          if (!r?.title) continue;
+
+          if (r.image_url) continue; // do not override existing covers
+          if (coverAttemptedThisRun.has(r.id)) continue; // don't thrash
+          if (coverQueue.has(r.id)) continue;
+
+          coverQueue.add(r.id);
+          coverTotal++;
+          added++;
+        }
+
+        if (added > 0) {
+          updateCoverProgress();
+          if (!coverWorkerRunning) startCoverWorker();
+        }
+      }
+
+      async function processCoverRow(row) {
+        const override = row.cover_source || null;
+        const preferred = override || defaultCoverSource;
+        const strict = !!override;
+
+        const r = await autoFetchCover(row.title, preferred, strict);
+
+        if (!r?.image && !r?.titles) return;
+
+        const patch = {};
+        if (r.image) patch.image_url = r.image;
+
+        // Only AniList provides alt titles; save when available
+        if (r.titles) {
+          patch.title_romaji = r.titles.romaji || row.title_romaji || null;
+          patch.title_english = r.titles.english || row.title_english || null;
+          patch.title_native = r.titles.native || row.title_native || null;
+          patch.anilist_id = r.anilist_id || row.anilist_id || null;
+        }
+
+        const { error } = await supabase.from("entries").update(patch).eq("id", row.id);
+        if (error) throw error;
+
+        // local update immediately (realtime will also sync)
+        const i = data.findIndex((x) => x.id === row.id);
+        if (i >= 0) data[i] = { ...data[i], ...patch };
+
+        render();
+      }
+
+      async function startCoverWorker() {
+        if (coverWorkerRunning) return;
+        coverWorkerRunning = true;
+
+        showCoverProgress();
+
+        const CONCURRENCY = 3;
+
+        try {
+          while (coverQueue.size > 0) {
+            while (coverWorkerActive < CONCURRENCY && coverQueue.size > 0) {
+              const id = coverQueue.values().next().value;
+              coverQueue.delete(id);
+
+              const row = data.find((r) => r.id === id);
+              if (!row) continue;
+
+              coverAttemptedThisRun.add(id);
+
+              coverWorkerActive++;
+
+              (async () => {
+                try {
+                  await processCoverRow(row);
+                } catch {
+                  // ignore failures for now; user can click refresh later
+                } finally {
+                  coverDone++;
+                  coverWorkerActive--;
+                  updateCoverProgress();
+                }
+              })();
+            }
+
+            await sleep(150);
+          }
+
+          while (coverWorkerActive > 0) await sleep(150);
+        } finally {
+          coverWorkerRunning = false;
+
+          // reset per-run attempted set so future refresh can retry
+          coverAttemptedThisRun.clear();
+
+          // reset counters cleanly for next run
+          const finishedTotal = coverTotal;
+          const finishedDone = coverDone;
+
+          coverTotal = 0;
+          coverDone = 0;
+
+          // only show completion if we actually did work
+          if (finishedTotal > 0 && finishedDone > 0) finishCoverProgress();
+        }
+      }
+
+      btnRefreshCovers.addEventListener("click", () => {
+        if (!user) return showToast("error", "Sign in first");
+        enqueueMissingCovers(data);
+        showToast("success", "Cover refresh started");
+      });
+
+      // ---------- Auth (tabs) ----------
+      tabSignin.onclick = () => {
+        tabSignin.classList.add("active");
+        tabSignup.classList.remove("active");
+        signinForm.classList.remove("hidden");
+        signupForm.classList.add("hidden");
+      };
+
+      tabSignup.onclick = () => {
+        tabSignup.classList.add("active");
+        tabSignin.classList.remove("active");
+        signupForm.classList.remove("hidden");
+        signinForm.classList.add("hidden");
+      };
+
+      authClose.onclick = () => closeModal(authModal);
+      authClose2.onclick = () => closeModal(authModal);
+
+      // Submit on Enter
+      [loginIdentifier, loginPassword].forEach((input) =>
+        input.addEventListener("keydown", (e) => {
+          if (e.key === "Enter") loginSend.click();
+        })
+      );
+      [signupUsername, signupEmail, signupPassword].forEach((input) =>
+        input.addEventListener("keydown", (e) => {
+          if (e.key === "Enter") signupSend.click();
+        })
+      );
+
+      // Login
+      loginSend.onclick = async () => {
+        loginSend.classList.add("loading");
+        loginSend.innerHTML = "Sign in";
+
+        const identifier = (loginIdentifier.value || "").trim();
+        const password = loginPassword.value;
+
+        if (!identifier || !password) {
+          showToast("error", "Enter username/email and password");
+          loginSend.classList.remove("loading");
+          loginSend.innerHTML = '<i class="fa-solid fa-right-to-bracket"></i>Sign in';
+          return;
+        }
+
+        try {
+          const { data: emailData, error: emailError } = await supabase.rpc("email_for_username", {
+            p_identifier: identifier,
+          });
+          if (emailError) throw emailError;
+
+          const email = emailData?.email;
+          if (!email) throw new Error("User not found");
+
+          const { error } = await supabase.auth.signInWithPassword({ email, password });
+          if (error) throw error;
+
+          showToast("success", "Signed in successfully");
+          closeModal(authModal);
+        } catch (e) {
+          console.error(e);
+          showToast("error", e.message || "Sign-in failed");
+        } finally {
+          loginSend.classList.remove("loading");
+          loginSend.innerHTML = '<i class="fa-solid fa-right-to-bracket"></i>Sign in';
+        }
+      };
+
+      // Forgot password (link)
+      forgotPasswordLink.onclick = async () => {
+        try {
+          const ident = (loginIdentifier.value || "").trim();
+          if (!ident) return showToast("error", "Enter your username or email first");
+
+          const { data: emailData, error: emailError } = await supabase.rpc("email_for_username", {
+            p_identifier: ident,
+          });
+          if (emailError) throw emailError;
+
+          const email = emailData?.email;
+          if (!email) throw new Error("User not found");
+
+          const { error } = await supabase.auth.resetPasswordForEmail(email, {
+            redirectTo: window.location.origin + window.location.pathname,
+          });
+          if (error) throw error;
+
+          showToast("success", "Reset email sent");
+        } catch (e) {
+          showToast("error", e.message || "Could not send reset email");
+        }
+      };
+
+      // Signup
+      signupSend.onclick = async () => {
+        signupSend.classList.add("loading");
+        signupSend.innerHTML = "Sign up";
+
+        const username = (signupUsername.value || "").trim();
+        const email = (signupEmail.value || "").trim();
+        const password = signupPassword.value;
+
+        if (!username || !email || !password) {
+          showToast("error", "All fields are required");
+          signupSend.classList.remove("loading");
+          signupSend.innerHTML = '<i class="fa-solid fa-user-plus"></i>Sign up';
+          return;
+        }
+
+        if (password.length < 6) {
+          showToast("error", "Password must be at least 6 characters");
+          signupSend.classList.remove("loading");
+          signupSend.innerHTML = '<i class="fa-solid fa-user-plus"></i>Sign up';
+          return;
+        }
+
+        try {
+          const { data: existingUser } = await supabase.from("profiles").select("id").eq("username", username).maybeSingle();
+          if (existingUser) throw new Error("Username already taken");
+
+          const { error } = await supabase.auth.signUp({
+            email,
+            password,
+            options: { data: { username } },
+          });
+          if (error) throw error;
+
+          showToast("success", "Account created! Check your email to verify.");
+          closeModal(authModal);
+        } catch (e) {
+          console.error(e);
+          showToast("error", e.message || "Sign-up failed");
+        } finally {
+          signupSend.classList.remove("loading");
+          signupSend.innerHTML = '<i class="fa-solid fa-user-plus"></i>Sign up';
+        }
+      };
+
+      // Resend confirmation (link)
+      resendConfirmationLink.onclick = async () => {
+        try {
+          const email = (signupEmail.value || "").trim();
+          if (!email) return showToast("error", "Enter your email first");
+
+          const { error } = await supabase.auth.resend({ type: "signup", email });
+          if (error) throw error;
+
+          showToast("success", "Confirmation email resent");
+        } catch (e) {
+          showToast("error", e.message || "Failed to resend");
+        }
+      };
+
+      // ---------- Verify modal ----------
+      verifyReload.onclick = () => location.reload();
+
+      function checkEmailVerifyLanding() {
+        const url = new URL(window.location.href);
+        const type = url.searchParams.get("type") || (url.hash.includes("type=signup") ? "signup" : null);
+
+        if (type === "signup") {
+          openModal(verifyModal);
+
+          // Clean URL
+          url.searchParams.delete("type");
+          history.replaceState(
+            null,
+            "",
+            url.pathname + (url.searchParams.toString() ? "?" + url.searchParams.toString() : "")
+          );
+        }
+      }
+
+      // ---------- Offline modal ----------
+      function syncOfflineModal() {
+        if (!navigator.onLine) {
+          openModal(offlineModal);
+        } else {
+          if (offlineModal.classList.contains("open")) closeModal(offlineModal);
+        }
+      }
+
+      window.addEventListener("offline", syncOfflineModal);
+      window.addEventListener("online", () => {
+        syncOfflineModal();
+        showToast("success", "Back online");
+      });
+
+      // ---------- Chat ----------
+      function updateSelfAvatar() {
+        chatSelfAvatar.src = diceAvatar(getUsername());
+      }
+
+      function isNearChatBottom() {
+        const dist = chatMessagesEl.scrollHeight - chatMessagesEl.scrollTop - chatMessagesEl.clientHeight;
+        return dist < 120;
+      }
+
+      function scrollChatToBottom(force = false) {
+        if (force || isNearChatBottom()) {
+          chatMessagesEl.scrollTop = chatMessagesEl.scrollHeight;
+          chatBottomFab.classList.remove("visible");
+        }
+      }
+
+      async function loadChatHistory(limit = 3000) {
+        chatLoading.classList.add("visible");
+        try {
+          const { data: rows, error } = await supabase
+            .from("chat_messages")
+            .select("id,user_id,username,content,created_at,is_system")
+            .order("created_at", { ascending: true })
+            .limit(limit);
+
+          if (error) throw error;
+
+          chatMessagesEl.querySelectorAll(".msg").forEach((n) => n.remove());
+          (rows || []).forEach(renderChatMessage);
+
+          scrollChatToBottom(true);
+        } catch (e) {
+          console.error(e);
+          showToast("error", e.message || "Failed to load chat");
+        } finally {
+          chatLoading.classList.remove("visible");
+        }
+      }
+
+      function renderChatMessage(msg) {
+        const mine = msg.user_id === user?.id && !msg.is_system;
+        const susie = !!msg.is_system && String(msg.username || "").toLowerCase() === SUSIE_NAME.toLowerCase();
+
+        const wrap = document.createElement("div");
+        wrap.className = "msg" + (mine ? " mine" : "") + (susie ? " susie" : "");
+
+        const avatar = document.createElement("img");
+        avatar.className = "avatar";
+        avatar.alt = "";
+        avatar.src = susie ? SUSIE_AVATAR : diceAvatar(msg.username || "bro");
+
+        const bubble = document.createElement("div");
+        bubble.className = "bubble";
+
+        const meta = document.createElement("div");
+        meta.className = "meta";
+
+        const userEl = document.createElement("span");
+        userEl.className = "user";
+        userEl.textContent = msg.username || "bro";
+        userEl.style.color = susie ? "var(--susie)" : userColor(msg.username);
+
+        const timeEl = document.createElement("span");
+        timeEl.className = "time";
+        timeEl.textContent = fmtTime(msg.created_at);
+
+        meta.append(userEl, timeEl);
+
+        const content = document.createElement("div");
+        content.className = "content";
+        content.innerHTML = linkify(msg.content || "");
+
+        bubble.append(meta, content);
+        wrap.append(mine ? bubble : avatar, mine ? avatar : bubble);
+
+        chatMessagesEl.appendChild(wrap);
+      }
+
+      function setupChatRealtime() {
+        if (chatChannel) supabase.removeChannel(chatChannel);
+
+        chatChannel = supabase
+          .channel("realtime:public:chat_messages")
+          .on("postgres_changes", { event: "INSERT", schema: "public", table: "chat_messages" }, (payload) => {
+            const nearBottom = isNearChatBottom();
+            renderChatMessage(payload.new);
+            if (nearBottom) scrollChatToBottom(true);
+            else chatBottomFab.classList.add("visible");
+          })
+          .subscribe();
+      }
+
+      function setupTyping() {
+        if (typingChannel) supabase.removeChannel(typingChannel);
+
+        typingChannel = supabase.channel("room:chat-typing", { config: { broadcast: { ack: false } } });
+
+        typingChannel
+          .on("broadcast", { event: "typing" }, ({ payload }) => {
+            if (!payload?.user_id || payload.user_id === user?.id) return;
+
+            const username = String(payload.username || "Someone");
+            typingUsers.set(payload.user_id, { username, until: Date.now() + 1600 });
+
+            scheduleTypingIndicatorUpdate();
+          })
+          .subscribe();
+      }
+
+      function pruneTypingUsers() {
+        const now = Date.now();
+        for (const [uid, info] of typingUsers.entries()) {
+          if (!info || info.until < now) typingUsers.delete(uid);
+        }
+      }
+
+      function scheduleTypingIndicatorUpdate() {
+        if (typingUiDebounce) clearTimeout(typingUiDebounce);
+        typingUiDebounce = setTimeout(() => {
+          pruneTypingUsers();
+          const count = typingUsers.size;
+
+          if (count <= 0) {
+            chatTypingEl.classList.remove("visible");
+            return;
+          }
+
+          if (count === 1) {
+            const only = [...typingUsers.values()][0];
+            chatTypingEl.textContent = `${only.username} is typing…`;
+          } else {
+            chatTypingEl.textContent = `${count} people are typing…`;
+          }
+
+          chatTypingEl.classList.add("visible");
+
+          // schedule a follow-up cleanup so it disappears smoothly without flicker
+          setTimeout(() => scheduleTypingIndicatorUpdate(), 900);
+        }, 140);
+      }
+
+      function broadcastTypingDebounced() {
+        if (!typingChannel || !user) return;
+
+        const now = Date.now();
+        const minInterval = 700;
+
+        if (now - typingLastBroadcastAt >= minInterval) {
+          typingLastBroadcastAt = now;
+          typingChannel.send({
+            type: "broadcast",
+            event: "typing",
+            payload: { user_id: user.id, username: getUsername() },
+          });
+          return;
+        }
+
+        if (typingBroadcastTimer) clearTimeout(typingBroadcastTimer);
+        typingBroadcastTimer = setTimeout(() => {
+          typingLastBroadcastAt = Date.now();
+          typingChannel.send({
+            type: "broadcast",
+            event: "typing",
+            payload: { user_id: user.id, username: getUsername() },
+          });
+        }, minInterval - (now - typingLastBroadcastAt));
+      }
+
+      function faNumberIconOrText(n) {
+        const digit = String(n);
+        if (/^[0-9]$/.test(digit)) {
+          return `<span style="font-weight:900">${escapeHtml(digit)}</span>`;
+        }
+        return `<span style="font-weight:900">${escapeHtml(digit)}</span>`;
+      }
+
+      function renderChatSendButton() {
+        const now = Date.now();
+        const left = Math.max(0, Math.ceil((chatCooldownUntil - now) / 1000));
+
+        if (chatSending) {
+          chatSend.innerHTML = `<i class="fa-solid fa-spinner spin"></i>`;
+          chatSend.disabled = true;
+          return;
+        }
+
+        if (left > 0) {
+          chatSend.innerHTML = faNumberIconOrText(left);
+          chatSend.disabled = true;
+          return;
+        }
+
+        chatSend.innerHTML = `<i class="fa-solid fa-paper-plane"></i>`;
+        chatSend.disabled = !user || !(chatInput.value || "").trim();
+      }
+
+      function startChatCooldown(ms = 5000) {
+        chatCooldownUntil = Date.now() + ms;
+        renderChatSendButton();
+
+        if (chatCooldownTimer) clearInterval(chatCooldownTimer);
+        chatCooldownTimer = setInterval(() => {
+          renderChatSendButton();
+          if (Date.now() >= chatCooldownUntil) {
+            clearInterval(chatCooldownTimer);
+            chatCooldownTimer = null;
+            renderChatSendButton();
+          }
+        }, 150);
+      }
+
+      async function sendChat() {
+        const text = (chatInput.value || "").trim();
+        if (!user) {
+          showToast("error", "Sign in to chat");
+          openModal(authModal);
+          return;
+        }
+
+        if (!text) return;
+
+        const now = Date.now();
+        if (now < chatCooldownUntil) return;
+
+        if (text.length > 600) return showToast("error", "Message too long (max 600 chars)");
+
+        chatSending = true;
+        renderChatSendButton();
+
+        // Start cooldown immediately (client), server also enforces
+        startChatCooldown(5000);
+
+        try {
+          const username = getUsername();
+          const { error } = await supabase.from("chat_messages").insert({
+            content: text,
+            username,
+            user_id: user.id,
+            is_system: false,
+          });
+
+          if (error) throw error;
+
+          chatInput.value = "";
+          autoResizeChatInput();
+          renderChatSendButton();
+          scrollChatToBottom(true);
+        } catch (e) {
+          console.error(e);
+
+          if (String(e.message || "").toLowerCase().includes("rate")) {
+            startChatCooldown(5000);
+          }
+
+          showToast("error", e.message || "Failed to send");
+        } finally {
+          chatSending = false;
+          renderChatSendButton();
+        }
+      }
+
+      function autoResizeChatInput() {
+        chatInput.style.height = "auto";
+        chatInput.style.height = Math.min(chatInput.scrollHeight, 140) + "px";
+      }
+
+      chatInput.addEventListener("input", () => {
+        autoResizeChatInput();
+        broadcastTypingDebounced();
+        renderChatSendButton();
+      });
+
+      chatInput.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" && !e.shiftKey) {
+          e.preventDefault();
+          sendChat();
+        }
+      });
+
+      chatSend.addEventListener("click", sendChat);
+
+      chatClose.addEventListener("click", () => closeChat());
+
+      chatBottomFab.addEventListener("click", () => scrollChatToBottom(true));
+
+      chatMessagesEl.addEventListener(
+        "scroll",
+        () => {
+          const dist = chatMessagesEl.scrollHeight - chatMessagesEl.scrollTop - chatMessagesEl.clientHeight;
+          if (dist > 100) chatBottomFab.classList.add("visible");
+          else chatBottomFab.classList.remove("visible");
+        },
+        { passive: true }
+      );
+
+      function openChatFromClick() {
+        // FIX: don't set ?chat=1 unless the chat modal actually opens (prevents it reopening on reload)
+        if (!user) {
+          showToast("info", "Sign in to join the chat");
+          openModal(authModal);
+          return;
+        }
+        openChat();
+      }
+
+      function openChat() {
+        if (!user) return;
+
+        openModal(chatModal);
+        updateSelfAvatar();
+        renderChatSendButton();
+
+        loadChatHistory().then(() => scrollChatToBottom(true));
+        setupChatRealtime();
+        setupTyping();
+
+        updateURL();
+      }
+
+      function closeChat() {
+        closeModal(chatModal);
+        updateURL(); // FIX: always remove ?chat=1 when chat closes
+      }
+
+      // ---------- Chat open from URL (chat=1) ----------
+      function maybeOpenChatFromURL() {
+        const params = new URLSearchParams(window.location.search);
+        const chatFlag = params.get("chat") === "1";
+        if (!chatFlag) return;
+
+        if (user && !chatModal.classList.contains("open")) {
+          openChat();
+        }
+        if (!user && !authModal.classList.contains("open")) {
+          // keep URL, prompt sign-in
+          openModal(authModal);
+        }
+      }
+
+      // ---------- Verify landing ----------
+      checkEmailVerifyLanding();
+
+      // ---------- Offline modal initial sync ----------
+      syncOfflineModal();
+
+      // ---------- Init + Preloader (FIXED: no more stuck-on-reload) ----------
+      async function getSessionWithTimeout(timeoutMs = 2500) {
+        const timeout = new Promise((resolve) =>
+          setTimeout(() => resolve({ session: null, timedOut: true }), timeoutMs)
+        );
+
+        const attempt = (async () => {
+          try {
+            const { data, error } = await supabase.auth.getSession();
+            if (error) throw error;
+            return { session: data?.session ?? null, timedOut: false };
+          } catch (e) {
+            return { session: null, timedOut: false, error: e };
+          }
+        })();
+
+        return Promise.race([attempt, timeout]);
+      }
+
+      let authListenerStarted = false;
+      function startAuthListener() {
+        if (authListenerStarted) return;
+        authListenerStarted = true;
+
+        supabase.auth.onAuthStateChange(async (event, s) => {
+          // initApp already handled INITIAL_SESSION (prevents double-load + race issues)
+          if (event === "INITIAL_SESSION") return;
+
+          session = s;
+          user = s?.user ?? null;
+
+          updateAuthUI();
+          setupPresence();
+          updateMobileMenuUI();
+
+          if (user) {
+            await loadProfile();
+            await loadEntries();
+            setupRealtime();
+            render();
+            maybeOpenChatFromURL();
+          } else {
+            data = [];
+            render();
+            if (chatModal.classList.contains("open")) closeChat();
+          }
+        });
+      }
+
+      async function initApp() {
+        showPreloader("Loading AniMehList…");
+        setRandomBanner();
+
+        // URL state
+        readURL();
+        renderTabs();
+        updateViewToggleUI();
+        updateSortToggleUI();
+
+        initFloatingLabels(document);
+
+        try {
+          const r = await getSessionWithTimeout(2500);
+          if (r.timedOut) {
+            console.warn("Supabase getSession timed out; continuing without blocking UI.");
+          }
+          if (r.error) {
+            console.warn("Supabase getSession error:", r.error);
+          }
+
+          session = r.session;
+          user = session?.user ?? null;
+
+          updateAuthUI();
+          setupPresence();
+          updateMobileMenuUI();
+
+          if (user) {
+            await loadProfile();
+            await loadEntries();
+            setupRealtime();
+            render();
+            maybeOpenChatFromURL();
+          } else {
+            render();
+            maybeOpenChatFromURL();
+          }
+        } catch (e) {
+          console.error("Init error:", e);
+          showToast("error", e.message || "App failed to start");
+          render();
+        } finally {
+          // Critical: always hide preloader
+          hidePreloader();
+          startAuthListener();
+        }
+      }
+
+      // Init
+      initApp();
+    </script>
+  </body>
+</html>
