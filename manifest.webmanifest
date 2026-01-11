@@ -1,0 +1,25 @@
+{
+  "name": "AniMehList",
+  "short_name": "AML",
+  "description": "Track, organize, and rate your anime with a clean, simple interface. Inspired by MAL and Anilist—built for the bros ;)",
+  "start_url": "/AniMehList/",
+  "scope": "/AniMehList/",
+  "display": "standalone",
+  "background_color": "#0f0f0f",
+  "theme_color": "#7c5cff",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "assets/logo.png",
+      "sizes": "1024x1024",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+    "src": "assets/logo.png",
+    "sizes": "512x512",
+    "type": "image/png"
+    }
+  ]
+}
+

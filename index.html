@@ -3,23 +3,26 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
+
+    <!-- Manifest Stuff -->
+    <link rel="manifest" href="manifest.webmanifest">
+    <meta name="theme-color" content="#7c5cff">
+    <link rel="apple-touch-icon" href="assets/logo.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+
+
+
     <title>AniMehList — Your Anime Shelf</title>
     <link rel="icon" href="assets/logo.png" type="image/png" />
-
-    <!-- Fonts -->
     <link
       href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@400;600;700&family=Lato:wght@400;700;900&display=swap"
       rel="stylesheet"
     />
-
-    <!-- Icons -->
-    <link
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
-      rel="stylesheet"
-    />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet" />
 
     <style>
       :root {
+        /* existing variables (kept) */
         --bg: #0b0c10;
         --panel: #0f1117;
         --panel-2: #0b0f16;
@@ -33,7 +36,6 @@
         --card: #151927;
         --chip: #1d2336;
         --ring: #2b2f45;
-        --shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
         --radius: 14px;
         --radius-sm: 10px;
         --container: 1100px;
@@ -44,32 +46,129 @@
         --bp-mobile: 720px;
         --bp-compact: 520px;
         --bp-small: 600px;
-        --focus-ring: 0 0 0 4px rgba(124, 58, 237, 0.14);
         --accent-1: #6ee7ff;
         --accent-2: #a78bfa;
         --accent-3: #22d3ee;
-
-        /* Susie: maroon/crimson */
         --susie: #9f1239;
-
         --stroke: rgba(255, 255, 255, 0.1);
 
-        /* Z layers (FIX: modal stacking, toasts above scroll-to-top) */
+        /* z-index */
         --z-header: 60;
         --z-panel: 80;
         --z-scrolltop: 90;
-
         --z-modal: 300;
         --z-chat: 330;
         --z-auth: 340;
         --z-confirm: 350;
-
         --z-toast: 380;
         --z-cover-progress: 385;
         --z-loading: 390;
-
         --z-preloader: 500;
         --z-offline: 600;
+
+        /* ---------- color variables (same exact colors, now centralized) ---------- */
+        --c-white: #ffffff;
+        --c-black: #000000;
+
+        --bg-grad-top: #07070a;
+
+        --surface-0: #101525; /* panels */
+        --surface-1: #12182a; /* cards / menu items */
+        --surface-2: #131826; /* ghost btn */
+        --surface-3: #0f1424; /* inputs */
+        --surface-4: #141a2a; /* tabs */
+        --surface-5: #11162a; /* toggles */
+        --surface-6: #0e1323; /* cover bg */
+        --surface-7: #1a2040; /* cover gradient top */
+        --surface-8: #11162e; /* cover gradient bottom */
+        --surface-9: #1a2240; /* controls bg / skeleton blocks */
+        --surface-10: #1f2850; /* controls hover */
+        --surface-11: #131a2f; /* progress bg */
+        --surface-12: #151a2b; /* tag bg */
+        --surface-13: #171f38; /* no-results gradient bottom */
+        --surface-14: #1c2240; /* form bg */
+        --surface-15: #10162a; /* modal sheet */
+        --surface-16: #0a0d17; /* chat sheet override */
+        --surface-danger: #2d1a25;
+        --toast-info: #1b304a;
+
+        --text-0: #e9ecf3;
+        --text-1: #e8ecfa;
+        --text-2: #cbd5f7;
+        --text-3: #c6cde0;
+        --text-4: #cfe0ff;
+        --text-5: #d4daf0;
+        --text-6: #d6dbef;
+        --text-7: #b6bfd3;
+        --text-8: #b3bad2;
+        --text-9: #aeb8d9;
+        --text-10: #dfe6ff;
+        --text-11: #eaf0ff;
+        --text-muted-1: #cbd3ea;
+        --text-muted-2: #aab3cf;
+        --text-muted-3: #98a2c0;
+        --text-muted-4: #cfd6ea;
+        --text-link: #8ab4ff;
+
+        --green-600: #16a34a;
+        --danger-2: #ef6b6b;
+        --danger-soft-text: #fee2e2;
+        --green-soft: #86efac;
+
+        --gray-700: #374151;
+        --page-accent-dark: #061220;
+
+        /* alphas */
+        --a-white-0: rgba(255, 255, 255, 0);
+        --a-white-02: rgba(255, 255, 255, 0.02);
+        --a-white-04: rgba(255, 255, 255, 0.04);
+        --a-white-06: rgba(255, 255, 255, 0.06);
+        --a-white-08: rgba(255, 255, 255, 0.08);
+        --a-white-10: rgba(255, 255, 255, 0.1);
+        --a-white-12: rgba(255, 255, 255, 0.12);
+        --a-white-14: rgba(255, 255, 255, 0.14);
+        --a-white-15: rgba(255, 255, 255, 0.15);
+        --a-white-18: rgba(255, 255, 255, 0.18);
+        --a-white-20: rgba(255, 255, 255, 0.2);
+        --a-white-22: rgba(255, 255, 255, 0.22);
+        --a-white-25: rgba(255, 255, 255, 0.25);
+
+        --a-black-25: rgba(0, 0, 0, 0.25);
+        --a-black-35: rgba(0, 0, 0, 0.35);
+        --a-black-45: rgba(0, 0, 0, 0.45);
+        --a-black-50: rgba(0, 0, 0, 0.5);
+        --a-black-55: rgba(0, 0, 0, 0.55);
+        --a-black-65: rgba(0, 0, 0, 0.65);
+        --a-black-70: rgba(0, 0, 0, 0.7);
+        --a-black-75: rgba(0, 0, 0, 0.75);
+        --a-black-86: rgba(0, 0, 0, 0.86);
+
+        /* non-black overlays used */
+        --header-glass: rgba(11, 12, 16, 0.9);
+        --hero-glass: rgba(7, 8, 12, 0.45);
+        --banner-ov-1: rgba(7, 8, 12, 0.6);
+        --banner-ov-2: rgba(7, 8, 12, 0.75);
+        --banner-ov-3: rgba(7, 8, 12, 0.9);
+
+        --modal-overlay: rgba(5, 7, 12, 0.72);
+        --modal-overlay-strong: rgba(5, 7, 12, 0.86);
+
+        --ink-70: rgba(6, 9, 16, 0.7);
+        --ink-90: rgba(6, 9, 16, 0.9);
+
+        --deep-shadow: rgba(1, 5, 18, 0.5);
+
+        --cover-progress-bg: rgba(16, 22, 42, 0.92);
+
+        /* focus ring */
+        --focus-ring-color: rgba(124, 58, 237, 0.14);
+        --focus-ring: 0 0 0 4px var(--focus-ring-color);
+
+        /* shadows */
+        --shadow: 0 10px 24px var(--a-black-35);
+
+        /* select arrow */
+        --select-arrow: var(--text-4);
       }
 
       * {
@@ -79,9 +178,8 @@
         max-width: 100%;
       }
 
-      /* Custom scrollbars */
       * {
-        scrollbar-color: #374151 #0b0f16;
+        scrollbar-color: var(--gray-700) var(--panel-2);
         scrollbar-width: thin;
       }
       ::-webkit-scrollbar {
@@ -89,30 +187,28 @@
         height: 10px;
       }
       ::-webkit-scrollbar-track {
-        background: #0b0f16;
+        background: var(--panel-2);
       }
       ::-webkit-scrollbar-thumb {
-        background: linear-gradient(180deg, #3b82f6, #a78bfa);
+        background: linear-gradient(180deg, #3b82f6, var(--accent-2));
         border-radius: 10px;
-        border: 2px solid #0b0f16;
+        border: 2px solid var(--panel-2);
       }
       ::-webkit-scrollbar-thumb:hover {
-        background: linear-gradient(180deg, #22d3ee, #7c3aed);
+        background: linear-gradient(180deg, var(--brand-2), var(--brand));
       }
 
-      html,
-      body {
+      body,
+      html {
         height: 100%;
-        overflow-x: hidden; /* keep this per user request */
+        overflow-x: hidden;
       }
-
       html {
         scroll-behavior: smooth;
       }
-
       body {
         margin: 0;
-        background: linear-gradient(180deg, #07070a, #0b0c10 40%);
+        background: linear-gradient(180deg, var(--bg-grad-top), var(--bg) 40%);
         color: var(--text);
         font: 400 16px/1.55 var(--body-font);
         -webkit-font-smoothing: antialiased;
@@ -122,9 +218,14 @@
         display: flex;
         flex-direction: column;
       }
-
       a {
         color: inherit;
+      }
+
+      /* global focus ring for all tabbables */
+      :where(button, a, input, select, textarea, [role="button"], [tabindex]):focus-visible {
+        outline: 0;
+        box-shadow: var(--focus-ring);
       }
 
       .container {
@@ -133,16 +234,14 @@
         padding: 0 16px;
         width: 100%;
       }
-
       .header {
         position: sticky;
         top: 0;
         z-index: var(--z-header);
-        background: rgba(11, 12, 16, 0.9);
+        background: var(--header-glass);
         backdrop-filter: blur(6px);
-        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        border-bottom: 1px solid var(--a-white-06);
       }
-
       .nav {
         display: flex;
         align-items: center;
@@ -152,7 +251,6 @@
         padding: 6px 0;
         flex-wrap: nowrap;
       }
-
       .logo {
         display: flex;
         align-items: center;
@@ -162,7 +260,6 @@
         min-width: 0;
         flex: 1 1 auto;
       }
-
       .logo-img {
         height: 34px;
         border-radius: 5px;
@@ -170,7 +267,6 @@
         display: block;
         flex: 0 0 auto;
       }
-
       .nav-cta {
         display: flex;
         gap: 10px;
@@ -185,59 +281,52 @@
         border-radius: 12px;
         padding: 10px 14px;
         background: var(--panel);
-        color: #e9ecf3;
+        color: var(--text-0);
         cursor: pointer;
         display: inline-flex;
         gap: 8px;
         align-items: center;
         justify-content: center;
         box-shadow: var(--shadow);
-        transition: transform var(--ui-duration) ease, opacity var(--ui-duration) ease,
-          background 0.2s ease;
+        transition: transform var(--ui-duration) ease, opacity var(--ui-duration) ease, background 0.2s ease;
         user-select: none;
         white-space: nowrap;
       }
-
       .btn:hover {
         transform: translateY(-2px);
       }
-
-      .btn:focus-visible {
-        outline: 0;
-        box-shadow: var(--focus-ring);
-      }
-
       .btn.brand {
         background: linear-gradient(90deg, var(--brand), var(--brand-2));
-        color: #fff;
+        color: var(--c-white);
         font-weight: 700;
       }
-
       .btn.ghost {
-        background: #131826;
-        border: 1px solid rgba(255, 255, 255, 0.08);
+        background: var(--surface-2);
+        border: 1px solid var(--a-white-08);
         box-shadow: none;
       }
-
       .btn.danger {
-        background: #2d1a25;
-        color: #fee2e2;
-        border: 1px solid rgba(255, 255, 255, 0.06);
+        background: var(--surface-danger);
+        color: var(--danger-soft-text);
+        border: 1px solid var(--a-white-06);
       }
-
       .btn.sm {
         padding: 8px 10px;
         border-radius: 10px;
         font-size: 13px;
       }
-
       .btn.icon {
         padding: 8px 10px;
         border-radius: 10px;
         font-size: 14px;
         box-shadow: none;
-        background: rgba(0, 0, 0, 0.35);
-        border: 1px solid rgba(255, 255, 255, 0.15);
+        background: var(--a-black-35);
+        border: 1px solid var(--a-white-15);
+      }
+      .btn:disabled {
+        opacity: 0.55;
+        cursor: not-allowed;
+        transform: none;
       }
 
       .btn.loading {
@@ -245,19 +334,17 @@
         opacity: 0.85;
         position: relative;
       }
-
       .btn.loading::before {
         content: "";
         display: inline-block;
         width: 14px;
         height: 14px;
-        border: 2px solid #fff;
+        border: 2px solid var(--c-white);
         border-top-color: transparent;
         border-radius: 50%;
         animation: spin 0.8s linear infinite;
         margin-right: 8px;
       }
-
       @keyframes spin {
         0% {
           transform: rotate(0);
@@ -271,9 +358,9 @@
         display: inline-flex;
         gap: 8px;
         align-items: center;
-        background: #151a2b;
-        border: 1px solid rgba(255, 255, 255, 0.06);
-        color: #b6bfd3;
+        background: var(--surface-12);
+        border: 1px solid var(--a-white-06);
+        color: var(--text-7);
         border-radius: 999px;
         padding: 6px 10px;
         font-size: 12px;
@@ -326,25 +413,25 @@
         }
       }
 
-      .menu-panel,
-      .account-panel {
+      .account-panel,
+      .menu-panel {
         position: fixed;
         top: 66px;
         right: 12px;
         z-index: var(--z-panel);
         width: min(360px, 94vw);
-        background: #101525;
-        border: 1px solid rgba(255, 255, 255, 0.08);
+        background: var(--surface-0);
+        border: 1px solid var(--a-white-08);
         border-radius: 16px;
-        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+        box-shadow: 0 20px 40px var(--a-black-50);
         transform-origin: top right;
         transform: scale(0.98) translateY(-6px);
         opacity: 0;
         pointer-events: none;
         transition: transform 0.2s ease, opacity 0.2s ease;
       }
-      .menu-panel.open,
-      .account-panel.open {
+      .account-panel.open,
+      .menu-panel.open {
         transform: scale(1) translateY(0);
         opacity: 1;
         pointer-events: auto;
@@ -352,59 +439,52 @@
 
       .menu-sec {
         padding: 12px;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        border-bottom: 1px solid var(--a-white-06);
       }
       .menu-sec:last-child {
         border-bottom: 0;
       }
-
       .menu-title {
         font-family: var(--title-font);
         font-size: 13px;
-        color: #cbd5f7;
+        color: var(--text-2);
         margin-bottom: 8px;
       }
-
       .menu-row {
         display: flex;
         flex-wrap: wrap;
         gap: 8px;
       }
-
       .menu-item {
         width: 100%;
         display: flex;
         align-items: center;
         justify-content: space-between;
         gap: 10px;
-        background: #12182a;
-        border: 1px solid rgba(255, 255, 255, 0.08);
+        background: var(--surface-1);
+        border: 1px solid var(--a-white-08);
         border-radius: 12px;
         padding: 10px 12px;
       }
-
       .menu-kv {
         display: flex;
         align-items: center;
         gap: 10px;
       }
-
       .menu-note {
         font-size: 12px;
-        color: #9aa3b2;
+        color: var(--muted);
       }
 
-      /* Banner */
       .banner {
         position: relative;
         display: block;
         height: clamp(520px, 70vw, 880px);
         width: 100vw;
         margin-left: calc(50% - 50vw);
-        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        border-bottom: 1px solid var(--a-white-06);
         overflow: hidden;
       }
-
       .banner-image {
         position: absolute;
         inset: 0;
@@ -415,20 +495,13 @@
         filter: saturate(1.02) contrast(1.05) brightness(0.9);
         transform: scale(1.02);
       }
-
       .banner::after {
         content: "";
         position: absolute;
         inset: 0;
-        background: linear-gradient(
-          180deg,
-          rgba(7, 8, 12, 0.6),
-          rgba(7, 8, 12, 0.75) 40%,
-          rgba(7, 8, 12, 0.9)
-        );
+        background: linear-gradient(180deg, var(--banner-ov-1), var(--banner-ov-2) 40%, var(--banner-ov-3));
         pointer-events: none;
       }
-
       .banner-inner {
         position: relative;
         z-index: 2;
@@ -437,7 +510,6 @@
         align-items: flex-end;
         padding: 96px 0 40px;
       }
-
       .hero {
         display: grid;
         gap: 10px;
@@ -446,17 +518,15 @@
         width: 100%;
         padding: 0 16px;
       }
-
       .hero-box {
         max-width: min(820px, 96%);
-        background: rgba(7, 8, 12, 0.45);
-        border: 1px solid rgba(255, 255, 255, 0.15);
+        background: var(--hero-glass);
+        border: 1px solid var(--a-white-15);
         padding: 14px 16px;
         border-radius: 14px;
-        box-shadow: 0 14px 40px rgba(0, 0, 0, 0.45);
+        box-shadow: 0 14px 40px var(--a-black-45);
         backdrop-filter: blur(4px);
       }
-
       .hero h1 {
         margin: 0 0 6px 0;
         font-size: clamp(22px, 3.2vw, 38px);
@@ -464,71 +534,62 @@
         letter-spacing: 0.6px;
         font-family: var(--title-font);
         font-weight: 700;
-        text-shadow: 0 2px 6px rgba(0, 0, 0, 0.55);
+        text-shadow: 0 2px 6px var(--a-black-55);
       }
-
       .hero .sub {
-        color: #d4daf0;
+        color: var(--text-5);
         font-size: 14px;
-        text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+        text-shadow: 0 1px 4px var(--a-black-50);
       }
 
-      /* Toolbar */
       .toolbar {
         display: flex;
         flex-direction: column;
         gap: 12px;
         margin: 14px 0 10px;
       }
-
       .toolbar-top {
         display: flex;
         gap: 10px;
         flex-wrap: wrap;
         align-items: center;
       }
-
       .actions-row {
         display: flex;
         gap: 10px;
         align-items: center;
         flex-wrap: nowrap;
       }
-
       .search-container {
         position: relative;
         flex: 1;
         min-width: 220px;
       }
-
       .search {
         width: 100%;
-        background: #0f1424;
-        border: 1px solid rgba(255, 255, 255, 0.08);
+        background: var(--surface-3);
+        border: 1px solid var(--a-white-08);
         border-radius: 12px;
-        color: #e8ecfa;
+        color: var(--text-1);
         padding: 10px 40px 10px 12px;
         outline: 0;
       }
-
       .search:focus {
         box-shadow: var(--focus-ring);
         border-color: rgba(124, 58, 237, 0.7);
       }
-
       .search-clear {
         position: absolute;
         right: 12px;
         top: 50%;
         transform: translateY(-50%);
-        background: 0 0;
+        background: none;
         border: none;
         color: var(--muted);
         cursor: pointer;
         font-size: 16px;
         display: none;
       }
-
       .search-clear.visible {
         display: block;
       }
@@ -542,51 +603,44 @@
         -webkit-overflow-scrolling: touch;
         scrollbar-width: none;
       }
-
       .toolbar-tabs::-webkit-scrollbar {
         display: none;
       }
-
       .tab {
         padding: 8px 12px;
         border-radius: 999px;
-        color: #c6cde0;
-        background: #141a2a;
-        border: 1px solid rgba(255, 255, 255, 0.06);
+        color: var(--text-3);
+        background: var(--surface-4);
+        border: 1px solid var(--a-white-06);
         cursor: pointer;
         transition: transform 0.15s;
         flex: 0 0 auto;
       }
-
       .tab:hover {
         transform: translateY(-1px);
       }
-
       .tab.active {
         background: linear-gradient(90deg, rgba(124, 58, 237, 0.25), rgba(34, 211, 238, 0.2));
-        color: #fff;
-        border-color: rgba(255, 255, 255, 0.12);
+        color: var(--c-white);
+        border-color: var(--a-white-12);
       }
-
       .tab .count {
         opacity: 0.7;
         margin-left: 6px;
       }
 
-      /* Sort segmented control */
       .sort-toggle,
       .view-toggle {
         display: inline-flex;
-        background: #11162a;
-        border: 1px solid rgba(255, 255, 255, 0.06);
+        background: var(--surface-5);
+        border: 1px solid var(--a-white-06);
         border-radius: 12px;
         overflow: hidden;
       }
-
       .seg {
         appearance: none;
-        background: 0 0;
-        color: #cfe0ff;
+        background: none;
+        color: var(--text-4);
         padding: 8px 12px;
         border: 0;
         cursor: pointer;
@@ -595,16 +649,13 @@
         align-items: center;
         gap: 8px;
       }
-
       .seg:hover {
-        background: rgba(255, 255, 255, 0.04);
+        background: var(--a-white-04);
       }
-
       .seg.active {
         background: linear-gradient(90deg, rgba(124, 58, 237, 0.25), rgba(34, 211, 238, 0.2));
-        color: #fff;
+        color: var(--c-white);
       }
-
       .toolbar .toolbar-top .view-toggle {
         margin-left: auto;
       }
@@ -612,7 +663,6 @@
       .section {
         margin-top: 18px;
       }
-
       .section-title {
         display: flex;
         align-items: center;
@@ -621,10 +671,9 @@
         font-family: var(--title-font);
         font-size: 18px;
         letter-spacing: 0.3px;
-        color: #d6dbef;
+        color: var(--text-6);
       }
 
-      /* Grid/shelf */
       .grid {
         display: grid;
         grid-template-columns: repeat(12, 1fr);
@@ -633,7 +682,6 @@
       .col {
         grid-column: span 12;
       }
-
       .grid.view-grid .col {
         grid-column: span 6;
       }
@@ -652,7 +700,6 @@
           grid-column: span 3;
         }
       }
-
       .grid.view-compact .col {
         grid-column: span 12;
       }
@@ -668,21 +715,22 @@
       }
 
       .card {
-        background: #12182a;
-        border: 1px solid rgba(255, 255, 255, 0.08);
+        background: var(--surface-1);
+        border: 1px solid var(--a-white-08);
         border-radius: var(--radius);
         overflow: hidden;
-        box-shadow: 0 8px 20px rgba(1, 5, 18, 0.5);
+        box-shadow: 0 8px 20px var(--deep-shadow);
         display: flex;
         flex-direction: column;
         min-width: 0;
+        position: relative;
       }
 
       .cover {
         position: relative;
         width: 100%;
         aspect-ratio: 1/1.4;
-        background: #0e1323;
+        background: var(--surface-6);
         overflow: hidden;
       }
       .cover img {
@@ -697,15 +745,13 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        background: linear-gradient(180deg, #1a2040, #11162e);
-        color: #aeb8d9;
+        background: linear-gradient(180deg, var(--surface-7), var(--surface-8));
+        color: var(--text-9);
         font-weight: 800;
         font-size: clamp(22px, 5vw, 36px);
         letter-spacing: 0.8px;
         text-transform: uppercase;
       }
-
-      /* Per-card image loader */
       .cover-loader {
         position: absolute;
         inset: 0;
@@ -713,13 +759,13 @@
         align-items: center;
         justify-content: center;
         pointer-events: none;
-        background: linear-gradient(180deg, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.25));
+        background: linear-gradient(180deg, rgba(0, 0, 0, 0), var(--a-black-25));
       }
       .cover-loader i {
         color: var(--brand-2);
         font-size: 18px;
         animation: spin 0.8s linear infinite;
-        filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.5));
+        filter: drop-shadow(0 2px 6px var(--a-black-50));
       }
 
       .floating-actions {
@@ -731,24 +777,24 @@
         z-index: 2;
       }
       .floating-actions .icon-btn {
-        background: rgba(6, 9, 16, 0.7);
-        color: #e8ecfa;
-        border: 1px solid rgba(255, 255, 255, 0.15);
+        background: var(--ink-70);
+        color: var(--text-1);
+        border: 1px solid var(--a-white-15);
         padding: 6px;
         border-radius: 8px;
         cursor: pointer;
       }
       .floating-actions .icon-btn:hover {
-        background: rgba(6, 9, 16, 0.9);
+        background: var(--ink-90);
       }
 
       .badge-bottom {
         position: absolute;
         right: 6px;
         bottom: 6px;
-        background: rgba(0, 0, 0, 0.55);
-        border: 1px solid rgba(255, 255, 255, 0.12);
-        color: #eaf0ff;
+        background: var(--a-black-55);
+        border: 1px solid var(--a-white-12);
+        color: var(--text-11);
         font-size: 11px;
         padding: 4px 6px;
         border-radius: 999px;
@@ -758,6 +804,35 @@
         z-index: 1;
       }
 
+      /* Notes tooltip (hover + long-press) */
+      .note-tooltip {
+        position: absolute;
+        left: 8px;
+        right: 56px;
+        bottom: 8px;
+        background: rgba(0, 0, 0, 0.62);
+        border: 1px solid var(--a-white-12);
+        color: var(--text-11);
+        padding: 8px 10px;
+        border-radius: 12px;
+        font-size: 12px;
+        line-height: 1.35;
+        opacity: 0;
+        transform: translateY(6px);
+        transition: opacity var(--ui-duration) ease, transform var(--ui-duration) ease;
+        pointer-events: none; /* IMPORTANT: do not block clicks */
+        z-index: 3;
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 5;
+        overflow: hidden;
+      }
+      .card.has-note:hover .note-tooltip,
+      .card.has-note.note-open .note-tooltip {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
       .card-body {
         padding: 8px;
         min-width: 0;
@@ -765,7 +840,6 @@
         flex-direction: column;
         gap: 6px;
       }
-
       .title-row {
         display: grid;
         grid-template-columns: 1fr;
@@ -773,7 +847,6 @@
         gap: 6px;
         min-width: 0;
       }
-
       .title {
         font-weight: 800;
         letter-spacing: 0.5px;
@@ -788,24 +861,22 @@
         -webkit-line-clamp: 2;
         height: 2.4em;
       }
-
       .chips {
         display: flex;
         gap: 6px;
         flex-wrap: wrap;
         align-items: center;
-        color: #b3bad2;
+        color: var(--text-8);
         font-size: 11px;
         margin: 2px 0 4px;
       }
-
       .chip {
         font-size: 10px;
         padding: 3px 6px;
         border-radius: 999px;
         background: #161c2e;
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        color: #cfe0ff;
+        border: 1px solid var(--a-white-08);
+        color: var(--text-4);
       }
 
       .controls {
@@ -815,7 +886,6 @@
         margin-top: 2px;
         flex-wrap: wrap;
       }
-
       .control-btn {
         display: inline-flex;
         align-items: center;
@@ -823,42 +893,45 @@
         width: 36px;
         height: 32px;
         border-radius: 8px;
-        background: #1a2240;
-        color: #dfe6ff;
-        border: 1px solid rgba(255, 255, 255, 0.12);
+        background: var(--surface-9);
+        color: var(--text-10);
+        border: 1px solid var(--a-white-12);
         cursor: pointer;
         flex: 0 0 auto;
       }
       .control-btn:hover {
-        background: #1f2850;
+        background: var(--surface-10);
       }
       .control-btn:disabled {
         opacity: 0.35;
         cursor: not-allowed;
       }
-
       .progress-readout {
         display: inline-flex;
-        gap: 4px;
+        gap: 6px;
         align-items: center;
         padding: 6px 10px;
         border-radius: 8px;
-        background: #131a2f;
-        border: 1px solid rgba(255, 255, 255, 0.08);
+        background: var(--surface-11);
+        border: 1px solid var(--a-white-08);
         font-size: 12px;
-        color: #cfe0ff;
+        color: var(--text-4);
         flex: 0 0 auto;
         min-width: max-content;
         max-width: 100%;
+      }
+      .progress-readout .spin {
+        animation: spin 0.9s linear infinite;
+        color: var(--brand-2);
       }
 
       .move-select,
       .select {
         appearance: none;
-        background-color: #0f1424;
+        background-color: var(--surface-3);
         border: 1px solid rgba(255, 255, 255, 0.1);
         border-radius: 12px;
-        color: #e8ecfa;
+        color: var(--text-1);
         padding: 10px 38px 10px 12px;
         outline: 0;
         height: 38px;
@@ -866,17 +939,15 @@
         position: relative;
         cursor: pointer;
         box-shadow: none;
-        background-image: linear-gradient(
-            180deg,
-            rgba(255, 255, 255, 0.06),
-            rgba(255, 255, 255, 0) 40%
-          ),
-          url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23cfe0ff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
-        background-repeat: no-repeat, no-repeat;
-        background-position: 0 0, calc(100% - 12px) 50%;
-        background-size: auto, 14px;
-      }
 
+        /* replace data-uri arrow with CSS arrow (uses vars) */
+        background-image: linear-gradient(180deg, var(--a-white-06), var(--a-white-0) 40%),
+          linear-gradient(45deg, transparent 50%, var(--select-arrow) 50%),
+          linear-gradient(135deg, var(--select-arrow) 50%, transparent 50%);
+        background-repeat: no-repeat, no-repeat, no-repeat;
+        background-position: 0 0, calc(100% - 18px) 50%, calc(100% - 12px) 50%;
+        background-size: auto, 6px 6px, 6px 6px;
+      }
       .move-select {
         height: 32px;
         padding: 6px 34px 6px 8px;
@@ -902,17 +973,17 @@
           justify-self: center;
         }
         .move-select {
-          grid-column: 1 / -1;
+          grid-column: 1/-1;
           width: 100%;
           margin-left: 0;
         }
       }
 
       .muted {
-        color: #9aa3b2;
+        color: var(--muted);
       }
       .muted-small {
-        color: #9aa3b2;
+        color: var(--muted);
         font-size: 13px;
       }
 
@@ -949,11 +1020,10 @@
         right: 6px;
       }
 
-      /* Modal basics */
       .modal {
         position: fixed;
         inset: 0;
-        background: rgba(5, 7, 12, 0.72);
+        background: var(--modal-overlay);
         display: none;
         align-items: center;
         justify-content: center;
@@ -964,8 +1034,6 @@
       .modal.open {
         display: flex;
       }
-
-      /* Modal priority stacking */
       #chat-modal {
         z-index: var(--z-chat);
       }
@@ -973,15 +1041,19 @@
         z-index: var(--z-auth);
       }
       #confirm-modal {
-        z-index: var(--z-confirm); /* FIX: confirm above import + other modals */
+        z-index: var(--z-confirm);
       }
       #offline-modal {
         z-index: var(--z-offline);
       }
 
+      .chat-sheet {
+        background: var(--surface-16) !important;
+      }
+
       .sheet {
-        background: #10162a;
-        border: 1px solid rgba(255, 255, 255, 0.08);
+        background: var(--surface-15);
+        border: 1px solid var(--a-white-08);
         border-radius: 14px;
         width: min(820px, 98%);
         padding: 18px;
@@ -990,13 +1062,12 @@
         transition: transform 0.28s cubic-bezier(0.2, 0.9, 0.3, 1), opacity 0.2s ease;
       }
       .sheet > .chat-body {
-        background: radial-gradient(circle at center, #1c2240 0%, #10162a 80%);
+        background: radial-gradient(circle at center, var(--surface-14) 0, var(--surface-15) 80%);
       }
       .modal.open .sheet {
         transform: translateY(0) scale(1);
         opacity: 1;
       }
-
       .sheet h3 {
         margin: 0 0 8px;
         font-family: var(--title-font);
@@ -1006,82 +1077,80 @@
         display: grid;
         gap: 10px;
       }
-
       .row {
         display: flex;
         gap: 10px;
         flex-wrap: wrap;
       }
-
       .input-wrapper {
         position: relative;
         flex: 1;
         min-width: 0;
       }
-
       .file,
       .input,
       .select {
-        background-color: #1c2240; /* IMPORTANT: don't wipe select background-image */
-        border: 1px solid rgba(255, 255, 255, 0.08);
+        background-color: var(--surface-14);
+        border: 1px solid var(--a-white-08);
         border-radius: 12px;
-        color: #e8ecfa;
-        padding: 12px 12px;
+        color: var(--text-1);
         outline: 0;
         width: 100%;
       }
 
+      .input,
+      .select {
+        padding: 12px 12px;
+      }
       .input:focus,
       .select:focus {
         box-shadow: var(--focus-ring);
         border-color: rgba(124, 58, 237, 0.7);
       }
 
-      /* Labels: fixed spacing ABOVE fields (no overlap / no floating) */
+      /* ---------- FLOATING LABELS (new) ---------- */
       .float-group {
-        display: grid;
-        gap: 6px;
-        align-items: start;
+        position: relative;
         flex: 1 1 auto;
         min-width: 0;
       }
-
-      .float-group label {
-        position: static;
-        transform: none;
-        pointer-events: auto; /* clickable labels */
-        color: #cbd5f7;
-        font-size: 13px;
-        line-height: 1.2;
-        font-family: var(--title-font);
-        letter-spacing: 0.3px;
-        margin: 0;
-      }
-
-      .float-group:focus-within label {
-        color: #e9ecf3;
-      }
-
       .float-group .field {
         position: relative;
         min-width: 0;
       }
-
-      /* Default inputs in float-groups: room for clear button */
-      .float-group .input {
-        padding: 12px 40px 12px 12px;
+      .float-group label {
+        position: absolute;
+        left: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        pointer-events: none;
+        color: var(--text-2);
+        font-size: 13px;
+        line-height: 1.1;
+        font-family: var(--title-font);
+        letter-spacing: 0.3px;
+        margin: 0;
+        opacity: 0.92;
+        transition: top var(--ui-duration) ease, transform var(--ui-duration) ease, font-size var(--ui-duration) ease,
+          color var(--ui-duration) ease, opacity var(--ui-duration) ease;
       }
-
-      /* Keep select arrow room */
+      .float-group:focus-within label,
+      .float-group.filled label {
+        top: 8px;
+        transform: none;
+        font-size: 11px;
+        opacity: 0.96;
+        color: var(--text-0);
+      }
+      .float-group .input {
+        padding: 18px 40px 10px 12px;
+      }
       .float-group .select.input {
         padding-right: 44px;
       }
-
-      /* Stepper inputs for Season/Episode */
       .float-group.stepper .input {
         text-align: center;
-        padding-left: 44px;
-        padding-right: 44px;
+        padding: 18px 44px 10px 44px;
       }
 
       .stepper-btn {
@@ -1091,9 +1160,9 @@
         width: 32px;
         height: 32px;
         border-radius: 10px;
-        border: 1px solid rgba(255, 255, 255, 0.12);
-        background: rgba(255, 255, 255, 0.06);
-        color: #e8ecfa;
+        border: 1px solid var(--a-white-12);
+        background: var(--a-white-06);
+        color: var(--text-1);
         cursor: pointer;
         display: inline-flex;
         align-items: center;
@@ -1111,9 +1180,8 @@
         cursor: not-allowed;
       }
 
-      /* Hide native number spinners */
-      input[type="number"]::-webkit-outer-spin-button,
-      input[type="number"]::-webkit-inner-spin-button {
+      input[type="number"]::-webkit-inner-spin-button,
+      input[type="number"]::-webkit-outer-spin-button {
         -webkit-appearance: none;
         margin: 0;
       }
@@ -1126,9 +1194,9 @@
         right: 8px;
         top: 50%;
         transform: translateY(-50%);
-        background: rgba(255, 255, 255, 0.06);
-        border: 1px solid rgba(255, 255, 255, 0.12);
-        color: #cfd6ea;
+        background: var(--a-white-06);
+        border: 1px solid var(--a-white-12);
+        color: var(--text-muted-4);
         cursor: pointer;
         font-size: 12px;
         width: 24px;
@@ -1142,24 +1210,18 @@
       .clear-btn.visible {
         display: inline-flex;
       }
-      .clear-btn:focus-visible {
-        box-shadow: var(--focus-ring);
-      }
 
       .hint {
-        color: #9aa3b2;
+        color: var(--muted);
         font-size: 12px;
       }
-
       .danger-text {
         color: var(--danger);
       }
-
       .small {
         font-size: 12px;
       }
 
-      /* Small divider inside modals (FIX: colored like section separators) */
       .modal-divider {
         border: 0;
         height: 2px;
@@ -1176,19 +1238,20 @@
         opacity: 0.95;
       }
 
-      /* Link-style actions (forgot password / resend email) */
       .text-link {
-        color: #8ab4ff;
+        color: var(--text-link);
         font-size: 13px;
         cursor: pointer;
         text-decoration: none;
         user-select: none;
+        background: none;
+        border: none;
+        padding: 0;
       }
       .text-link:hover {
         text-decoration: underline;
       }
 
-      /* Toasts (single, non-stacking via JS) */
       #toasts {
         position: fixed;
         right: 18px;
@@ -1196,15 +1259,15 @@
         display: flex;
         flex-direction: column;
         gap: 10px;
-        z-index: var(--z-toast); /* FIX: above scroll-to-top */
+        z-index: var(--z-toast);
       }
       .toast {
         min-width: 220px;
         max-width: 420px;
         padding: 12px 14px;
         border-radius: 12px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
-        color: #fff;
+        box-shadow: 0 10px 30px var(--a-black-45);
+        color: var(--c-white);
         font-weight: 700;
         display: flex;
         gap: 10px;
@@ -1217,14 +1280,12 @@
         font-size: 14px;
         white-space: normal;
       }
-
       .toast {
         display: flex !important;
         align-items: center !important;
         gap: 10px !important;
         white-space: normal !important;
       }
-
       .toast * {
         white-space: normal !important;
         min-width: 0 !important;
@@ -1234,15 +1295,14 @@
         word-break: break-word !important;
         display: block !important;
       }
-
       .toast.info {
-        background: #1b304a;
+        background: var(--toast-info);
       }
       .toast.success {
-        background: linear-gradient(90deg, #16a34a, #22c55e);
+        background: linear-gradient(90deg, var(--green-600), var(--ok));
       }
       .toast.error {
-        background: linear-gradient(90deg, var(--danger), #ef6b6b);
+        background: linear-gradient(90deg, var(--danger), var(--danger-2));
       }
       .toast.enter {
         animation: toast-in 0.26s cubic-bezier(0.2, 0.9, 0.3, 1) forwards;
@@ -1263,7 +1323,6 @@
         }
       }
 
-      /* Cover progress toast (wide, centered bottom) */
       #cover-progress {
         position: fixed;
         left: 50%;
@@ -1272,13 +1331,12 @@
         z-index: var(--z-cover-progress);
         width: 320px;
         max-width: 90vw;
-
         padding: 12px 14px;
         border-radius: 14px;
-        border: 1px solid rgba(255, 255, 255, 0.14);
-        background: rgba(16, 22, 42, 0.92);
+        border: 1px solid var(--a-white-14);
+        background: var(--cover-progress-bg);
         backdrop-filter: blur(8px);
-        box-shadow: 0 18px 44px rgba(0, 0, 0, 0.5);
+        box-shadow: 0 18px 44px var(--a-black-50);
         display: none;
       }
       #cover-progress.visible {
@@ -1287,12 +1345,12 @@
         justify-content: center;
       }
       #cover-progress.success {
-        background: linear-gradient(90deg, #16a34a, #22c55e);
+        background: linear-gradient(90deg, var(--green-600), var(--ok));
       }
       #cover-progress .cp-text {
         text-align: center;
         font-weight: 800;
-        color: #fff;
+        color: var(--c-white);
         display: inline-flex;
         align-items: center;
         gap: 10px;
@@ -1305,9 +1363,9 @@
       }
 
       footer {
-        border-top: 1px solid rgba(255, 255, 255, 0.08);
+        border-top: 1px solid var(--a-white-08);
         margin-top: auto;
-        background: #0f1117;
+        background: var(--panel);
       }
       footer .foot-wrap {
         display: flex;
@@ -1317,33 +1375,28 @@
         padding: 22px 0 26px;
         flex-wrap: wrap;
       }
-
       .foot-left {
         display: flex;
         align-items: center;
         gap: 12px;
         min-width: 0;
       }
-
       .foot-brand {
         display: flex;
         flex-direction: column;
         gap: 4px;
         min-width: 0;
       }
-
       .foot-brand-top {
         display: flex;
         align-items: center;
         gap: 10px;
         min-width: 0;
       }
-
       .foot-brand-top i {
         opacity: 0.7;
         flex: 0 0 auto;
       }
-
       .foot-brand-name {
         font-family: var(--title-font);
         letter-spacing: 0.4px;
@@ -1352,84 +1405,57 @@
         overflow: hidden;
         text-overflow: ellipsis;
       }
-
       .foot-right {
         display: flex;
         align-items: center;
         justify-content: flex-end;
         gap: 10px;
       }
-
-      /* Social icons (FIX: GitHub white, bigger, grey on hover + add Discord/WhatsApp) */
       .socials {
         display: flex;
         gap: 10px;
         align-items: center;
         flex-wrap: wrap;
       }
-
       .social-link {
         width: 25px;
         height: 25px;
-/*         border-radius: 14px; */
         display: inline-flex;
         align-items: center;
         justify-content: center;
         text-decoration: none;
-/*         background: rgba(255, 255, 255, 0.06); */
-/*         border: 1px solid rgba(255, 255, 255, 0.12); */
         transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease;
       }
-
       .social-link i {
-        color: #ffffff; /* default fully white */
-        font-size:16px; /* bigger */
+        color: var(--c-white);
+        font-size: 16px;
         line-height: 1;
       }
-
       .social-link:hover {
         transform: translateY(-2px);
-/*         background: rgba(255, 255, 255, 0.09); */
-/*         transform: scale(1.03); */
-        border-color: rgba(255, 255, 255, 0.18);
+        border-color: var(--a-white-18);
       }
-
       .social-link:hover i {
         color: var(--accent-2);
       }
-
-      .social-link:focus-visible {
-        outline: 0;
-        box-shadow: var(--focus-ring);
-      }
-
       .center {
         display: flex;
         align-items: center;
         justify-content: center;
       }
-
       .hidden {
         display: none !important;
       }
 
-      /* Section divider — more visible */
       .section-divider {
         border: 0;
         height: 3px;
         border-radius: 999px;
         margin: 24px 0;
-        background: linear-gradient(
-          90deg,
-          transparent,
-          rgba(124, 58, 237, 0.7) 20%,
-          rgba(34, 211, 238, 0.7) 80%,
-          transparent
-        );
+        background: linear-gradient(90deg, transparent, rgba(124, 58, 237, 0.7) 20%, rgba(34, 211, 238, 0.7) 80%, transparent);
         filter: drop-shadow(0 2px 10px rgba(124, 58, 237, 0.25));
       }
 
-      /* global loading spinner (for blocking global ops) */
       #loading-spinner {
         position: fixed;
         top: 50%;
@@ -1445,7 +1471,6 @@
         display: block;
       }
 
-      /* Scroll to top — below toasts + below modals */
       #scroll-to-top i {
         font-size: 20px;
       }
@@ -1454,7 +1479,7 @@
         width: 50px;
         height: 50px;
         background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
-        color: #061220;
+        color: var(--page-accent-dark);
         bottom: 30px;
         right: 30px;
         border-radius: 50%;
@@ -1463,7 +1488,7 @@
         justify-content: center;
         cursor: pointer;
         font-size: 22px;
-        z-index: var(--z-scrolltop); /* FIX: toasts above it, modals above both */
+        z-index: var(--z-scrolltop);
         border: 1px solid var(--stroke);
         -webkit-tap-highlight-color: transparent;
         transition: all 0.2s ease;
@@ -1483,7 +1508,6 @@
       #scroll-to-top.visible:active {
         transform: translateY(1px) scale(0.93);
       }
-
       @media (max-width: 600px) {
         #scroll-to-top {
           height: 40px;
@@ -1532,63 +1556,56 @@
 
       ::selection {
         background: var(--accent-2);
-        color: #000;
+        color: var(--c-black);
       }
 
-      /* Skeleton loading */
+      /* skeletons */
       .skeleton-card {
-        background: #12182a;
-        border: 1px solid rgba(255, 255, 255, 0.08);
+        background: var(--surface-1);
+        border: 1px solid var(--a-white-08);
         border-radius: var(--radius);
         overflow: hidden;
-        box-shadow: 0 8px 20px rgba(1, 5, 18, 0.5);
+        box-shadow: 0 8px 20px var(--deep-shadow);
         display: flex;
         flex-direction: column;
         animation: pulse 1.5s infinite ease-in-out;
       }
-
       .skeleton-cover {
         width: 100%;
         height: 0;
         padding-bottom: 140%;
-        background: linear-gradient(90deg, #0e1323 25%, #12182a 50%, #0e1323 75%);
+        background: linear-gradient(90deg, var(--surface-6) 25%, var(--surface-1) 50%, var(--surface-6) 75%);
         background-size: 200% 100%;
         animation: shimmer 1.5s infinite;
       }
-
       .skeleton-body {
         padding: 8px;
         display: flex;
         flex-direction: column;
         gap: 6px;
       }
-
       .skeleton-title {
         height: 1.2em;
         width: 80%;
-        background: #1a2240;
+        background: var(--surface-9);
         border-radius: 4px;
       }
-
       .skeleton-chip {
         height: 1em;
         width: 60%;
-        background: #1a2240;
+        background: var(--surface-9);
         border-radius: 4px;
       }
-
       .skeleton-controls {
         display: flex;
         gap: 6px;
       }
-
       .skeleton-btn {
         height: 32px;
         width: 36px;
-        background: #1a2240;
+        background: var(--surface-9);
         border-radius: 8px;
       }
-
       @keyframes pulse {
         0% {
           opacity: 0.85;
@@ -1600,7 +1617,6 @@
           opacity: 0.85;
         }
       }
-
       @keyframes shimmer {
         0% {
           background-position: -200% 0;
@@ -1610,70 +1626,64 @@
         }
       }
 
-      /* Tabbed modal */
       .tab-group {
         display: flex;
         gap: 8px;
         margin-bottom: 12px;
       }
-
       .tab-btn {
         flex: 1;
         padding: 8px;
         border-radius: 8px;
-        background: #12182a;
-        border: 1px solid rgba(255, 255, 255, 0.06);
-        color: #c6cde0;
+        background: var(--surface-1);
+        border: 1px solid var(--a-white-06);
+        color: var(--text-3);
         cursor: pointer;
       }
       .tab-btn.active {
         background: linear-gradient(90deg, rgba(124, 58, 237, 0.25), rgba(34, 211, 238, 0.2));
-        color: #fff;
+        color: var(--c-white);
       }
 
-      /* Account panel */
       .account-panel {
         padding: 0;
         overflow: hidden;
       }
-
       .account-header {
         display: flex;
         align-items: center;
         gap: 12px;
         padding: 14px;
         background: linear-gradient(135deg, rgba(124, 58, 237, 0.22), rgba(34, 211, 238, 0.15));
-        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        border-bottom: 1px solid var(--a-white-08);
       }
-
       .account-avatar {
         width: 44px;
         height: 44px;
         border-radius: 10px;
-        background: #1a2240;
+        background: var(--surface-9);
         display: flex;
         align-items: center;
         justify-content: center;
         font-weight: 900;
         font-family: var(--title-font);
         letter-spacing: 0.5px;
-        color: #e9ecf3;
-        border: 1px solid rgba(255, 255, 255, 0.15);
+        color: var(--text-0);
+        border: 1px solid var(--a-white-15);
         background-size: cover;
         background-position: center;
         overflow: hidden;
+        flex: 0 0 auto;
       }
-
       .account-id .name {
         font-family: var(--title-font);
         font-size: 15px;
         letter-spacing: 0.3px;
-        color: #e9ecf3;
+        color: var(--text-0);
       }
-
       .account-id .email {
         font-size: 12px;
-        color: #cbd3ea;
+        color: var(--text-muted-1);
         opacity: 0.9;
       }
 
@@ -1683,29 +1693,25 @@
         gap: 10px;
         padding: 12px;
       }
-
       .stat-card {
-        background: #12182a;
-        border: 1px solid rgba(255, 255, 255, 0.08);
+        background: var(--surface-1);
+        border: 1px solid var(--a-white-08);
         border-radius: 12px;
         padding: 10px 12px;
       }
-
       .stat-label {
         font-size: 12px;
-        color: #aab3cf;
+        color: var(--text-muted-2);
         display: flex;
         gap: 8px;
         align-items: center;
       }
-
       .stat-value {
         font-size: 20px;
         font-weight: 800;
         color: #e9f0ff;
         margin-top: 2px;
       }
-
       .stat-card.total .stat-value {
         color: var(--accent-2);
       }
@@ -1713,58 +1719,35 @@
         color: var(--accent-1);
       }
       .stat-card.online .stat-value {
-        color: #86efac;
+        color: var(--green-soft);
       }
 
       .account-actions {
         padding: 12px;
-        border-top: 1px solid rgba(255, 255, 255, 0.06);
+        border-top: 1px solid var(--a-white-06);
         display: flex;
         flex-wrap: wrap;
         gap: 8px;
       }
-
       .account-pref {
         padding: 12px;
-        border-top: 1px solid rgba(255, 255, 255, 0.06);
+        border-top: 1px solid var(--a-white-06);
         display: grid;
         gap: 12px;
       }
 
-      /* Preferences: label then select on next line */
-      .pref-row {
-        display: grid;
-        gap: 6px;
-        align-items: start;
-      }
-
-      .pref-row label {
-        font-size: 13px;
-        color: #cbd5f7;
-        font-family: var(--title-font);
-        letter-spacing: 0.3px;
-      }
-
-      .pref-row .select {
-        width: 100%;
-        max-width: 340px;
-      }
-
-      /* Preloader (app-level) */
       .preloader {
         position: fixed;
         inset: 0;
         display: none;
         align-items: center;
         justify-content: center;
-        background: radial-gradient(1200px 600px at 50% 30%, rgba(124, 58, 237, 0.1), transparent 70%),
-          rgba(7, 8, 12, 0.92);
+        background: radial-gradient(1200px 600px at 50% 30%, rgba(124, 58, 237, 0.1), transparent 70%), rgba(7, 8, 12, 0.92);
         z-index: var(--z-preloader);
       }
       .preloader.active {
         display: flex;
       }
-
       .preloader-inner {
         display: grid;
         gap: 14px;
@@ -1772,42 +1755,36 @@
         text-align: center;
         padding: 20px;
       }
-
       .preloader-logo {
         font-family: var(--title-font);
         font-weight: 900;
         letter-spacing: 1px;
         font-size: 20px;
-        color: #e9ecf3;
+        color: var(--text-0);
       }
-
       .preloader-spinner {
         width: 38px;
         height: 38px;
         border-radius: 50%;
-        border: 3px solid rgba(255, 255, 255, 0.2);
-        border-top-color: #a78bfa;
+        border: 3px solid var(--a-white-20);
+        border-top-color: var(--accent-2);
         animation: spin 0.9s linear infinite;
         filter: drop-shadow(0 4px 12px rgba(167, 139, 250, 0.35));
       }
-
       .preloader-msg {
-        color: #cbd5f7;
+        color: var(--text-2);
         font-size: 13px;
       }
 
-      /* No results block (UX tweak: text left, +New right) */
       .no-results {
-        border: 1px dashed rgba(255, 255, 255, 0.25);
+        border: 1px dashed var(--a-white-25);
         border-radius: 12px;
         padding: 16px;
         text-align: left;
-        color: #cbd5f7;
+        color: var(--text-2);
         margin: 10px 0;
-/*         background: linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.01)); */
-        background: linear-gradient(180deg, #0f1424, #171f38);
+        background: linear-gradient(180deg, var(--surface-3), var(--surface-13));
       }
-
       .no-results-row {
         display: flex;
         align-items: center;
@@ -1815,15 +1792,13 @@
         gap: 12px;
         flex-wrap: wrap;
       }
-
       .no-results-text {
         font-family: var(--title-font);
         font-size: 18px;
-        font-weight: bold;
+        font-weight: 700;
         letter-spacing: 0.35px;
-        color: #e9ecf3;
+        color: var(--text-0);
       }
-
       @media (max-width: 520px) {
         .no-results-row {
           flex-direction: column;
@@ -1835,25 +1810,23 @@
         }
       }
 
-      /* Import upload zone */
       .upload-zone {
         border: 1px dashed rgba(255, 255, 255, 0.18);
         border-radius: 12px;
         padding: 14px;
-        background: rgba(255, 255, 255, 0.02);
+        background: var(--a-white-02);
         display: grid;
         gap: 10px;
       }
 
-      /* Chat modal */
+      /* chat */
       .chat-sheet {
         width: min(820px, 98%);
         display: grid;
         grid-template-rows: auto 1fr auto auto;
         max-height: 86dvh;
-        font-family: var(--chat-font); /* chat-only font */
+        font-family: var(--chat-font);
       }
-
       .chat-header {
         display: flex;
         align-items: center;
@@ -1861,7 +1834,6 @@
         justify-content: space-between;
         margin-bottom: 10px;
       }
-
       .chat-title {
         display: flex;
         align-items: center;
@@ -1869,61 +1841,53 @@
         font-family: var(--title-font);
         letter-spacing: 0.4px;
       }
-
       .chat-presence {
         margin-left: auto;
         margin-right: 8px;
       }
-
       .chat-body {
         position: relative;
         overflow: auto;
-        background: #0f1424;
-        border: 1px solid rgba(255, 255, 255, 0.06);
+        background: var(--surface-3);
+        border: 1px solid var(--a-white-06);
         border-radius: 12px;
         padding: 10px;
-        min-height: 360px; /* stable */
+        min-height: 360px;
       }
-
       .chat-loading {
         position: absolute;
         inset: 0;
         display: none;
         align-items: center;
         justify-content: center;
-        background: rgba(0, 0, 0, 0.25);
+        background: var(--a-black-25);
         z-index: 2;
       }
       .chat-loading.visible {
         display: flex;
       }
-
       .chat-composer {
         display: grid;
         grid-template-columns: 34px 1fr auto;
         gap: 8px;
-        align-items: stretch; /* makes send match input height */
+        align-items: stretch;
         margin-top: 10px;
       }
-
       .chat-avatar {
         width: 34px;
         height: 34px;
         border-radius: 8px;
-        border: 1px solid rgba(255, 255, 255, 0.12);
-        background: #101525;
+        border: 1px solid var(--a-white-12);
+        background: var(--surface-0);
         object-fit: cover;
         align-self: end;
       }
-
       .chat-input {
         resize: none;
         min-height: 38px;
         max-height: 140px;
         font-family: var(--chat-font);
       }
-
-      /* Send button: match textarea height */
       #chat-send {
         width: 50px;
         height: 42px;
@@ -1933,7 +1897,6 @@
         opacity: 0.6;
         cursor: not-allowed;
       }
-
       .msg {
         display: grid;
         grid-template-columns: 32px 1fr;
@@ -1944,23 +1907,20 @@
       .msg.mine {
         grid-template-columns: 1fr 32px;
       }
-
       .msg .avatar {
         width: 32px;
         height: 32px;
         border-radius: 8px;
-        border: 1px solid rgba(255, 255, 255, 0.12);
-        background: #101525;
+        border: 1px solid var(--a-white-12);
+        background: var(--surface-0);
         object-fit: cover;
       }
       .msg.mine .avatar {
         grid-column: 2;
       }
-
-      /* Bubble shrink-to-fit instead of stretching full width */
       .bubble {
-        background: #12182a;
-        border: 1px solid rgba(255, 255, 255, 0.08);
+        background: var(--surface-1);
+        border: 1px solid var(--a-white-08);
         border-radius: 10px;
         padding: 8px 10px;
         display: inline-block;
@@ -1968,49 +1928,62 @@
         max-width: 90%;
         justify-self: start;
       }
-
       .msg.mine .bubble {
         background: linear-gradient(90deg, rgba(124, 58, 237, 0.18), rgba(34, 211, 238, 0.12));
         border-color: rgba(255, 255, 255, 0.1);
         justify-self: end;
       }
-
       .msg.susie .bubble {
-        background: linear-gradient(90deg, rgba(159, 18, 57, 0.32), rgba(159, 18, 57, 0.12));
+        background: linear-gradient(90deg, rgba(159, 18, 57, 0.4), rgba(159, 18, 57, 0.3));
         border-color: rgba(159, 18, 57, 0.6);
       }
-
       .msg.susie .avatar {
         border-color: rgba(159, 18, 57, 0.6);
       }
-
       .meta {
         display: flex;
         gap: 8px;
         align-items: center;
-        color: #aab3cf;
+        color: var(--text-muted-2);
         font-size: 12px;
         margin-bottom: 4px;
       }
-
       .meta .user {
         font-weight: 800;
       }
-
       .meta .time {
-        color: #98a2c0;
+        color: var(--text-muted-3);
         font-variant-numeric: tabular-nums;
       }
 
       .content {
         white-space: pre-wrap;
         word-break: break-word;
-        color: #e8ecfa;
+        color: var(--text-1);
+      }
+      .content a {
+        color: var(--text-link);
+        text-decoration: underline;
       }
 
-      .content a {
-        color: #8ab4ff;
-        text-decoration: underline;
+      /* read more chunks */
+      .content-chunk {
+        white-space: pre-wrap;
+      }
+      .content-chunk.enter {
+        opacity: 0;
+        transform: translateY(4px);
+      }
+      .content-chunk.enter.active {
+        opacity: 1;
+        transform: translateY(0);
+        transition: opacity 180ms ease, transform 180ms ease;
+      }
+      .chat-readmore {
+        margin-top: 6px;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
       }
 
       .chat-bottom-fab {
@@ -2020,7 +1993,7 @@
         z-index: 3;
         display: none;
         background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
-        color: #061220;
+        color: var(--page-accent-dark);
         border: none;
         border-radius: 999px;
         padding: 8px 10px;
@@ -2030,14 +2003,13 @@
       .chat-bottom-fab.visible {
         display: inline-flex;
       }
-
       .chat-typing {
         position: absolute;
         left: 10px;
         bottom: 10px;
-        background: rgba(255, 255, 255, 0.06);
-        color: #cbd5f7;
-        border: 1px solid rgba(255, 255, 255, 0.12);
+        background: var(--a-white-06);
+        color: var(--text-2);
+        border: 1px solid var(--a-white-12);
         border-radius: 999px;
         padding: 4px 8px;
         font-size: 12px;
@@ -2076,52 +2048,114 @@
         }
       }
 
-      /* Offline modal: make it stand out more */
       #offline-modal {
-        background: rgba(5, 7, 12, 0.86);
+        background: var(--modal-overlay-strong);
         backdrop-filter: blur(2px);
       }
-
       #offline-modal .sheet {
         position: relative;
         overflow: hidden;
         border-color: rgba(245, 158, 11, 0.55);
-        background-color: #10162a;
-        /*background-image: linear-gradient(
-          180deg,
-          rgba(245, 158, 11, 0.16) 0%,
-          rgba(245, 158, 11, 0.1) 35%,
-          rgba(245, 158, 11, 0.04) 70%,
-          rgba(245, 158, 11, 0.02) 100%
-        );*/
+        background-color: var(--surface-15);
         background-image: linear-gradient(
           180deg,
-          rgba(255, 165, 0, 0.30) 0%,
-          rgba(255, 149, 0, 0.20) 35%,
+          rgba(255, 165, 0, 0.3) 0,
+          rgba(255, 149, 0, 0.2) 35%,
           rgba(255, 140, 0, 0.15) 70%,
-          rgba(255, 130, 0, 0.20) 100%
+          rgba(255, 130, 0, 0.2) 100%
         );
-        box-shadow: 0 24px 80px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(245, 158, 11, 0.18);
+        box-shadow: 0 24px 80px var(--a-black-65), 0 0 0 1px rgba(245, 158, 11, 0.18);
       }
-
       #offline-modal .sheet::before {
         content: "";
         position: absolute;
         inset: -2px;
-        background: radial-gradient(700px 260px at 30% 0%, rgba(245, 158, 11, 0.28), transparent 60%);
+        background: radial-gradient(700px 260px at 30% 0, rgba(245, 158, 11, 0.28), transparent 60%);
         backdrop-filter: blur(6px);
         z-index: -1;
         pointer-events: none;
       }
-
       #offline-modal h3 i {
         color: var(--warn);
+      }
+
+      /* ---------- PFP MODAL ---------- */
+      .pfp-grid {
+        margin-top: 12px;
+        display: grid;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: 12px;
+      }
+      @media (max-width: 720px) {
+        .pfp-grid {
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+      }
+      @media (max-width: 520px) {
+        .pfp-grid {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+      }
+      .pfp-grid .skeleton-cover {
+        padding-bottom: 100%;
+      }
+      .pfp-card {
+        appearance: none;
+        border: 1px solid var(--a-white-08);
+        background: var(--surface-1);
+        border-radius: var(--radius);
+        padding: 0;
+        overflow: hidden;
+        cursor: pointer;
+        box-shadow: 0 8px 20px var(--deep-shadow);
+        transition: transform 150ms ease, border-color 150ms ease, box-shadow 150ms ease;
+        text-align: left;
+      }
+      .pfp-card:hover {
+        transform: translateY(-2px);
+      }
+      .pfp-card.selected {
+        border-color: rgba(167, 139, 250, 0.85);
+        box-shadow: 0 0 0 4px rgba(167, 139, 250, 0.18), 0 8px 20px var(--deep-shadow);
+      }
+      .pfp-cover {
+        position: relative;
+        aspect-ratio: 1/1;
+        background: var(--surface-6);
+        overflow: hidden;
+      }
+      .pfp-cover img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+      }
+      .pfp-load {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(180deg, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.25));
+      }
+      .pfp-load i {
+        color: var(--brand-2);
+        font-size: 18px;
+        animation: spin 0.8s linear infinite;
+        filter: drop-shadow(0 2px 6px var(--a-black-50));
+      }
+      .pfp-meta {
+        padding: 8px 10px;
+        font-size: 11px;
+        color: var(--muted);
+        display: flex;
+        justify-content: space-between;
+        gap: 8px;
       }
     </style>
   </head>
 
   <body>
-    <!-- App preloader -->
     <div id="app-preloader" class="preloader" aria-hidden="true">
       <div class="preloader-inner">
         <div class="preloader-spinner" aria-hidden="true"></div>
@@ -2132,12 +2166,8 @@
 
     <header class="header">
       <div class="container nav">
-        <div class="logo">
-          <img src="assets/wide_logo.png" alt="AniMehList" class="logo-img" />
-        </div>
-
+        <div class="logo"><img src="assets/wide_logo.png" alt="AniMehList" class="logo-img" /></div>
         <div class="nav-cta" id="auth-cta"></div>
-
         <button
           class="btn icon hamburger"
           id="btn-menu"
@@ -2150,7 +2180,6 @@
         </button>
       </div>
 
-      <!-- Mobile menu -->
       <div class="menu-panel" id="mobile-menu" role="menu" aria-label="Navigation menu">
         <div class="menu-sec">
           <div class="menu-title">Quick actions</div>
@@ -2158,20 +2187,17 @@
             <button class="btn brand" id="m-add"><i class="fa-solid fa-plus"></i>Add item</button>
           </div>
         </div>
-
         <div class="menu-sec">
           <div class="menu-title">Community</div>
           <div class="menu-row">
             <div class="menu-item">
               <div class="menu-kv">
-                <i class="fa-solid fa-comments"></i>Global Chat
-                <span class="menu-note" id="m-chat-online">(0 online)</span>
+                <i class="fa-solid fa-comments"></i>Global Chat<span class="menu-note" id="m-chat-online">(0 online)</span>
               </div>
               <button class="btn ghost sm" id="m-open-chat">Open</button>
             </div>
           </div>
         </div>
-
         <div class="menu-sec">
           <div class="menu-title">View</div>
           <div class="menu-row" role="group" aria-label="View toggle">
@@ -2185,24 +2211,16 @@
             </div>
           </div>
         </div>
-
         <div class="menu-sec">
           <div class="menu-title">Account</div>
           <div class="menu-row">
             <div class="menu-item" id="m-auth-row">
-              <div class="menu-kv">
-                <i class="fa-solid fa-user"></i><span id="m-user-email">Signed out</span>
-              </div>
-              <button class="btn ghost sm" id="m-login">
-                <i class="fa-solid fa-right-to-bracket"></i>Sign in
-              </button>
-              <button class="btn ghost sm hidden" id="m-logout">
-                <i class="fa-solid fa-right-from-bracket"></i>Sign out
-              </button>
+              <div class="menu-kv"><i class="fa-solid fa-user"></i><span id="m-user-email">Signed out</span></div>
+              <button class="btn ghost sm" id="m-login"><i class="fa-solid fa-right-to-bracket"></i>Sign in</button>
+              <button class="btn ghost sm hidden" id="m-logout"><i class="fa-solid fa-right-from-bracket"></i>Sign out</button>
             </div>
           </div>
         </div>
-
         <div class="menu-sec">
           <div class="menu-title">Data</div>
           <div class="menu-row">
@@ -2213,7 +2231,6 @@
         </div>
       </div>
 
-      <!-- Account panel -->
       <div class="account-panel" id="account-panel" aria-label="Account panel">
         <div class="account-header">
           <div class="account-avatar" id="account-avatar">U</div>
@@ -2225,32 +2242,34 @@
 
         <div class="account-stats">
           <div class="stat-card total">
-            <div class="stat-label"><i class="fa-solid fa-layer-group"></i> Total Items</div>
+            <div class="stat-label"><i class="fa-solid fa-layer-group"></i>Total Items</div>
             <div class="stat-value" id="account-total">0</div>
           </div>
           <div class="stat-card watch">
-            <div class="stat-label"><i class="fa-solid fa-eye"></i> Watching</div>
+            <div class="stat-label"><i class="fa-solid fa-eye"></i>Watching</div>
             <div class="stat-value" id="account-watching">0</div>
           </div>
           <div class="stat-card online">
-            <div class="stat-label"><i class="fa-solid fa-signal"></i> Online now</div>
+            <div class="stat-label"><i class="fa-solid fa-signal"></i>Online now</div>
             <div class="stat-value" id="account-online">0</div>
           </div>
         </div>
 
-        <!-- Preferences -->
         <div class="account-pref">
-          <div class="pref-row">
-            <label for="pref-cover">Default cover source</label>
-            <select id="pref-cover" class="select">
-              <option value="ANILIST">AniList (Default — Recommended, high quality)</option>
-              <option value="JIKAN">Jikan (MAL) (Larger DB — lower quality / sometimes inaccurate)</option>
-              <option value="KITSU">Kitsu (High quality — often inaccurate)</option>
-            </select>
+          <div class="float-group input-wrapper">
+            <div class="field">
+              <label for="pref-cover">Default cover source</label>
+              <select id="pref-cover" class="select input" aria-label="Default cover source">
+                <option value="ANILIST">AniList (Default — Recommended, high quality)</option>
+                <option value="JIKAN">Jikan (MAL) (Larger DB — lower quality / sometimes inaccurate)</option>
+                <option value="KITSU">Kitsu (High quality — often inaccurate)</option>
+              </select>
+            </div>
           </div>
         </div>
 
         <div class="account-actions">
+          <button class="btn ghost sm" id="account-change-pfp"><i class="fa-solid fa-id-badge"></i>Change profile pic</button>
           <button class="btn ghost sm" id="account-export"><i class="fa-solid fa-file-export"></i>Export JSON</button>
           <button class="btn danger sm" id="account-clear-list"><i class="fa-solid fa-bomb"></i>Clear list</button>
           <button class="btn ghost sm" id="account-logout"><i class="fa-solid fa-right-from-bracket"></i>Sign out</button>
@@ -2274,17 +2293,11 @@
       <div class="toolbar">
         <div class="toolbar-top">
           <div class="search-container">
-            <input
-              class="search"
-              id="search"
-              placeholder="Search title…"
-              aria-label="Search titles (press / to focus)"
-            />
+            <input class="search" id="search" placeholder="Search title…" aria-label="Search titles (press / to focus)" />
             <button class="search-clear" id="search-clear" aria-label="Clear search">
               <i class="fa-solid fa-xmark"></i>
             </button>
           </div>
-
           <div class="actions-row">
             <button class="btn brand" id="btn-add"><i class="fa-solid fa-plus"></i>New</button>
           </div>
@@ -2300,50 +2313,40 @@
           </div>
 
           <div class="view-toggle" role="group" aria-label="View mode">
-            <button class="seg" id="view-btn-grid" aria-pressed="true" title="Grid">
-              <i class="fa-solid fa-grip"></i>
-            </button>
-            <button class="seg" id="view-btn-compact" aria-pressed="false" title="Shelf">
-              <i class="fa-solid fa-list"></i>
-            </button>
+            <button class="seg" id="view-btn-grid" aria-pressed="true" title="Grid"><i class="fa-solid fa-grip"></i></button>
+            <button class="seg" id="view-btn-compact" aria-pressed="false" title="Shelf"><i class="fa-solid fa-list"></i></button>
           </div>
         </div>
       </div>
 
-<!--       <div id="empty" class="muted-small" style="display: none; margin: 16px 0">Sign in to start your shelf.</div> -->
-<div
-  id="empty"
-  style="
-    display: none;
-    margin: 35px 16px 20px 16px;
-    padding: 12px 16px;
-    font-size: 0.85rem;
-    color: #bbb;
-    text-align: center;
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px dashed rgba(255, 255, 255, 0.2);
-    border-radius: 8px;
-  "
->
-  Sign in to start your shelf.
-</div>
+      <div
+        id="empty"
+        style="
+          display: none;
+          margin: 35px 16px 20px 16px;
+          padding: 12px 16px;
+          font-size: 0.85rem;
+          color: #bbb;
+          text-align: center;
+          background: rgba(255, 255, 255, 0.03);
+          border: 1px dashed rgba(255, 255, 255, 0.2);
+          border-radius: 8px;
+        "
+      >
+        Sign in to start your shelf.
+      </div>
 
+      <br />
 
-      <br>
       <div id="no-results" class="no-results hidden">
-      <div class="no-results-row">
-
+        <div class="no-results-row">
           <div class="no-results-text">
-            No anime found!
-            <span style="opacity: 0.5">( •_•)</span>
-
-            <p style="font-weight: normal; font-family: Lexend; margin: 0; font-size: 12px !important; opacity: 0.5">Try a different search or add a new entry.</p>
-
+            No anime found!<span style="opacity: 0.5">( •_•)</span>
+            <p style="font-weight: 400; margin: 0; font-size: 12px !important; opacity: 0.5">
+              Try a different search or add a new entry.
+            </p>
           </div>
-
-          <button class="btn brand sm" id="no-results-new" type="button">
-
-
+          <button class="btn brand sm" id="no-results-new" type="button" style="margin-right: 20px">
             <i class="fa-solid fa-plus"></i>New
           </button>
         </div>
@@ -2366,7 +2369,6 @@
         <div class="muted small">
           Pro tip: press / to search. Click -/+ to adjust EP (Shift = ±5). Use the gear to edit, trash to delete.
         </div>
-
         <div class="right" style="display: flex; gap: 8px; flex-wrap: wrap">
           <button class="btn ghost small" id="btn-import"><i class="fa-solid fa-file-import"></i>Import</button>
           <button class="btn ghost small" id="btn-export"><i class="fa-solid fa-file-export"></i>Export JSON</button>
@@ -2375,7 +2377,7 @@
       </div>
     </main>
 
-    <!-- Add/Edit Modal -->
+    <!-- Add/Edit modal -->
     <div class="modal" id="modal" role="dialog" aria-modal="true" aria-hidden="true">
       <div class="sheet" role="document">
         <h3 id="modal-title"><i class="fa-solid fa-pen-to-square"></i>Add item</h3>
@@ -2383,33 +2385,31 @@
         <div class="form">
           <div class="row">
             <div class="float-group input-wrapper">
-              <label for="f-title">Title</label>
               <div class="field">
+                <label for="f-title">Title</label>
                 <input id="f-title" class="input" aria-label="Title" />
-                <button class="clear-btn" id="clear-title" aria-label="Clear title">
-                  <i class="fa-solid fa-xmark"></i>
-                </button>
+                <button class="clear-btn" id="clear-title" aria-label="Clear title"><i class="fa-solid fa-xmark"></i></button>
               </div>
             </div>
           </div>
 
           <div class="row">
             <div class="float-group input-wrapper">
-              <label for="f-kind">Series/Movie</label>
               <div class="field">
+                <label for="f-kind">Series/Movie</label>
                 <select id="f-kind" class="select input" aria-label="Kind">
-                  <option value="SERIES" selected>Series</option>
+                  <option value="SERIES" selected="selected">Series</option>
                   <option value="MOVIE">Movie</option>
                 </select>
               </div>
             </div>
 
             <div class="float-group input-wrapper">
-              <label for="f-status">Category</label>
               <div class="field">
+                <label for="f-status">Category</label>
                 <select id="f-status" class="select input" aria-label="Status">
                   <option value="WATCHING">WATCHING</option>
-                  <option value="PLAN" selected>PLAN</option>
+                  <option value="PLAN" selected="selected">PLAN</option>
                   <option value="REWATCH">REWATCH</option>
                   <option value="WAITING">WAITING</option>
                   <option value="COMPLETED">COMPLETED</option>
@@ -2420,19 +2420,12 @@
 
           <div class="row">
             <div class="float-group input-wrapper stepper">
-              <label for="f-season">Season #</label>
               <div class="field">
+                <label for="f-season">Season #</label>
                 <button class="stepper-btn dec" id="season-dec" type="button" aria-label="Decrease season">
                   <i class="fa-solid fa-minus"></i>
                 </button>
-                <input
-                  type="number"
-                  id="f-season"
-                  class="input"
-                  inputmode="numeric"
-                  aria-label="Season number"
-                  min="0"
-                />
+                <input type="number" id="f-season" class="input" inputmode="numeric" aria-label="Season number" min="0" />
                 <button class="stepper-btn inc" id="season-inc" type="button" aria-label="Increase season">
                   <i class="fa-solid fa-plus"></i>
                 </button>
@@ -2440,19 +2433,12 @@
             </div>
 
             <div class="float-group input-wrapper stepper">
-              <label for="f-episode">Episode #</label>
               <div class="field">
+                <label for="f-episode">Episode #</label>
                 <button class="stepper-btn dec" id="episode-dec" type="button" aria-label="Decrease episode">
                   <i class="fa-solid fa-minus"></i>
                 </button>
-                <input
-                  type="number"
-                  id="f-episode"
-                  class="input"
-                  inputmode="numeric"
-                  aria-label="Episode number"
-                  min="0"
-                />
+                <input type="number" id="f-episode" class="input" inputmode="numeric" aria-label="Episode number" min="0" />
                 <button class="stepper-btn inc" id="episode-inc" type="button" aria-label="Increase episode">
                   <i class="fa-solid fa-plus"></i>
                 </button>
@@ -2460,33 +2446,28 @@
             </div>
           </div>
 
-          <!-- Divider before cover section -->
           <hr class="modal-divider" aria-hidden="true" />
 
-          <!-- Cover URL (full line) -->
           <div class="row">
             <div class="float-group input-wrapper">
-              <label for="f-image">Cover URL</label>
               <div class="field">
+                <label for="f-image">Cover URL</label>
                 <input id="f-image" class="input" aria-label="Image URL" />
-                <button class="clear-btn" id="clear-image" aria-label="Clear image URL">
-                  <i class="fa-solid fa-xmark"></i>
-                </button>
+                <button class="clear-btn" id="clear-image" aria-label="Clear image URL"><i class="fa-solid fa-xmark"></i></button>
               </div>
             </div>
           </div>
 
-          <!-- Mobile: Auto cover + Source split -->
           <div class="row" style="align-items: flex-end">
             <button class="btn ghost" id="btn-autocover" title="Auto fetch cover by title" style="flex: 1">
               <i class="fa-solid fa-wand-magic-sparkles"></i>Auto cover
             </button>
 
             <div class="float-group input-wrapper" style="flex: 1; min-width: 180px">
-              <label for="f-cover-source">Source</label>
               <div class="field">
+                <label for="f-cover-source">Source</label>
                 <select id="f-cover-source" class="select input" aria-label="Cover source override">
-                  <option value="" selected>Default</option>
+                  <option value="" selected="selected">Default</option>
                   <option value="ANILIST">AniList</option>
                   <option value="JIKAN">Jikan</option>
                   <option value="KITSU">Kitsu</option>
@@ -2495,17 +2476,14 @@
             </div>
           </div>
 
-          <!-- Divider before notes -->
           <hr class="modal-divider" aria-hidden="true" />
 
           <div class="row">
             <div class="float-group input-wrapper">
-              <label for="f-notes">Notes (optional)</label>
               <div class="field">
+                <label for="f-notes">Notes (optional)</label>
                 <input id="f-notes" class="input" aria-label="Notes" />
-                <button class="clear-btn" id="clear-notes" aria-label="Clear notes">
-                  <i class="fa-solid fa-xmark"></i>
-                </button>
+                <button class="clear-btn" id="clear-notes" aria-label="Clear notes"><i class="fa-solid fa-xmark"></i></button>
               </div>
             </div>
           </div>
@@ -2515,27 +2493,20 @@
               <button class="btn brand" id="btn-save"><i class="fa-solid fa-floppy-disk"></i>Save</button>
               <button class="btn ghost" id="btn-cancel"><i class="fa-solid fa-xmark"></i>Cancel</button>
             </div>
-
             <div style="margin-left: auto">
-              <button class="btn danger" id="btn-delete" style="display: none">
-                <i class="fa-solid fa-trash"></i>Delete
-              </button>
+              <button class="btn danger" id="btn-delete" style="display: none"><i class="fa-solid fa-trash"></i>Delete</button>
             </div>
           </div>
 
-          <div class="hint">
-            Covers are stored in your DB for sync. Background cover fetching respects per-anime source overrides.
-          </div>
+          <div class="hint">Covers are stored in your DB for sync. Background cover fetching respects per-anime source overrides.</div>
         </div>
       </div>
     </div>
 
-    <!-- Auth Modal -->
+    <!-- Auth modal -->
     <div class="modal" id="auth-modal" role="dialog" aria-modal="true" aria-hidden="true">
       <div class="sheet" role="document" style="max-width: 560px">
-        <h3 style="display: flex; align-items: center; gap: 10px">
-          <i class="fa-solid fa-right-to-bracket"></i>Account
-        </h3>
+        <h3 style="display: flex; align-items: center; gap: 10px"><i class="fa-solid fa-right-to-bracket"></i>Account</h3>
 
         <div class="tab-group">
           <button class="tab-btn active" id="tab-signin">Sign In</button>
@@ -2545,8 +2516,8 @@
         <div class="form" id="signin-form">
           <div class="row">
             <div class="float-group input-wrapper">
-              <label for="login-identifier">Username or email</label>
               <div class="field">
+                <label for="login-identifier">Username or email</label>
                 <input id="login-identifier" class="input" aria-label="Username or email" />
               </div>
             </div>
@@ -2554,16 +2525,15 @@
 
           <div class="row">
             <div class="float-group input-wrapper">
-              <label for="login-password">Password</label>
               <div class="field">
+                <label for="login-password">Password</label>
                 <input id="login-password" class="input" type="password" aria-label="Password" />
               </div>
             </div>
           </div>
 
-          <!-- Forgot password link (requested style/placement) -->
           <div class="row" style="margin-top: -4px">
-            <a class="text-link" id="forgot-password" href="javascript:void(0)">Forgot password?</a>
+            <button class="text-link" id="forgot-password" type="button">Forgot password?</button>
           </div>
 
           <div class="row" style="justify-content: space-between; align-items: center">
@@ -2575,8 +2545,8 @@
         <div class="form hidden" id="signup-form">
           <div class="row">
             <div class="float-group input-wrapper">
-              <label for="signup-username">Username</label>
               <div class="field">
+                <label for="signup-username">Username</label>
                 <input id="signup-username" class="input" aria-label="Username" />
               </div>
             </div>
@@ -2584,8 +2554,8 @@
 
           <div class="row">
             <div class="float-group input-wrapper">
-              <label for="signup-email">Email</label>
               <div class="field">
+                <label for="signup-email">Email</label>
                 <input id="signup-email" class="input" type="email" aria-label="Email" />
               </div>
             </div>
@@ -2593,15 +2563,15 @@
 
           <div class="row">
             <div class="float-group input-wrapper">
-              <label for="signup-password">Password</label>
               <div class="field">
+                <label for="signup-password">Password</label>
                 <input id="signup-password" class="input" type="password" aria-label="Password" />
               </div>
             </div>
           </div>
 
           <div class="row" style="margin-top: -4px">
-            <a class="text-link" id="resend-confirmation" href="javascript:void(0)">Resend confirmation email</a>
+            <button class="text-link" id="resend-confirmation" type="button">Resend confirmation email</button>
           </div>
 
           <div class="row" style="justify-content: space-between; align-items: center">
@@ -2612,18 +2582,11 @@
       </div>
     </div>
 
-    <!-- Email Verified Modal (static: cannot exit unless reload) -->
-    <div
-      class="modal"
-      id="verify-modal"
-      role="dialog"
-      aria-modal="true"
-      aria-hidden="true"
-      data-static="true"
-    >
+    <!-- Verify modal -->
+    <div class="modal" id="verify-modal" role="dialog" aria-modal="true" aria-hidden="true" data-static="true">
       <div class="sheet center" style="max-width: 520px">
         <div style="width: 100%">
-          <h3><i class="fa-solid fa-circle-check"></i> Email verified</h3>
+          <h3><i class="fa-solid fa-circle-check"></i>Email verified</h3>
           <p class="muted-small">
             Your email is verified. Return to your original tab and sign in with your username/email and password.
           </p>
@@ -2637,15 +2600,13 @@
     <!-- Offline modal -->
     <div class="modal" id="offline-modal" role="dialog" aria-modal="true" aria-hidden="true" data-static="true">
       <div class="sheet" role="document" style="max-width: 520px">
-        <h3><i class="fa-solid fa-wifi"></i> You’re offline</h3>
-        <p class="muted-small">
-          Your connection dropped. AniMehList will sync again automatically when you’re back online.
-        </p>
+        <h3><i class="fa-solid fa-wifi"></i>You’re offline</h3>
+        <p class="muted-small">Your connection dropped. AniMehList will sync again automatically when you’re back online.</p>
         <p class="hint">Tip: keep this tab open — no need to reload.</p>
       </div>
     </div>
 
-    <!-- Confirm Modal -->
+    <!-- Confirm modal -->
     <div class="modal" id="confirm-modal" role="dialog" aria-modal="true" aria-hidden="true">
       <div class="sheet center" style="max-width: 520px">
         <div style="width: 100%">
@@ -2659,20 +2620,20 @@
       </div>
     </div>
 
-    <!-- Import Modal (requested redesign) -->
+    <!-- Import modal -->
     <div class="modal" id="import-modal" role="dialog" aria-modal="true" aria-hidden="true">
       <div class="sheet" role="document" style="max-width: 640px">
-        <h3><i class="fa-solid fa-file-import"></i> Import your list</h3>
+        <h3><i class="fa-solid fa-file-import"></i>Import your list</h3>
 
         <div class="form">
           <div class="row">
             <div class="float-group input-wrapper">
-              <label for="import-format">Import type</label>
               <div class="field">
+                <label for="import-format">Import type</label>
                 <select id="import-format" class="select input" aria-label="Import type">
                   <option value="MAL">MyAnimeList (MAL) — XML</option>
                   <option value="ANILIST">AniList — JSON</option>
-                  <option value="APP" selected>AniMehList (AML) — JSON</option>
+                  <option value="APP" selected="selected">AniMehList (AML) — JSON</option>
                 </select>
               </div>
             </div>
@@ -2680,11 +2641,7 @@
 
           <div class="upload-zone">
             <input type="file" id="import-picker" class="hidden" accept=".xml,.json,application/json,text/xml" />
-
-            <button class="btn ghost" id="import-browse">
-              <i class="fa-solid fa-upload"></i> Choose file
-            </button>
-
+            <button class="btn ghost" id="import-browse"><i class="fa-solid fa-upload"></i>Choose file</button>
             <div class="muted-small" id="import-file-name">No file selected</div>
           </div>
 
@@ -2698,23 +2655,21 @@
       </div>
     </div>
 
-    <!-- Chat Modal -->
+    <!-- Chat modal -->
     <div class="modal" id="chat-modal" role="dialog" aria-modal="true" aria-hidden="true">
       <div class="sheet chat-sheet" role="document">
         <div class="chat-header">
-          <div class="chat-title"><i class="fa-solid fa-comments"></i> Global Chat</div>
-
+          <div class="chat-title"><i class="fa-solid fa-comments"></i>Global Chat</div>
           <span class="tag chat-presence" id="chat-presence"
             ><i class="fa-solid fa-circle" style="color: var(--ok); font-size: 8px"></i
             ><span id="chat-presence-text">0 online</span></span
           >
-
           <button class="btn ghost sm" id="chat-close"><i class="fa-solid fa-xmark"></i>Close</button>
         </div>
 
         <div id="chat-messages" class="chat-body" role="log" aria-live="polite">
           <div class="chat-loading" id="chat-loading">
-            <i class="fa-solid fa-spinner" style="font-size: 20px" class="spin"></i>
+            <i class="fa-solid fa-spinner spin" style="font-size: 20px"></i>
           </div>
 
           <button class="chat-bottom-fab" id="chat-bottom-fab" title="Jump to bottom">
@@ -2722,17 +2677,41 @@
           </button>
 
           <div class="chat-typing" id="chat-typing">Someone is typing…</div>
+
+          <div id="chat-list"></div>
+          <div id="chat-end" aria-hidden="true"></div>
         </div>
 
         <div class="chat-composer">
           <img id="chat-self-avatar" class="chat-avatar" alt="" />
           <textarea id="chat-input" class="input chat-input" placeholder="Type a message…" rows="1"></textarea>
-          <button id="chat-send" class="btn brand" title="Send">
-            <i class="fa-solid fa-paper-plane"></i>
-          </button>
+          <button id="chat-send" class="btn brand" title="Send"><i class="fa-solid fa-paper-plane"></i></button>
         </div>
 
         <div class="muted-small" style="margin-top: 10px">The server keeps the latest 3000 messages.</div>
+      </div>
+    </div>
+
+    <!-- Profile pic modal -->
+    <div class="modal" id="pfp-modal" role="dialog" aria-modal="true" aria-hidden="true">
+      <div class="sheet" role="document" style="max-width: 760px">
+        <h3><i class="fa-solid fa-id-badge"></i>Change profile picture</h3>
+        <p class="muted-small" style="margin-top: -2px">
+          Pick a new Dicebear avatar (same style). Regenerate is spam-safe and avoids duplicates per user.
+        </p>
+
+        <div id="pfp-grid" class="pfp-grid" aria-label="Avatar options"></div>
+
+        <div class="row" style="justify-content: space-between; align-items: center; margin-top: 12px">
+          <button class="btn ghost" id="pfp-regenerate"><i class="fa-solid fa-arrows-rotate"></i>Regenerate</button>
+
+          <div style="display: flex; gap: 8px; justify-content: flex-end; flex-wrap: wrap">
+            <button class="btn brand" id="pfp-confirm" disabled><i class="fa-solid fa-check"></i>Confirm new pfp</button>
+            <button class="btn ghost" id="pfp-cancel"><i class="fa-solid fa-xmark"></i>Cancel</button>
+          </div>
+        </div>
+
+        <div class="hint">Tip: your chosen avatar is stored in your profile (syncs across devices).</div>
       </div>
     </div>
 
@@ -2740,17 +2719,13 @@
 
     <div id="cover-progress" role="status" aria-live="polite">
       <div class="cp-text" id="cover-progress-text">
-        <i class="fa-solid fa-spinner spin"></i> Fetching covers… <b id="cover-progress-count">0 / 0</b>
+        <i class="fa-solid fa-spinner spin"></i>Fetching covers…<b id="cover-progress-count">0 / 0</b>
       </div>
     </div>
 
-    <div id="loading-spinner" aria-label="Loading">
-      <i class="fa-solid fa-spinner"></i>
-    </div>
+    <div id="loading-spinner" aria-label="Loading"><i class="fa-solid fa-spinner"></i></div>
 
-    <button id="scroll-to-top" aria-label="Scroll to top">
-      <i class="fa-solid fa-angle-up"></i>
-    </button>
+    <button id="scroll-to-top" aria-label="Scroll to top"><i class="fa-solid fa-angle-up"></i></button>
 
     <footer>
       <div class="container foot-wrap">
@@ -2760,10 +2735,9 @@
               <i class="fa-solid fa-layer-group" aria-hidden="true"></i>
               <div class="foot-brand-name">AniMehList</div>
             </div>
-            <div class="muted-small">Made with ramen &amp; chaos. © AniMehList</div>
+            <div class="muted-small">© AniMehList<br />Made with ramen &amp; chaos.</div>
           </div>
         </div>
-
         <div class="foot-right socials" aria-label="Social links">
           <a
             class="social-link"
@@ -2772,31 +2746,8 @@
             rel="noopener noreferrer"
             aria-label="AniMehList GitHub repository"
             title="GitHub"
-          >
-            <i class="fa-brands fa-github"></i>
-          </a>
-
-          <!--<a
-            class="social-link"
-            href="https://discord.com/"
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="AniMehList Discord (dummy link)"
-            title="Discord"
-          >
-            <i class="fa-brands fa-discord"></i>
-          </a>
-
-          <a
-            class="social-link"
-            href="https://wa.me/0000000000"
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="AniMehList WhatsApp (dummy link)"
-            title="WhatsApp"
-          >
-            <i class="fa-brands fa-whatsapp"></i>
-          </a>-->
+            ><i class="fa-brands fa-github"></i
+          ></a>
         </div>
       </div>
     </footer>
@@ -2821,13 +2772,15 @@
         { id: "COMPLETED_SERIES", label: "Completed (Series)" },
         { id: "COMPLETED_MOVIES", label: "Completed (Movies)" },
       ];
+      const VIEWS = ["grid", "compact"];
+      const SORTS = ["recent", "az", "za"];
 
       const SUSIE_NAME = "Susie the Ghost";
       const SUSIE_AVATAR = "assets/susie.png";
 
       let session = null;
       let user = null;
-      let profile = null; // { username, cover_source }
+      let profile = null; // { username, cover_source, avatar_seed, avatar_seed_history, ui_tab, ui_view, ui_sort }
       let data = [];
 
       let activeTab = "ALL";
@@ -2836,7 +2789,6 @@
       let sortMode = "recent"; // 'recent' | 'az' | 'za'
 
       let presenceCount = 0;
-
       let defaultCoverSource = "ANILIST"; // from profile
 
       // Realtime channels
@@ -2869,6 +2821,26 @@
 
       // Scroll-to-top inactivity
       let scrollTopInactivityTimer = null;
+
+      // Resilience
+      let lastHiddenAt = null;
+      let wakeRefreshInFlight = null;
+      let lastWakeRefreshAt = 0;
+
+      let sessionRefreshInFlight = null;
+      let lastSessionRefreshAt = 0;
+      let didEmptyEntriesRetryFix = false;
+
+      // Debounced entry sync
+      const entrySyncing = new Set(); // ids
+      const entryPending = new Map(); // id -> { patch, timer, inFlight, needsFlush, tries }
+
+      // UI prefs save
+      let uiPrefsSaveTimer = null;
+      let lastSavedUiPrefs = null;
+
+      // Avatar seed history (per user)
+      let avatarSeedHistory = new Set();
 
       // ---------- Elements ----------
       const sectionsEl = document.getElementById("sections");
@@ -2922,8 +2894,21 @@
       const accountOnline = document.getElementById("account-online");
       const accountExport = document.getElementById("account-export");
       const accountClearList = document.getElementById("account-clear-list");
+      const accountChangePfp = document.getElementById("account-change-pfp");
 
       const prefCover = document.getElementById("pref-cover");
+
+      // PFP modal
+      const pfpModal = document.getElementById("pfp-modal");
+      const pfpGrid = document.getElementById("pfp-grid");
+      const pfpRegenerate = document.getElementById("pfp-regenerate");
+      const pfpConfirm = document.getElementById("pfp-confirm");
+      const pfpCancel = document.getElementById("pfp-cancel");
+
+      let pfpGenNonce = 0;
+      let pfpGenerating = false;
+      let pfpSelectedSeed = null;
+      let pfpLastRegenAt = 0;
 
       // Add/Edit modal
       const modal = document.getElementById("modal");
@@ -2994,6 +2979,8 @@
       // Chat modal
       const chatModal = document.getElementById("chat-modal");
       const chatMessagesEl = document.getElementById("chat-messages");
+      const chatListEl = document.getElementById("chat-list");
+      const chatEndEl = document.getElementById("chat-end");
       const chatInput = document.getElementById("chat-input");
       const chatSend = document.getElementById("chat-send");
       const chatClose = document.getElementById("chat-close");
@@ -3023,18 +3010,51 @@
       const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
       function escapeHtml(s) {
-        return String(s).replace(
-          /[&<>"']/g,
-          (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])
-        );
+        return String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
       }
 
-      function linkify(text) {
+      // Safe link allowlist (only these become clickable)
+      const SAFE_BASE_DOMAINS = new Set([
+        "youtube.com",
+        "youtu.be",
+        "x.com",
+        "twitter.com",
+        "discord.com",
+        "discord.gg",
+        "instagram.com",
+        "tiktok.com",
+        "reddit.com",
+        "twitch.tv",
+        "facebook.com",
+        "fb.com",
+        "github.com",
+        "gitlab.com",
+        "linkedin.com",
+        "snapchat.com",
+        "threads.net",
+        "pinterest.com",
+      ]);
+
+      function isSafeLink(url) {
+        try {
+          const u = new URL(url);
+          if (!["http:", "https:"].includes(u.protocol)) return false;
+          const host = u.hostname.toLowerCase();
+          for (const base of SAFE_BASE_DOMAINS) {
+            if (host === base || host.endsWith("." + base)) return true;
+          }
+          return false;
+        } catch {
+          return false;
+        }
+      }
+
+      function linkifySafe(text) {
         const safe = escapeHtml(text);
-        return safe.replace(
-          /(https?:\/\/[^\s<]+)/g,
-          (m) => `<a href="${m}" target="_blank" rel="noopener noreferrer">${m}</a>`
-        );
+        return safe.replace(/(https?:\/\/[^\s<]+)/g, (m) => {
+          if (!isSafeLink(m)) return m;
+          return `<a href="${m}" target="_blank" rel="noopener noreferrer">${m}</a>`;
+        });
       }
 
       function showToast(type, msg, ms = 2000) {
@@ -3105,6 +3125,11 @@
         return (fromProfile || fromMeta || fromEmail || "bro").trim() || "bro";
       }
 
+      function getAvatarSeed() {
+        const s = String(profile?.avatar_seed || "").trim();
+        return (s || getUsername() || "bro").trim() || "bro";
+      }
+
       function diceAvatar(seed) {
         return `https://api.dicebear.com/7.x/bottts-neutral/svg?seed=${encodeURIComponent(seed || "bro")}`;
       }
@@ -3141,6 +3166,103 @@
         return s;
       }
 
+      // ---------- Resilient Supabase calls ----------
+      function isAuthRelatedError(err) {
+        const msg = String(err?.message || "").toLowerCase();
+        const status = err?.status || err?.code;
+        return (
+          status === 401 ||
+          status === 403 ||
+          msg.includes("jwt") ||
+          msg.includes("token") ||
+          msg.includes("auth") ||
+          msg.includes("session")
+        );
+      }
+
+      function isAbortError(err) {
+        return String(err?.name || "").toLowerCase().includes("abort");
+      }
+
+      async function withTimeout(promise, ms, label = "Timed out") {
+        let t = null;
+        const timeout = new Promise((_, reject) => {
+          t = setTimeout(() => reject(new Error(label)), ms);
+        });
+        try {
+          return await Promise.race([promise, timeout]);
+        } finally {
+          if (t) clearTimeout(t);
+        }
+      }
+
+      async function ensureFreshSession({ force = false, reason = "" } = {}) {
+        if (sessionRefreshInFlight) return sessionRefreshInFlight;
+
+        const now = Date.now();
+        if (!force && now - lastSessionRefreshAt < 4000) return;
+
+        sessionRefreshInFlight = (async () => {
+          try {
+            const r = await withTimeout(supabase.auth.getSession(), 2500, "Session check timed out");
+            const s = r?.data?.session ?? null;
+
+            if (s) {
+              session = s;
+              user = s.user ?? null;
+            }
+
+            const expiresAtMs = s?.expires_at ? s.expires_at * 1000 : null;
+            const expiringSoon = !!expiresAtMs && expiresAtMs - Date.now() < 90_000;
+
+            if (force || expiringSoon) {
+              const rr = await withTimeout(supabase.auth.refreshSession(), 4000, "Token refresh timed out");
+              const ns = rr?.data?.session ?? null;
+              if (ns) {
+                session = ns;
+                user = ns.user ?? null;
+              }
+            }
+          } catch (e) {
+            console.warn("ensureFreshSession:", reason, e);
+          } finally {
+            lastSessionRefreshAt = Date.now();
+            sessionRefreshInFlight = null;
+          }
+        })();
+
+        return sessionRefreshInFlight;
+      }
+
+      function makeAbort(ms) {
+        const ctrl = new AbortController();
+        const timer = setTimeout(() => ctrl.abort(), ms);
+        return { ctrl, timer };
+      }
+
+      async function sbExec(factory, { timeoutMs = 10_000, retryAuth = true } = {}) {
+        const attempt = async () => {
+          const { ctrl, timer } = makeAbort(timeoutMs);
+          try {
+            const { data, error } = await factory().abortSignal(ctrl.signal);
+            if (error) throw error;
+            return data;
+          } finally {
+            clearTimeout(timer);
+          }
+        };
+
+        try {
+          return await attempt();
+        } catch (e) {
+          if (retryAuth && isAuthRelatedError(e)) {
+            await ensureFreshSession({ force: true, reason: "sbExec auth retry" });
+            return await attempt();
+          }
+          throw e;
+        }
+      }
+
       // ---------- URL sync ----------
       function readURL() {
         const params = new URLSearchParams(window.location.search);
@@ -3156,7 +3278,7 @@
         viewMode = v === "compact" || v === "grid" ? v : "grid";
 
         const s = params.get("sort");
-        sortMode = ["recent", "az", "za"].includes(s) ? s : "recent";
+        sortMode = SORTS.includes(s) ? s : "recent";
 
         const chatFlag = params.get("chat") === "1";
         return { chatFlag };
@@ -3176,6 +3298,57 @@
 
         const qs = params.toString();
         history.replaceState(null, "", `${location.pathname}${qs ? "?" + qs : ""}`);
+      }
+
+      function applyProfilePrefsAsDefaults() {
+        if (!profile) return;
+
+        const params = new URLSearchParams(window.location.search);
+        let changed = false;
+
+        const pTab = String(profile.ui_tab || "").trim();
+        const pView = String(profile.ui_view || "").trim();
+        const pSort = String(profile.ui_sort || "").trim();
+
+        if (!params.get("tab") && TABS.some((t) => t.id === pTab)) {
+          activeTab = pTab;
+          changed = true;
+        }
+        if (!params.get("view") && VIEWS.includes(pView)) {
+          viewMode = pView;
+          changed = true;
+        }
+        if (!params.get("sort") && SORTS.includes(pSort)) {
+          sortMode = pSort;
+          changed = true;
+        }
+
+        if (changed) updateURL();
+      }
+
+      function scheduleUiPrefsSave() {
+        if (!user) return;
+        if (!profile) return;
+
+        const next = { ui_tab: activeTab, ui_view: viewMode, ui_sort: sortMode };
+        if (
+          lastSavedUiPrefs &&
+          lastSavedUiPrefs.ui_tab === next.ui_tab &&
+          lastSavedUiPrefs.ui_view === next.ui_view &&
+          lastSavedUiPrefs.ui_sort === next.ui_sort
+        ) {
+          return;
+        }
+
+        if (uiPrefsSaveTimer) clearTimeout(uiPrefsSaveTimer);
+        uiPrefsSaveTimer = setTimeout(async () => {
+          try {
+            await sbExec(() => supabase.from("profiles").update(next).eq("id", user.id), { timeoutMs: 8000, retryAuth: true });
+            lastSavedUiPrefs = next;
+          } catch (e) {
+            console.warn("Failed to save UI prefs:", e?.message || e);
+          }
+        }, 600);
       }
 
       // ---------- Modals + focus trap ----------
@@ -3224,7 +3397,6 @@
             setTimeout(() => searchEl.focus(), 0);
             return;
           }
-          // other modals: don't trigger global "/" handler, but allow typing "/" into inputs
           e.stopPropagation();
           return;
         }
@@ -3234,7 +3406,6 @@
           const openModals = [...document.querySelectorAll(".modal.open")];
           if (openModals.some(isStaticModal)) return;
 
-          // FIX: make sure closing chat via Escape removes ?chat=1 too
           openModals.forEach((m) => {
             if (m === chatModal) closeChat();
             else closeModal(m);
@@ -3247,10 +3418,7 @@
         document.querySelectorAll(".modal.open").forEach((m) => {
           if (e.target === m) {
             if (isStaticModal(m)) return;
-
-            // FIX: if chat modal closes via backdrop, remove ?chat=1
             if (m === chatModal) return closeChat();
-
             closeModal(m);
           }
         });
@@ -3286,7 +3454,6 @@
       }
 
       confirmOk.onclick = async () => {
-        // FIX: allow nested confirms (clear-list triple confirm, etc.)
         const cb = confirmCallback;
         confirmCallback = null;
         closeModal(confirmModal);
@@ -3306,7 +3473,7 @@
         closeModal(confirmModal);
       };
 
-      // ---------- Floating labels (kept for "filled" state, but labels are no longer overlay) ----------
+      // ---------- Floating labels ----------
       function setFloatGroupState(el) {
         const input = el.querySelector("input, textarea, select");
         if (!input) return;
@@ -3381,6 +3548,7 @@
           b.onclick = () => {
             activeTab = t.id;
             updateURL();
+            scheduleUiPrefsSave();
             render();
           };
           tabsEl.appendChild(b);
@@ -3388,7 +3556,6 @@
       }
 
       function displayTitle(row) {
-        // FIX: remove title language preference entirely (prefTitle was breaking the app)
         const typed = row?.title != null ? String(row.title).trim() : "";
         if (typed) return typed;
 
@@ -3425,6 +3592,67 @@
         t.className = "title";
         t.textContent = text;
         return t;
+      }
+
+      function enableLongPressNote(coverEl, cardEl) {
+        let timer = null;
+        let started = false;
+        let startX = 0;
+        let startY = 0;
+        const delay = 450;
+        const moveThresh = 10;
+
+        const clear = () => {
+          if (timer) clearTimeout(timer);
+          timer = null;
+          started = false;
+        };
+
+        coverEl.addEventListener(
+          "touchstart",
+          (e) => {
+            if (e.touches?.length !== 1) return;
+            if (e.target.closest("button")) return; // don't hijack gear button
+            const t = e.touches[0];
+            startX = t.clientX;
+            startY = t.clientY;
+            started = true;
+            clear();
+            timer = setTimeout(() => {
+              cardEl.classList.add("note-open");
+              // auto-hide after a bit so it doesn't “stick”
+              setTimeout(() => cardEl.classList.remove("note-open"), 2200);
+            }, delay);
+          },
+          { passive: true }
+        );
+
+        coverEl.addEventListener(
+          "touchmove",
+          (e) => {
+            if (!started || !e.touches?.[0]) return;
+            const t = e.touches[0];
+            if (Math.abs(t.clientX - startX) > moveThresh || Math.abs(t.clientY - startY) > moveThresh) clear();
+          },
+          { passive: true }
+        );
+
+        coverEl.addEventListener("touchend", clear, { passive: true });
+        coverEl.addEventListener("touchcancel", clear, { passive: true });
+      }
+
+      function maybeAttachNotes(row, card, cover) {
+        const noteText = String(row?.notes || "").trim();
+        if (!noteText) return;
+
+        card.classList.add("has-note");
+
+        const note = document.createElement("div");
+        note.className = "note-tooltip";
+        note.textContent = noteText;
+
+        cover.appendChild(note);
+        enableLongPressNote(cover, card);
       }
 
       function makeGridCard(row) {
@@ -3481,6 +3709,9 @@
         badge.className = "badge-bottom";
         badge.innerHTML = `<i class="fa-solid fa-film"></i> ${progressText(row)}`;
         cover.appendChild(badge);
+
+        // Notes hover/long-press
+        maybeAttachNotes(row, card, cover);
 
         const body = document.createElement("div");
         body.className = "card-body";
@@ -3541,6 +3772,9 @@
         cover.append(ph, loader);
         if (imgUrl) cover.appendChild(img);
 
+        // Notes hover/long-press
+        maybeAttachNotes(row, card, cover);
+
         const float = document.createElement("div");
         float.className = "floating-actions";
         const editBtn = document.createElement("button");
@@ -3570,6 +3804,90 @@
         return col;
       }
 
+      function queueEntryPatch(id, patch, { debounceMs = 350 } = {}) {
+        if (!user || !id) return;
+
+        // optimistic local
+        const i = data.findIndex((r) => r.id === id);
+        if (i >= 0) data[i] = { ...data[i], ...patch };
+
+        entrySyncing.add(id);
+        render();
+
+        const cur =
+          entryPending.get(id) || ({ patch: {}, timer: null, inFlight: false, needsFlush: false, tries: 0 } /* cast */);
+
+        cur.patch = { ...cur.patch, ...patch };
+        cur.needsFlush = true;
+
+        if (cur.timer) clearTimeout(cur.timer);
+        cur.timer = setTimeout(() => flushEntryPatch(id), debounceMs);
+
+        entryPending.set(id, cur);
+      }
+
+      async function flushEntryPatch(id) {
+        const state = entryPending.get(id);
+        if (!state) return;
+
+        if (state.inFlight) {
+          state.needsFlush = true;
+          entryPending.set(id, state);
+          return;
+        }
+
+        if (!state.needsFlush) return;
+
+        state.inFlight = true;
+        state.needsFlush = false;
+        if (state.timer) clearTimeout(state.timer);
+        state.timer = null;
+
+        const patch = { ...state.patch };
+        state.patch = {};
+        entryPending.set(id, state);
+
+        try {
+          await sbExec(() => supabase.from("entries").update(patch).eq("id", id), { timeoutMs: 9000, retryAuth: true });
+
+          state.tries = 0;
+
+          // If nothing else pending, stop spinner
+          const stillPending = state.needsFlush || Object.keys(state.patch).length > 0;
+          if (!stillPending) entrySyncing.delete(id);
+        } catch (e) {
+          console.warn("Entry sync failed:", e?.message || e);
+
+          // merge back for retry
+          state.patch = { ...patch, ...state.patch };
+          state.tries = (state.tries || 0) + 1;
+
+          const backoff = Math.min(10_000, 900 * state.tries);
+          if (state.timer) clearTimeout(state.timer);
+          state.timer = setTimeout(() => flushEntryPatch(id), backoff);
+
+          entrySyncing.add(id);
+
+          if (state.tries === 1) {
+            if (isAbortError(e)) showToast("info", "Sync timed out — retrying…", 1600);
+            else if (isAuthRelatedError(e)) showToast("info", "Session refreshed — retrying sync…", 1600);
+            else showToast("info", "Sync hiccup — retrying…", 1600);
+          }
+        } finally {
+          state.inFlight = false;
+          entryPending.set(id, state);
+
+          // If new patches arrived while in-flight, flush soon
+          const needAgain = state.needsFlush || Object.keys(state.patch).length > 0;
+          if (needAgain && !state.timer) {
+            state.timer = setTimeout(() => flushEntryPatch(id), 180);
+            entryPending.set(id, state);
+          }
+
+          render();
+        }
+      }
+
       function buildControls(row) {
         const controls = document.createElement("div");
         controls.className = "controls";
@@ -3586,7 +3904,11 @@
 
         const prog = document.createElement("div");
         prog.className = "progress-readout";
-        prog.innerHTML = `<i class="fa-solid fa-tv"></i> <span>${progressText(row)}</span>`;
+
+        const syncing = entrySyncing.has(row.id);
+        prog.innerHTML = syncing
+          ? `<i class="fa-solid fa-spinner spin"></i> <span>${progressText(row)}</span>`
+          : `<i class="fa-solid fa-tv"></i> <span>${progressText(row)}</span>`;
 
         const inc = document.createElement("button");
         inc.className = "control-btn";
@@ -3601,20 +3923,10 @@
         move.innerHTML = STATUSES.map((s) => `<option ${row.status === s ? "selected" : ""}>${s}</option>`).join("");
 
         move.onchange = async (e) => {
-          try {
-            const next = e.target.value;
-            const { error } = await supabase.from("entries").update({ status: next }).eq("id", row.id);
-            if (error) throw error;
-
-            // local update (instant)
-            const i = data.findIndex((r) => r.id === row.id);
-            if (i >= 0) data[i] = { ...data[i], status: next };
-
-            showToast("success", "Moved to " + next);
-            render();
-          } catch (err) {
-            showToast("error", err.message || "Failed");
-          }
+          const next = e.target.value;
+          // Optimistic + debounced (prevents spam)
+          queueEntryPatch(row.id, { status: next }, { debounceMs: 250 });
+          showToast("success", "Moved to " + next);
         };
 
         controls.append(dec, prog, inc, move);
@@ -3681,7 +3993,6 @@
             emptyEl.style.display = "none";
           }
 
-          // Only show "No anime found" for SEARCH, not for empty tabs
           const showNoResultsForSearchOnly = !!q;
 
           const renderItem = viewMode === "compact" ? makeCompactCard : makeGridCard;
@@ -3747,23 +4058,12 @@
       }
 
       // ---------- Data updates ----------
-      async function adjustEpisode(row, delta) {
+      function adjustEpisode(row, delta) {
         const current = Math.max(0, Number(row.episode ?? 0) || 0);
         const next = Math.max(0, current + delta);
 
-        try {
-          const { error } = await supabase.from("entries").update({ episode: next }).eq("id", row.id);
-          if (error) throw error;
-
-          // local update instantly
-          const i = data.findIndex((r) => r.id === row.id);
-          if (i >= 0) data[i] = { ...data[i], episode: next };
-
-          showToast("success", `${delta > 0 ? `+${delta}` : delta} EP`);
-          render();
-        } catch (e) {
-          showToast("error", e.message || "Failed to update");
-        }
+        queueEntryPatch(row.id, { episode: next }, { debounceMs: 380 });
+        showToast("success", `${delta > 0 ? `+${delta}` : delta} EP`);
       }
 
       // ---------- Auth UI ----------
@@ -3808,7 +4108,7 @@
         accountOnline.textContent = presenceCount;
 
         accountAvatar.textContent = "";
-        accountAvatar.style.backgroundImage = `url('${diceAvatar(name)}')`;
+        accountAvatar.style.backgroundImage = `url('${diceAvatar(getAvatarSeed())}')`;
 
         // prefs
         if (prefCover) prefCover.value = defaultCoverSource;
@@ -3818,35 +4118,81 @@
       async function loadProfile() {
         if (!user) return;
 
-        // FIX: prefTitle removed entirely; don't select title_pref anymore.
-        const { data: p, error } = await supabase.from("profiles").select("username,cover_source").eq("id", user.id).single();
+        const { data: p, error } = await sbExec(
+          () => supabase.from("profiles").select("username,cover_source,avatar_seed,avatar_seed_history,ui_tab,ui_view,ui_sort").eq("id", user.id).single(),
+          { timeoutMs: 9000, retryAuth: true }
+        ).then((p) => ({ data: p, error: null })).catch((e) => ({ data: null, error: e }));
 
         if (error) {
-          console.warn("Profile load error:", error.message);
+          console.warn("Profile load error:", error.message || error);
           profile = null;
           return;
         }
 
         profile = p || null;
         defaultCoverSource = profile?.cover_source || "ANILIST";
+
+        // seed history (avoid duplicates on regen)
+        avatarSeedHistory = new Set(Array.isArray(profile?.avatar_seed_history) ? profile.avatar_seed_history : []);
+        if (profile?.avatar_seed) avatarSeedHistory.add(String(profile.avatar_seed));
+
+        // apply profile view prefs into URL if missing (cross-device)
+        applyProfilePrefsAsDefaults();
+
+        // set "last saved" so we don't spam updates on first render
+        lastSavedUiPrefs = {
+          ui_tab: profile?.ui_tab || "ALL",
+          ui_view: profile?.ui_view || "grid",
+          ui_sort: profile?.ui_sort || "recent",
+        };
       }
 
       // ---------- Load entries ----------
-      async function loadEntries() {
+      let entriesLoading = false;
+
+      async function loadEntries({ showSkeleton = true, silent = false, retryIfEmpty = true } = {}) {
         if (!user) return;
-        renderSkeletons(8);
-        updatePreloader("Loading your shelf…");
+        if (entriesLoading) return;
+        entriesLoading = true;
+
+        const hadData = data.length > 0;
+
+        if (showSkeleton && !hadData) renderSkeletons(8);
+        if (!silent && appPreloader.classList.contains("active")) updatePreloader("Loading your shelf…");
+
         try {
-          const { data: rows, error } = await supabase.from("entries").select("*").order("created_at", { ascending: false });
-          if (error) throw error;
-          data = rows || [];
+          let rows = await sbExec(
+            () => supabase.from("entries").select("*").order("created_at", { ascending: false }),
+            { timeoutMs: 12_000, retryAuth: true }
+          );
+          rows = rows || [];
+
+          // Fix: sometimes first fetch can run effectively "anon" => RLS returns [].
+          if (retryIfEmpty && !didEmptyEntriesRetryFix && Array.isArray(rows) && rows.length === 0) {
+            didEmptyEntriesRetryFix = true;
+            await ensureFreshSession({ force: true, reason: "empty entries retry" });
+            try {
+              const rows2 = await sbExec(
+                () => supabase.from("entries").select("*").order("created_at", { ascending: false }),
+                { timeoutMs: 12_000, retryAuth: false }
+              );
+              if (Array.isArray(rows2) && rows2.length > 0) rows = rows2;
+            } catch {
+              // ignore
+            }
+          }
+
+          data = rows;
           render();
 
-          // background covers (do NOT block preloader)
+          // background covers (do NOT block UI)
           enqueueMissingCovers(data);
         } catch (e) {
           console.error(e);
-          showToast("error", e.message || "Failed to load");
+          if (!silent) showToast("error", e.message || "Failed to load");
+          // keep old data to avoid stutter
+        } finally {
+          entriesLoading = false;
         }
       }
 
@@ -3958,22 +4304,26 @@
           user_id: user.id,
         };
 
-        // Save button: spinner + text
         btnSave.classList.add("loading");
         btnSave.innerHTML = "Save";
 
         try {
+          // Prevent "forever loading" after tab switch: timeout + auth retry
           if (editingId) {
-            const { data: upd, error } = await supabase.from("entries").update(row).eq("id", editingId).select().single();
-            if (error) throw error;
+            const upd = await sbExec(
+              () => supabase.from("entries").update(row).eq("id", editingId).select().single(),
+              { timeoutMs: 12_000, retryAuth: true }
+            );
 
             const i = data.findIndex((r) => r.id === editingId);
             if (i >= 0) data[i] = upd;
 
             showToast("success", "Saved");
           } else {
-            const { data: ins, error } = await supabase.from("entries").insert(row).select().single();
-            if (error) throw error;
+            const ins = await sbExec(
+              () => supabase.from("entries").insert(row).select().single(),
+              { timeoutMs: 12_000, retryAuth: true }
+            );
 
             if (!data.some((r) => r.id === ins.id)) data.unshift(ins);
 
@@ -3984,7 +4334,9 @@
           render();
           closeModal(modal);
         } catch (e) {
-          showToast("error", e.message || "Failed to save");
+          console.error(e);
+          if (isAbortError(e)) showToast("error", "Save timed out — try again");
+          else showToast("error", e.message || "Failed to save");
         } finally {
           btnSave.classList.remove("loading");
           btnSave.innerHTML = '<i class="fa-solid fa-floppy-disk"></i>Save';
@@ -3996,10 +4348,9 @@
 
         openConfirm("Delete item", "Delete this anime from your shelf?", async () => {
           const id = editingId;
-          const { error } = await supabase.from("entries").delete().eq("id", id);
-          if (error) throw error;
 
-          // local update immediately
+          await sbExec(() => supabase.from("entries").delete().eq("id", id), { timeoutMs: 10_000, retryAuth: true });
+
           const i = data.findIndex((r) => r.id === id);
           if (i >= 0) data.splice(i, 1);
 
@@ -4086,7 +4437,7 @@
         showToast("success", "Exported");
       }
 
-      // ---------- Import (modal redesign) ----------
+      // ---------- Import ----------
       document.getElementById("btn-import").onclick = () => openModal(importModal);
       mImport.addEventListener("click", () => {
         closeMenu();
@@ -4131,10 +4482,8 @@
             return;
           }
 
-          const { data: inserted, error } = await supabase.from("entries").insert(rows).select();
-          if (error) throw error;
+          const inserted = await sbExec(() => supabase.from("entries").insert(rows).select(), { timeoutMs: 20_000, retryAuth: true });
 
-          // local update immediately
           for (const ins of inserted || []) {
             if (!data.some((r) => r.id === ins.id)) data.unshift(ins);
           }
@@ -4157,7 +4506,6 @@
           const text = await file.text();
           return normalizeAniList(text);
         }
-        // APP / AML JSON
         const text = await file.text();
         const json = JSON.parse(text);
         if (!Array.isArray(json)) throw new Error("Invalid JSON: expected an array");
@@ -4175,11 +4523,9 @@
         const season = o.season === "" || o.season == null ? null : clampNonNegativeInt(o.season);
         const episode = o.episode === "" || o.episode == null ? null : clampNonNegativeInt(o.episode);
 
-        // Ignore absolute_episode completely
         const notes = String(o.notes || "").trim() || null;
 
         let image_url = String(o.image_url || "").trim() || null;
-        // Browser cannot use file:// covers
         if (image_url && image_url.startsWith("file://")) image_url = null;
 
         const title_romaji = String(o.title_romaji || "").trim() || null;
@@ -4221,7 +4567,7 @@
         };
 
         const mapKind = (t) => {
-          const code = Number(t || 1); // 1=TV, 3=Movie, etc.
+          const code = Number(t || 1);
           if (code === 3) return "MOVIE";
           return "SERIES";
         };
@@ -4243,7 +4589,6 @@
           throw new Error("Invalid JSON");
         }
 
-        // Try multiple known shapes
         const tryLists = obj?.data?.MediaListCollection?.lists || obj?.MediaListCollection?.lists || obj?.lists || null;
 
         const statusMap = {
@@ -4261,8 +4606,7 @@
           for (const L of tryLists) {
             for (const e of L.entries || []) {
               const media = e.media || {};
-              const title =
-                media.title?.romaji || media.title?.english || media.title?.native || e.notes || "";
+              const title = media.title?.romaji || media.title?.english || media.title?.native || e.notes || "";
               const kind = media.format === "MOVIE" ? "MOVIE" : "SERIES";
               const status = statusMap[e.status] || "PLAN";
               const episode = Number(e.progress || 0) || null;
@@ -4311,6 +4655,7 @@
       mViewGrid.addEventListener("click", () => {
         viewMode = "grid";
         updateURL();
+        scheduleUiPrefsSave();
         closeMenu();
         render();
       });
@@ -4318,6 +4663,7 @@
       mViewCompact.addEventListener("click", () => {
         viewMode = "compact";
         updateURL();
+        scheduleUiPrefsSave();
         closeMenu();
         render();
       });
@@ -4381,6 +4727,7 @@
         if (!btn) return;
         sortMode = btn.dataset.sort;
         updateURL();
+        scheduleUiPrefsSave();
         updateSortToggleUI();
         render();
       });
@@ -4388,25 +4735,21 @@
       viewBtnGrid.addEventListener("click", () => {
         viewMode = "grid";
         updateURL();
+        scheduleUiPrefsSave();
         render();
       });
 
       viewBtnCompact.addEventListener("click", () => {
         viewMode = "compact";
         updateURL();
+        scheduleUiPrefsSave();
         render();
       });
 
-      // ---------- Scroll to top (robust with overflow-x hidden) ----------
+      // ---------- Scroll to top ----------
       function getPageScrollTop() {
         const se = document.scrollingElement;
-        return (
-          (se && se.scrollTop) ||
-          window.scrollY ||
-          document.documentElement.scrollTop ||
-          document.body.scrollTop ||
-          0
-        );
+        return (se && se.scrollTop) || window.scrollY || document.documentElement.scrollTop || document.body.scrollTop || 0;
       }
 
       function scrollPageToTop() {
@@ -4416,15 +4759,12 @@
         try {
           se.scrollTo(opts);
         } catch {}
-
         try {
           window.scrollTo(opts);
         } catch {}
-
         try {
           document.documentElement.scrollTo(opts);
         } catch {}
-
         try {
           document.body.scrollTo(opts);
         } catch {}
@@ -4471,7 +4811,10 @@
         prefCover.addEventListener("change", async () => {
           try {
             defaultCoverSource = prefCover.value;
-            await supabase.from("profiles").update({ cover_source: defaultCoverSource }).eq("id", user.id);
+            await sbExec(() => supabase.from("profiles").update({ cover_source: defaultCoverSource }).eq("id", user.id), {
+              timeoutMs: 9000,
+              retryAuth: true,
+            });
             showToast("success", "Cover source set to " + defaultCoverSource);
             enqueueMissingCovers(data);
           } catch {
@@ -4480,7 +4823,7 @@
         });
       }
 
-      // ---------- Clear list (TRIPLE confirm) — FIXED ----------
+      // ---------- Clear list (TRIPLE confirm) — fixed + RPC fallback ----------
       accountClearList.onclick = () => {
         if (!user) return showToast("error", "Sign in first");
 
@@ -4489,9 +4832,13 @@
             openConfirm("Last chance (3/3)", "No undo. Delete everything now?", async () => {
               showLoading(true);
               try {
-                // delete directly (no RPC)
-                const { error } = await supabase.from("entries").delete().eq("user_id", user.id);
-                if (error) throw error;
+                // Prefer RPC if present; fallback to direct delete
+                try {
+                  await sbExec(() => supabase.rpc("delete_all_entries"), { timeoutMs: 15_000, retryAuth: true });
+                } catch (e) {
+                  // fallback
+                  await sbExec(() => supabase.from("entries").delete().eq("user_id", user.id), { timeoutMs: 15_000, retryAuth: true });
+                }
 
                 data = [];
                 render();
@@ -4512,6 +4859,203 @@
           await supabase.auth.signOut();
           location.reload();
         });
+
+      // ---------- PFP picker ----------
+      function randomSeed() {
+        return (
+          Math.random().toString(36).slice(2, 10) +
+          "_" +
+          Math.random().toString(36).slice(2, 10) +
+          "_" +
+          Date.now().toString(36)
+        );
+      }
+
+      function generateUniqueSeeds(count, usedSet) {
+        const out = [];
+        let guard = 0;
+        while (out.length < count && guard < 5000) {
+          guard++;
+          const s = randomSeed();
+          if (usedSet.has(s)) continue;
+          out.push(s);
+          usedSet.add(s);
+        }
+        return out;
+      }
+
+      function renderPfpSkeletons() {
+        pfpGrid.innerHTML = "";
+        for (let i = 0; i < 5; i++) {
+          const sk = document.createElement("div");
+          sk.className = "skeleton-card";
+          sk.innerHTML = `
+            <div class="skeleton-cover"></div>
+            <div class="skeleton-body">
+              <div class="skeleton-title"></div>
+              <div class="skeleton-chip"></div>
+            </div>
+          `;
+          pfpGrid.appendChild(sk);
+        }
+      }
+
+      function setPfpButtonsState() {
+        pfpConfirm.disabled = !pfpSelectedSeed || pfpGenerating;
+        pfpRegenerate.disabled = pfpGenerating;
+      }
+
+      function renderPfpOptions(seeds, nonce) {
+        pfpGrid.innerHTML = "";
+        pfpSelectedSeed = null;
+        setPfpButtonsState();
+
+        seeds.forEach((seed, idx) => {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "pfp-card";
+          btn.setAttribute("aria-label", "Avatar option " + (idx + 1));
+
+          const cover = document.createElement("div");
+          cover.className = "pfp-cover";
+
+          const img = document.createElement("img");
+          img.alt = "Avatar preview";
+          img.loading = "eager";
+          img.decoding = "async";
+          img.src = diceAvatar(seed);
+
+          const load = document.createElement("div");
+          load.className = "pfp-load";
+          load.innerHTML = `<i class="fa-solid fa-spinner"></i>`;
+
+          img.onload = () => {
+            if (nonce !== pfpGenNonce) return;
+            load.remove();
+          };
+          img.onerror = () => {
+            if (nonce !== pfpGenNonce) return;
+            load.remove();
+          };
+
+          cover.append(img, load);
+
+          const meta = document.createElement("div");
+          meta.className = "pfp-meta";
+          meta.innerHTML = `<span>Variant</span><span>#${idx + 1}</span>`;
+
+          btn.append(cover, meta);
+
+          btn.onclick = () => {
+            // selection outline
+            [...pfpGrid.querySelectorAll(".pfp-card")].forEach((b) => b.classList.remove("selected"));
+            btn.classList.add("selected");
+            pfpSelectedSeed = seed;
+            setPfpButtonsState();
+          };
+
+          pfpGrid.appendChild(btn);
+        });
+      }
+
+      async function regeneratePfp() {
+        if (!user) return showToast("error", "Sign in first");
+        if (pfpGenerating) return;
+
+        const now = Date.now();
+        if (now - pfpLastRegenAt < 450) return; // spam guard
+        pfpLastRegenAt = now;
+
+        pfpGenerating = true;
+        pfpGenNonce++;
+        setPfpButtonsState();
+        pfpRegenerate.classList.add("loading");
+        pfpRegenerate.innerHTML = "Regenerate";
+
+        renderPfpSkeletons();
+
+        try {
+          // Ensure history includes current avatar + username (avoid generating same)
+          avatarSeedHistory.add(getAvatarSeed());
+          avatarSeedHistory.add(getUsername());
+
+          const seeds = generateUniqueSeeds(5, avatarSeedHistory);
+          renderPfpOptions(seeds, pfpGenNonce);
+
+          // Persist trimmed history (debounced-ish via timeout)
+          const histArr = [...avatarSeedHistory].slice(-120);
+          await sbExec(() => supabase.from("profiles").update({ avatar_seed_history: histArr }).eq("id", user.id), {
+            timeoutMs: 10_000,
+            retryAuth: true,
+          });
+
+          if (profile) profile.avatar_seed_history = histArr;
+        } catch (e) {
+          console.warn(e);
+          showToast("error", e.message || "Failed to regenerate");
+        } finally {
+          pfpGenerating = false;
+          pfpRegenerate.classList.remove("loading");
+          pfpRegenerate.innerHTML = '<i class="fa-solid fa-arrows-rotate"></i>Regenerate';
+          setPfpButtonsState();
+        }
+      }
+
+      function refreshChatMyAvatars() {
+        if (!user) return;
+        const src = diceAvatar(getAvatarSeed());
+        document.querySelectorAll(".msg.mine .avatar").forEach((img) => {
+          if (img && img.tagName === "IMG") img.src = src;
+        });
+      }
+
+      accountChangePfp.onclick = async () => {
+        if (!user) return showToast("error", "Sign in first");
+        openModal(pfpModal);
+        renderPfpSkeletons();
+        await regeneratePfp();
+      };
+
+      pfpCancel.onclick = () => closeModal(pfpModal);
+
+      pfpRegenerate.onclick = () => regeneratePfp();
+
+      pfpConfirm.onclick = async () => {
+        if (!user) return showToast("error", "Sign in first");
+        if (!pfpSelectedSeed) return;
+
+        pfpConfirm.classList.add("loading");
+        pfpConfirm.innerHTML = "Confirm";
+        pfpConfirm.disabled = true;
+
+        try {
+          const histArr = [...avatarSeedHistory].slice(-120);
+
+          await sbExec(
+            () => supabase.from("profiles").update({ avatar_seed: pfpSelectedSeed, avatar_seed_history: histArr }).eq("id", user.id),
+            { timeoutMs: 10_000, retryAuth: true }
+          );
+
+          if (!profile) profile = {};
+          profile.avatar_seed = pfpSelectedSeed;
+          profile.avatar_seed_history = histArr;
+
+          // update UI
+          updateAccountUI();
+          updateSelfAvatar();
+          refreshChatMyAvatars();
+
+          showToast("success", "Profile pic updated");
+          closeModal(pfpModal);
+        } catch (e) {
+          console.error(e);
+          showToast("error", e.message || "Failed to update avatar");
+        } finally {
+          pfpConfirm.classList.remove("loading");
+          pfpConfirm.innerHTML = '<i class="fa-solid fa-check"></i>Confirm new pfp';
+          setPfpButtonsState();
+        }
+      };
 
       // ---------- Cover sources (AniList / Jikan / Kitsu) ----------
       function normalizeStr(s) {
@@ -4551,6 +5095,16 @@
         return best + popBias;
       }
 
+      async function fetchWithTimeout(url, opts = {}, timeoutMs = 9000) {
+        const { ctrl, timer } = makeAbort(timeoutMs);
+        try {
+          const res = await fetch(url, { ...opts, signal: ctrl.signal });
+          return res;
+        } finally {
+          clearTimeout(timer);
+        }
+      }
+
       async function fetchAniListMeta(title) {
         const query = `
           query ($search: String) {
@@ -4567,11 +5121,15 @@
           }
         `;
 
-        const res = await fetch("https://graphql.anilist.co", {
-          method: "POST",
-          headers: { "Content-Type": "application/json", Accept: "application/json" },
-          body: JSON.stringify({ query, variables: { search: title } }),
-        });
+        const res = await fetchWithTimeout(
+          "https://graphql.anilist.co",
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json", Accept: "application/json" },
+            body: JSON.stringify({ query, variables: { search: title } }),
+          },
+          10_000
+        );
 
         if (!res.ok) throw new Error("AniList search failed");
         const json = await res.json();
@@ -4594,7 +5152,7 @@
 
       async function fetchJikanCover(title) {
         const url = `https://api.jikan.moe/v4/anime?q=${encodeURIComponent(title)}&limit=3&sfw`;
-        const res = await fetch(url);
+        const res = await fetchWithTimeout(url, {}, 10_000);
         if (!res.ok) throw new Error("Jikan search failed");
         const json = await res.json();
         const pick = (json?.data || [])[0];
@@ -4609,7 +5167,7 @@
 
       async function fetchKitsuCover(title) {
         const url = `https://kitsu.io/api/edge/anime?filter[text]=${encodeURIComponent(title)}&page[limit]=3`;
-        const res = await fetch(url);
+        const res = await fetchWithTimeout(url, {}, 10_000);
         if (!res.ok) throw new Error("Kitsu search failed");
         const json = await res.json();
         const pick = (json?.data || [])[0];
@@ -4673,7 +5231,7 @@
         try {
           const override = fCoverSource.value || null;
           const preferred = override || defaultCoverSource;
-          const strict = !!override; // per-anime override = no fallback
+          const strict = !!override;
           const r = await autoFetchCover(title, preferred, strict);
 
           if (r?.image) {
@@ -4720,8 +5278,8 @@
           if (!r?.id) continue;
           if (!r?.title) continue;
 
-          if (r.image_url) continue; // do not override existing covers
-          if (coverAttemptedThisRun.has(r.id)) continue; // don't thrash
+          if (r.image_url) continue;
+          if (coverAttemptedThisRun.has(r.id)) continue;
           if (coverQueue.has(r.id)) continue;
 
           coverQueue.add(r.id);
@@ -4747,7 +5305,6 @@
         const patch = {};
         if (r.image) patch.image_url = r.image;
 
-        // Only AniList provides alt titles; save when available
         if (r.titles) {
           patch.title_romaji = r.titles.romaji || row.title_romaji || null;
           patch.title_english = r.titles.english || row.title_english || null;
@@ -4755,10 +5312,8 @@
           patch.anilist_id = r.anilist_id || row.anilist_id || null;
         }
 
-        const { error } = await supabase.from("entries").update(patch).eq("id", row.id);
-        if (error) throw error;
+        await sbExec(() => supabase.from("entries").update(patch).eq("id", row.id), { timeoutMs: 10_000, retryAuth: true });
 
-        // local update immediately (realtime will also sync)
         const i = data.findIndex((x) => x.id === row.id);
         if (i >= 0) data[i] = { ...data[i], ...patch };
 
@@ -4783,14 +5338,13 @@
               if (!row) continue;
 
               coverAttemptedThisRun.add(id);
-
               coverWorkerActive++;
 
               (async () => {
                 try {
                   await processCoverRow(row);
                 } catch {
-                  // ignore failures for now; user can click refresh later
+                  // ignore failures; user can refresh later
                 } finally {
                   coverDone++;
                   coverWorkerActive--;
@@ -4805,18 +5359,14 @@
           while (coverWorkerActive > 0) await sleep(150);
         } finally {
           coverWorkerRunning = false;
-
-          // reset per-run attempted set so future refresh can retry
           coverAttemptedThisRun.clear();
 
-          // reset counters cleanly for next run
           const finishedTotal = coverTotal;
           const finishedDone = coverDone;
 
           coverTotal = 0;
           coverDone = 0;
 
-          // only show completion if we actually did work
           if (finishedTotal > 0 && finishedDone > 0) finishCoverProgress();
         }
       }
@@ -4895,7 +5445,7 @@
         }
       };
 
-      // Forgot password (link)
+      // Forgot password
       forgotPasswordLink.onclick = async () => {
         try {
           const ident = (loginIdentifier.value || "").trim();
@@ -4965,7 +5515,7 @@
         }
       };
 
-      // Resend confirmation (link)
+      // Resend confirmation
       resendConfirmationLink.onclick = async () => {
         try {
           const email = (signupEmail.value || "").trim();
@@ -4992,11 +5542,7 @@
 
           // Clean URL
           url.searchParams.delete("type");
-          history.replaceState(
-            null,
-            "",
-            url.pathname + (url.searchParams.toString() ? "?" + url.searchParams.toString() : "")
-          );
+          history.replaceState(null, "", url.pathname + (url.searchParams.toString() ? "?" + url.searchParams.toString() : ""));
         }
       }
 
@@ -5010,49 +5556,115 @@
       }
 
       window.addEventListener("offline", syncOfflineModal);
-      window.addEventListener("online", () => {
+      window.addEventListener("online", async () => {
         syncOfflineModal();
         showToast("success", "Back online");
+
+        // flush any pending entry patches quickly
+        for (const id of entryPending.keys()) flushEntryPatch(id);
+
+        // refresh session + entries
+        await wakeRefresh("online");
       });
 
       // ---------- Chat ----------
       function updateSelfAvatar() {
-        chatSelfAvatar.src = diceAvatar(getUsername());
+        chatSelfAvatar.src = diceAvatar(getAvatarSeed());
       }
 
       function isNearChatBottom() {
         const dist = chatMessagesEl.scrollHeight - chatMessagesEl.scrollTop - chatMessagesEl.clientHeight;
-        return dist < 120;
+        return dist < 140;
       }
 
-      function scrollChatToBottom(force = false) {
-        if (force || isNearChatBottom()) {
-          chatMessagesEl.scrollTop = chatMessagesEl.scrollHeight;
+      function scrollChatToBottom({ force = false, smooth = true } = {}) {
+        if (!force && !isNearChatBottom()) return;
+
+        requestAnimationFrame(() => {
+          try {
+            chatEndEl.scrollIntoView({ block: "end", behavior: smooth ? "smooth" : "auto" });
+          } catch {
+            // fallback
+            chatMessagesEl.scrollTop = chatMessagesEl.scrollHeight;
+          }
           chatBottomFab.classList.remove("visible");
-        }
+        });
       }
 
       async function loadChatHistory(limit = 3000) {
         chatLoading.classList.add("visible");
         try {
-          const { data: rows, error } = await supabase
-            .from("chat_messages")
-            .select("id,user_id,username,content,created_at,is_system")
-            .order("created_at", { ascending: true })
-            .limit(limit);
+          const rows = await sbExec(
+            () =>
+              supabase
+                .from("chat_messages")
+                .select("id,user_id,username,content,created_at,is_system")
+                .order("created_at", { ascending: true })
+                .limit(limit),
+            { timeoutMs: 12_000, retryAuth: true }
+          );
 
-          if (error) throw error;
-
-          chatMessagesEl.querySelectorAll(".msg").forEach((n) => n.remove());
+          chatListEl.innerHTML = "";
           (rows || []).forEach(renderChatMessage);
 
-          scrollChatToBottom(true);
+          scrollChatToBottom({ force: true, smooth: false });
         } catch (e) {
           console.error(e);
           showToast("error", e.message || "Failed to load chat");
         } finally {
           chatLoading.classList.remove("visible");
         }
+      }
+
+      function renderChunkedMessageContent(container, text) {
+        const raw = String(text || "");
+        const lines = raw.replace(/\r\n/g, "\n").split("\n");
+        const CHUNK = 5;
+
+        const chunks = [];
+        for (let i = 0; i < lines.length; i += CHUNK) {
+          chunks.push(lines.slice(i, i + CHUNK).join("\n"));
+        }
+
+        let shown = 0;
+
+        const addChunk = () => {
+          if (shown >= chunks.length) return;
+
+          const chunkEl = document.createElement("div");
+          chunkEl.className = "content-chunk enter";
+          chunkEl.innerHTML = linkifySafe(chunks[shown]);
+
+          container.appendChild(chunkEl);
+
+          requestAnimationFrame(() => chunkEl.classList.add("active"));
+
+          shown++;
+
+          if (shown < chunks.length) {
+            addReadMoreButton();
+          }
+        };
+
+        const addReadMoreButton = () => {
+          // remove existing button if any
+          const existing = container.querySelector(".chat-readmore");
+          if (existing) existing.remove();
+
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "text-link chat-readmore";
+          btn.textContent = "...Read more";
+          btn.onclick = () => {
+            btn.remove();
+            addChunk();
+          };
+
+          container.appendChild(btn);
+        };
+
+        // show first chunk
+        addChunk();
       }
 
       function renderChatMessage(msg) {
@@ -5065,7 +5677,10 @@
         const avatar = document.createElement("img");
         avatar.className = "avatar";
         avatar.alt = "";
-        avatar.src = susie ? SUSIE_AVATAR : diceAvatar(msg.username || "bro");
+
+        if (susie) avatar.src = SUSIE_AVATAR;
+        else if (mine) avatar.src = diceAvatar(getAvatarSeed());
+        else avatar.src = diceAvatar(msg.username || "bro");
 
         const bubble = document.createElement("div");
         bubble.className = "bubble";
@@ -5086,12 +5701,12 @@
 
         const content = document.createElement("div");
         content.className = "content";
-        content.innerHTML = linkify(msg.content || "");
+        renderChunkedMessageContent(content, msg.content || "");
 
         bubble.append(meta, content);
         wrap.append(mine ? bubble : avatar, mine ? avatar : bubble);
 
-        chatMessagesEl.appendChild(wrap);
+        chatListEl.appendChild(wrap);
       }
 
       function setupChatRealtime() {
@@ -5102,7 +5717,7 @@
           .on("postgres_changes", { event: "INSERT", schema: "public", table: "chat_messages" }, (payload) => {
             const nearBottom = isNearChatBottom();
             renderChatMessage(payload.new);
-            if (nearBottom) scrollChatToBottom(true);
+            if (nearBottom) scrollChatToBottom({ force: true, smooth: true });
             else chatBottomFab.classList.add("visible");
           })
           .subscribe();
@@ -5152,7 +5767,6 @@
 
           chatTypingEl.classList.add("visible");
 
-          // schedule a follow-up cleanup so it disappears smoothly without flicker
           setTimeout(() => scheduleTypingIndicatorUpdate(), 900);
         }, 140);
       }
@@ -5186,9 +5800,6 @@
 
       function faNumberIconOrText(n) {
         const digit = String(n);
-        if (/^[0-9]$/.test(digit)) {
-          return `<span style="font-weight:900">${escapeHtml(digit)}</span>`;
-        }
         return `<span style="font-weight:900">${escapeHtml(digit)}</span>`;
       }
 
@@ -5245,24 +5856,25 @@
         chatSending = true;
         renderChatSendButton();
 
-        // Start cooldown immediately (client), server also enforces
         startChatCooldown(5000);
 
         try {
           const username = getUsername();
-          const { error } = await supabase.from("chat_messages").insert({
-            content: text,
-            username,
-            user_id: user.id,
-            is_system: false,
-          });
-
-          if (error) throw error;
+          await sbExec(
+            () =>
+              supabase.from("chat_messages").insert({
+                content: text,
+                username,
+                user_id: user.id,
+                is_system: false,
+              }),
+            { timeoutMs: 10_000, retryAuth: true }
+          );
 
           chatInput.value = "";
           autoResizeChatInput();
           renderChatSendButton();
-          scrollChatToBottom(true);
+          scrollChatToBottom({ force: true, smooth: true });
         } catch (e) {
           console.error(e);
 
@@ -5299,20 +5911,19 @@
 
       chatClose.addEventListener("click", () => closeChat());
 
-      chatBottomFab.addEventListener("click", () => scrollChatToBottom(true));
+      chatBottomFab.addEventListener("click", () => scrollChatToBottom({ force: true, smooth: true }));
 
       chatMessagesEl.addEventListener(
         "scroll",
         () => {
           const dist = chatMessagesEl.scrollHeight - chatMessagesEl.scrollTop - chatMessagesEl.clientHeight;
-          if (dist > 100) chatBottomFab.classList.add("visible");
+          if (dist > 120) chatBottomFab.classList.add("visible");
           else chatBottomFab.classList.remove("visible");
         },
         { passive: true }
       );
 
       function openChatFromClick() {
-        // FIX: don't set ?chat=1 unless the chat modal actually opens (prevents it reopening on reload)
         if (!user) {
           showToast("info", "Sign in to join the chat");
           openModal(authModal);
@@ -5328,7 +5939,7 @@
         updateSelfAvatar();
         renderChatSendButton();
 
-        loadChatHistory().then(() => scrollChatToBottom(true));
+        loadChatHistory().then(() => scrollChatToBottom({ force: true, smooth: false }));
         setupChatRealtime();
         setupTyping();
 
@@ -5337,10 +5948,9 @@
 
       function closeChat() {
         closeModal(chatModal);
-        updateURL(); // FIX: always remove ?chat=1 when chat closes
+        updateURL();
       }
 
-      // ---------- Chat open from URL (chat=1) ----------
       function maybeOpenChatFromURL() {
         const params = new URLSearchParams(window.location.search);
         const chatFlag = params.get("chat") === "1";
@@ -5350,7 +5960,6 @@
           openChat();
         }
         if (!user && !authModal.classList.contains("open")) {
-          // keep URL, prompt sign-in
           openModal(authModal);
         }
       }
@@ -5361,51 +5970,97 @@
       // ---------- Offline modal initial sync ----------
       syncOfflineModal();
 
-      // ---------- Init + Preloader (FIXED: no more stuck-on-reload) ----------
-      async function getSessionWithTimeout(timeoutMs = 2500) {
-        const timeout = new Promise((resolve) =>
-          setTimeout(() => resolve({ session: null, timedOut: true }), timeoutMs)
-        );
+      // ---------- Wake refresh (fix tab-switch bugs) ----------
+      async function wakeRefresh(reason = "focus") {
+        if (!user) return;
+        if (!navigator.onLine) return;
 
-        const attempt = (async () => {
+        const now = Date.now();
+        if (now - lastWakeRefreshAt < 8000) return;
+        lastWakeRefreshAt = now;
+
+        if (wakeRefreshInFlight) return wakeRefreshInFlight;
+
+        wakeRefreshInFlight = (async () => {
           try {
-            const { data, error } = await supabase.auth.getSession();
-            if (error) throw error;
-            return { session: data?.session ?? null, timedOut: false };
+            await ensureFreshSession({ force: false, reason: "wakeRefresh:" + reason });
+
+            // Reconnect realtime channels if needed
+            setupPresence();
+            setupRealtime();
+            if (chatModal.classList.contains("open")) {
+              setupChatRealtime();
+              setupTyping();
+            }
+
+            // Silent refresh entries (NO skeleton stutter)
+            await loadEntries({ showSkeleton: false, silent: true, retryIfEmpty: true });
+
+            // Flush any pending patches
+            for (const id of entryPending.keys()) flushEntryPatch(id);
           } catch (e) {
-            return { session: null, timedOut: false, error: e };
+            console.warn("wakeRefresh error:", e);
+          } finally {
+            wakeRefreshInFlight = null;
           }
         })();
 
-        return Promise.race([attempt, timeout]);
+        return wakeRefreshInFlight;
       }
 
+      document.addEventListener("visibilitychange", () => {
+        if (document.visibilityState === "hidden") lastHiddenAt = Date.now();
+        if (document.visibilityState === "visible") {
+          const away = lastHiddenAt ? Date.now() - lastHiddenAt : 0;
+          if (away > 1200) wakeRefresh("visibility");
+        }
+      });
+
+      window.addEventListener("focus", () => wakeRefresh("focus"));
+
+      // ---------- Init + Auth handling ----------
       let authListenerStarted = false;
+
+      async function handleSessionChange(s, event = "unknown") {
+        session = s;
+        user = s?.user ?? null;
+
+        updateAuthUI();
+        setupPresence();
+        updateMobileMenuUI();
+
+        if (user) {
+          await loadProfile();
+          updateAuthUI(); // refresh avatar seed after profile load
+          updateMobileMenuUI();
+
+          // Apply profile prefs (if URL missing) + refresh UI toggles
+          renderTabs();
+          updateViewToggleUI();
+          updateSortToggleUI();
+          initFloatingLabels(document);
+
+          await loadEntries({ showSkeleton: data.length === 0, silent: false, retryIfEmpty: true });
+          setupRealtime();
+          render();
+          maybeOpenChatFromURL();
+        } else {
+          data = [];
+          render();
+          if (chatModal.classList.contains("open")) closeChat();
+        }
+      }
+
       function startAuthListener() {
         if (authListenerStarted) return;
         authListenerStarted = true;
 
         supabase.auth.onAuthStateChange(async (event, s) => {
-          // initApp already handled INITIAL_SESSION (prevents double-load + race issues)
-          if (event === "INITIAL_SESSION") return;
-
-          session = s;
-          user = s?.user ?? null;
-
-          updateAuthUI();
-          setupPresence();
-          updateMobileMenuUI();
-
-          if (user) {
-            await loadProfile();
-            await loadEntries();
-            setupRealtime();
-            render();
-            maybeOpenChatFromURL();
-          } else {
-            data = [];
-            render();
-            if (chatModal.classList.contains("open")) closeChat();
+          // Always handle INITIAL_SESSION too (fixes “logged in but list empty”)
+          try {
+            await handleSessionChange(s, event);
+          } catch (e) {
+            console.error("Auth change handler error:", e);
           }
         });
       }
@@ -5423,43 +6078,30 @@
         initFloatingLabels(document);
 
         try {
-          const r = await getSessionWithTimeout(2500);
-          if (r.timedOut) {
-            console.warn("Supabase getSession timed out; continuing without blocking UI.");
-          }
-          if (r.error) {
-            console.warn("Supabase getSession error:", r.error);
-          }
+          startAuthListener();
 
-          session = r.session;
-          user = session?.user ?? null;
+          // Let auth listener drive INITIAL_SESSION, but don't block UI forever
+          await withTimeout(supabase.auth.getSession(), 2500, "Session warmup timed out").catch(() => null);
 
-          updateAuthUI();
-          setupPresence();
-          updateMobileMenuUI();
+          // If session already available, sync immediately (nice-to-have)
+          const s = (await supabase.auth.getSession().catch(() => null))?.data?.session ?? null;
+          if (s) await handleSessionChange(s, "startup");
+          else render();
 
-          if (user) {
-            await loadProfile();
-            await loadEntries();
-            setupRealtime();
-            render();
-            maybeOpenChatFromURL();
-          } else {
-            render();
-            maybeOpenChatFromURL();
-          }
+          maybeOpenChatFromURL();
         } catch (e) {
           console.error("Init error:", e);
           showToast("error", e.message || "App failed to start");
           render();
         } finally {
-          // Critical: always hide preloader
           hidePreloader();
-          startAuthListener();
         }
       }
 
-      // Init
+      // ---------- Verify landing ----------
+      // (already called above)
+
+      // ---------- Start ----------
       initApp();
     </script>
   </body>
