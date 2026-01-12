@@ -12,7 +12,7 @@
     {
       "src": "assets/mobile-logo.png",
       "sizes": "512x512",
-      "type": "image/png",
+      "type": "image/jpeg",
       "purpose": "any maskable"
     }
   ]
