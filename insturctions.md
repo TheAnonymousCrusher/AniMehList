@@ -1,3 +1,34 @@
+modal z indexes are messed up - e.g the confirmation for import is under the importing modal
+
+the text lables for inputs are abosultely fucked, the should shift down the boxes i think and have proper spacing for themself, without breaking or overlapping anything else 
+
+the clear list is also broken asf, make it work
+
+also, toasts should go over the scroll to top button
+
+
+
+its annoying that the fucking chat modal opens everytime u open the site 
+
+also, the ?chat=1 doesnt go away weh nu exit the chat modal, so the next time you realod, it opens itself
+
+
+remove preftitle entirely, its breaking the app
+
+make the hr/seperators in the edit modal in color, like the ones that split the sections/cats
+
+also, the "Made with chaos & ramen. © AniMehList" should be under the "AniMehList", not next  to it
+the github logo should be completely white, and turn gray on hover, and be bigger, add other social icons (Github (alr here), Discord, Whatsapp) for now, add dummy links they lead to for now
+
+provide a detailed TLDR of what ur gonna do before the code too, coz why not
+
+make sure u dont break the app, since ur adding a lot of new things, pls
+give the full file:
+index.html 
+
+dont worry about breakibng it into pieces and rate limits, give the FULL file
+
+curretn html:
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -53,23 +84,6 @@
         --susie: #9f1239;
 
         --stroke: rgba(255, 255, 255, 0.1);
-
-        /* Z layers (FIX: modal stacking, toasts above scroll-to-top) */
-        --z-header: 60;
-        --z-panel: 80;
-        --z-scrolltop: 90;
-
-        --z-modal: 300;
-        --z-chat: 330;
-        --z-auth: 340;
-        --z-confirm: 350;
-
-        --z-toast: 380;
-        --z-cover-progress: 385;
-        --z-loading: 390;
-
-        --z-preloader: 500;
-        --z-offline: 600;
       }
 
       * {
@@ -137,7 +151,7 @@
       .header {
         position: sticky;
         top: 0;
-        z-index: var(--z-header);
+        z-index: 60;
         background: rgba(11, 12, 16, 0.9);
         backdrop-filter: blur(6px);
         border-bottom: 1px solid rgba(255, 255, 255, 0.06);
@@ -331,7 +345,7 @@
         position: fixed;
         top: 66px;
         right: 12px;
-        z-index: var(--z-panel);
+        z-index: 80;
         width: min(360px, 94vw);
         background: #101525;
         border: 1px solid rgba(255, 255, 255, 0.08);
@@ -855,7 +869,7 @@
       .move-select,
       .select {
         appearance: none;
-        background-color: #0f1424;
+        background: #0f1424;
         border: 1px solid rgba(255, 255, 255, 0.1);
         border-radius: 12px;
         color: #e8ecfa;
@@ -958,29 +972,22 @@
         align-items: center;
         justify-content: center;
         padding: 16px;
-        z-index: var(--z-modal);
+        z-index: 120;
         transition: opacity var(--ui-duration) ease;
       }
       .modal.open {
         display: flex;
       }
 
-      /* Modal priority stacking */
+      /* Modal priority stacking (offline > auth > chat > other modals) */
       #chat-modal {
-        z-index: var(--z-chat);
+        z-index: 130;
       }
       #auth-modal {
-        z-index: var(--z-auth);
-      }
-      #confirm-modal {
-        z-index: var(--z-confirm); /* FIX: confirm above import + other modals */
+        z-index: 140;
       }
       #offline-modal {
-        z-index: var(--z-offline);
-      }
-
-      .chat-sheet {
-      background: #0a0d17 !important;
+        z-index: 220; /* above preloader (200) */
       }
 
       .sheet {
@@ -993,11 +1000,6 @@
         opacity: 0;
         transition: transform 0.28s cubic-bezier(0.2, 0.9, 0.3, 1), opacity 0.2s ease;
       }
-
-      .sheet > .chat-body {
-        background: radial-gradient(circle at center, #1c2240 0%, #10162a 80%);
-      }
-
       .modal.open .sheet {
         transform: translateY(0) scale(1);
         opacity: 1;
@@ -1022,13 +1024,12 @@
       .input-wrapper {
         position: relative;
         flex: 1;
-        min-width: 0;
       }
 
       .file,
       .input,
       .select {
-        background-color: #1c2240; /* IMPORTANT: don't wipe select background-image */
+        background: #0f1424;
         border: 1px solid rgba(255, 255, 255, 0.08);
         border-radius: 12px;
         color: #e8ecfa;
@@ -1043,48 +1044,64 @@
         border-color: rgba(124, 58, 237, 0.7);
       }
 
-      /* Labels: fixed spacing ABOVE fields (no overlap / no floating) */
+      /* Floating labels (inputs + selects) */
       .float-group {
-        display: grid;
-        gap: 6px;
-        align-items: start;
-        flex: 1 1 auto;
-        min-width: 0;
-      }
-
-      .float-group label {
-        position: static;
-        transform: none;
-        pointer-events: auto; /* clickable labels */
-        color: #cbd5f7;
-        font-size: 13px;
-        line-height: 1.2;
-        font-family: var(--title-font);
-        letter-spacing: 0.3px;
-        margin: 0;
-      }
-
-      .float-group:focus-within label {
-        color: #e9ecf3;
-      }
-
-      .float-group .field {
         position: relative;
-        min-width: 0;
+        flex: 1 1 auto;
       }
 
-      /* Default inputs in float-groups: room for clear button */
       .float-group .input {
-        padding: 12px 40px 12px 12px;
+        padding: 18px 40px 10px 12px;
+        border-radius: 12px;
       }
 
-      /* Keep select arrow room */
       .float-group .select.input {
-        padding-right: 44px;
+        padding: 18px 38px 10px 12px;
+      }
+
+      /* FIXED label positioning (more stable + less janky) */
+      .float-group label {
+        position: absolute;
+        left: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #9aa3b2;
+        font-size: 13px;
+        pointer-events: none;
+        line-height: 1;
+        max-width: calc(100% - 24px);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        transition: transform 0.16s ease, top 0.16s ease, color 0.16s ease, font-size 0.16s ease,
+          background 0.16s ease, padding 0.16s ease, border-radius 0.16s ease, border-color 0.16s ease,
+          box-shadow 0.16s ease;
+        padding: 0 4px;
+      }
+
+      .float-group.filled label,
+      .float-group:focus-within label {
+        top: 8px;
+        transform: translateY(0);
+        font-size: 11px;
+        color: #e9ecf3;
+        background: rgba(124, 58, 237, 0.28);
+        border: 1px solid rgba(124, 58, 237, 0.35);
+        padding: 2px 8px;
+        border-radius: 999px;
+        box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.12);
       }
 
       /* Stepper inputs for Season/Episode */
-      .float-group.stepper .input {
+      .float-group.stepper label {
+        left: 44px; /* avoid overlap with "-" button */
+      }
+      .float-group.stepper.filled label,
+      .float-group.stepper:focus-within label {
+        left: 12px;
+      }
+
+      .stepper .input {
         text-align: center;
         padding-left: 44px;
         padding-right: 44px;
@@ -1165,21 +1182,12 @@
         font-size: 12px;
       }
 
-      /* Small divider inside modals (FIX: colored like section separators) */
+      /* Small divider inside modals */
       .modal-divider {
         border: 0;
-        height: 2px;
-        border-radius: 999px;
-        margin: 12px 0;
-        background: linear-gradient(
-          90deg,
-          transparent,
-          rgba(124, 58, 237, 0.75) 20%,
-          rgba(34, 211, 238, 0.75) 80%,
-          transparent
-        );
-        filter: drop-shadow(0 2px 10px rgba(124, 58, 237, 0.22));
-        opacity: 0.95;
+        height: 1px;
+        background: rgba(255, 255, 255, 0.09);
+        margin: 6px 0;
       }
 
       /* Link-style actions (forgot password / resend email) */
@@ -1196,78 +1204,80 @@
 
       /* Toasts (single, non-stacking via JS) */
       #toasts {
-        position: fixed;
-        right: 18px;
-        bottom: 18px;
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-        z-index: var(--z-toast); /* FIX: above scroll-to-top */
-      }
-      .toast {
-        min-width: 220px;
-        max-width: 420px;
-        padding: 12px 14px;
-        border-radius: 12px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
-        color: #fff;
-        font-weight: 700;
-        display: flex;
-        gap: 10px;
-        align-items: center;
-        transform: translateY(10px) scale(0.995);
-        opacity: 0;
-      }
-      .toast .msg {
-        font-weight: 700;
-        font-size: 14px;
-        white-space: normal;
-      }
+				position: fixed;
+				right: 18px;
+				bottom: 18px;
+				display: flex;
+				flex-direction: column;
+				gap: 10px;
+				z-index: 150;
+			}
+			.toast {
+				min-width: 220px;
+				max-width: 420px;
+				padding: 12px 14px;
+				border-radius: 12px;
+				box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+				color: #fff;
+				font-weight: 700;
+				display: flex;
+				gap: 10px;
+				align-items: center;
+				transform: translateY(10px) scale(0.995);
+				opacity: 0;
+			}
+			.toast .msg {
+				font-weight: 700;
+				font-size: 14px;
+				white-space: normal;
+			}
 
-      .toast {
-        display: flex !important;
-        align-items: center !important;
-        gap: 10px !important;
-        white-space: normal !important;
-      }
+			.toast {
+				display: flex !important;
+				align-items: center !important;
+				gap: 10px !important;
+				white-space: normal !important;
+			}
 
-      .toast * {
-        white-space: normal !important;
-        min-width: 0 !important;
-        max-width: 100% !important;
-        flex-shrink: 1 !important;
-        overflow-wrap: break-word !important;
-        word-break: break-word !important;
-        display: block !important;
-      }
+			.toast * {
+				white-space: normal !important;
+				min-width: 0 !important;
+				max-width: 100% !important;
+				flex-shrink: 1 !important;
+				overflow-wrap: break-word !important;
+				word-break: break-word !important;
+				display: block !important;
+			}
 
-      .toast.info {
-        background: #1b304a;
-      }
-      .toast.success {
-        background: linear-gradient(90deg, #16a34a, #22c55e);
-      }
-      .toast.error {
-        background: linear-gradient(90deg, var(--danger), #ef6b6b);
-      }
-      .toast.enter {
-        animation: toast-in 0.26s cubic-bezier(0.2, 0.9, 0.3, 1) forwards;
-      }
-      .toast.exit {
-        animation: toast-out 0.3s ease forwards;
-      }
-      @keyframes toast-in {
-        to {
-          transform: translateY(0) scale(1);
-          opacity: 1;
-        }
-      }
-      @keyframes toast-out {
-        to {
-          transform: translateY(8px) scale(0.98);
-          opacity: 0;
-        }
-      }
+			.toast.info {
+				background: #1b304a;
+			}
+			.toast.success {
+				background: linear-gradient(90deg, #16a34a, #22c55e);
+			}
+			.toast.error {
+				background: linear-gradient(90deg, var(--danger), #ef6b6b);
+			}
+			.toast.enter {
+				animation: toast-in 0.26s cubic-bezier(0.2, 0.9, 0.3, 1)
+					forwards;
+			}
+			.toast.exit {
+				animation: toast-out 0.3s ease forwards;
+			}
+			@keyframes toast-in {
+				to {
+					transform: translateY(0) scale(1);
+					opacity: 1;
+				}
+			}
+			@keyframes toast-out {
+				to {
+					transform: translateY(8px) scale(0.98);
+					opacity: 0;
+				}
+			}
+
 
       /* Cover progress toast (wide, centered bottom) */
       #cover-progress {
@@ -1275,7 +1285,8 @@
         left: 50%;
         transform: translateX(-50%);
         bottom: 16px;
-        z-index: var(--z-cover-progress);
+        z-index: 160;
+/*         width: min(740px, calc(100vw - 24px)); */
         width: 320px;
         max-width: 90vw;
 
@@ -1324,89 +1335,11 @@
         flex-wrap: wrap;
       }
 
-      .foot-left {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        min-width: 0;
-      }
-
-      .foot-brand {
-        display: flex;
-        flex-direction: column;
-        gap: 4px;
-        min-width: 0;
-      }
-
-      .foot-brand-top {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        min-width: 0;
-      }
-
-      .foot-brand-top i {
-        opacity: 0.7;
-        flex: 0 0 auto;
-      }
-
-      .foot-brand-name {
-        font-family: var(--title-font);
-        letter-spacing: 0.4px;
-        font-size: 15px;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-      }
-
       .foot-right {
         display: flex;
         align-items: center;
         justify-content: flex-end;
         gap: 10px;
-      }
-
-      /* Social icons (FIX: GitHub white, bigger, grey on hover + add Discord/WhatsApp) */
-      .socials {
-        display: flex;
-        gap: 10px;
-        align-items: center;
-        flex-wrap: wrap;
-      }
-
-      .social-link {
-        width: 25px;
-        height: 25px;
-/*         border-radius: 14px; */
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        text-decoration: none;
-/*         background: rgba(255, 255, 255, 0.06); */
-/*         border: 1px solid rgba(255, 255, 255, 0.12); */
-        transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease;
-      }
-
-      .social-link i {
-        color: #ffffff; /* default fully white */
-        font-size:16px; /* bigger */
-        line-height: 1;
-      }
-
-      .social-link:hover {
-        transform: translateY(-2px);
-/*         background: rgba(255, 255, 255, 0.09); */
-/*         transform: scale(1.03); */
-        border-color: rgba(255, 255, 255, 0.18);
-      }
-
-      .social-link:hover i {
-        color: var(--accent-2);
-      }
-
-      .social-link:focus-visible {
-        outline: 0;
-        box-shadow: var(--focus-ring);
       }
 
       .center {
@@ -1441,7 +1374,7 @@
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
-        z-index: var(--z-loading);
+        z-index: 140;
         display: none;
         color: var(--brand);
         font-size: 24px;
@@ -1451,7 +1384,7 @@
         display: block;
       }
 
-      /* Scroll to top — below toasts + below modals */
+      /* Scroll to top — stronger z-index + angle-up icon */
       #scroll-to-top i {
         font-size: 20px;
       }
@@ -1469,7 +1402,7 @@
         justify-content: center;
         cursor: pointer;
         font-size: 22px;
-        z-index: var(--z-scrolltop); /* FIX: toasts above it, modals above both */
+        z-index: 180;
         border: 1px solid var(--stroke);
         -webkit-tap-highlight-color: transparent;
         transition: all 0.2s ease;
@@ -1537,8 +1470,8 @@
       }
 
       ::selection {
-        background: var(--accent-2);
-        color: #000;
+        background: #ec4899;
+        color: #fff;
       }
 
       /* Skeleton loading */
@@ -1765,7 +1698,7 @@
         justify-content: center;
         background: radial-gradient(1200px 600px at 50% 30%, rgba(124, 58, 237, 0.1), transparent 70%),
           rgba(7, 8, 12, 0.92);
-        z-index: var(--z-preloader);
+        z-index: 200;
       }
       .preloader.active {
         display: flex;
@@ -1810,8 +1743,7 @@
         text-align: left;
         color: #cbd5f7;
         margin: 10px 0;
-/*         background: linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.01)); */
-        background: linear-gradient(180deg, #0f1424, #171f38);
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.01));
       }
 
       .no-results-row {
@@ -1824,8 +1756,7 @@
 
       .no-results-text {
         font-family: var(--title-font);
-        font-size: 18px;
-        font-weight: bold;
+        font-size: 14px;
         letter-spacing: 0.35px;
         color: #e9ecf3;
       }
@@ -1982,7 +1913,7 @@
       }
 
       .msg.susie .bubble {
-        background: linear-gradient(90deg, rgba(159, 18, 57, 0.4), rgba(159, 18, 57, 0.3));
+        background: linear-gradient(90deg, rgba(159, 18, 57, 0.32), rgba(159, 18, 57, 0.12));
         border-color: rgba(159, 18, 57, 0.6);
       }
 
@@ -2092,21 +2023,14 @@
         position: relative;
         overflow: hidden;
         border-color: rgba(245, 158, 11, 0.55);
-        background-color: #10162a;
-        /*background-image: linear-gradient(
-          180deg,
-          rgba(245, 158, 11, 0.16) 0%,
-          rgba(245, 158, 11, 0.1) 35%,
-          rgba(245, 158, 11, 0.04) 70%,
-          rgba(245, 158, 11, 0.02) 100%
-        );*/
-        background-image: linear-gradient(
-          180deg,
-          rgba(255, 165, 0, 0.30) 0%,
-          rgba(255, 149, 0, 0.20) 35%,
-          rgba(255, 140, 0, 0.15) 70%,
-          rgba(255, 130, 0, 0.20) 100%
-        );
+        background: linear-gradient(
+  180deg,
+  rgba(245, 158, 11, 0.16) 0%,
+  rgba(245, 158, 11, 0.10) 35%,
+  rgba(245, 158, 11, 0.04) 70%,
+  rgba(245, 158, 11, 0.02) 100%
+);
+  #10162a;
         box-shadow: 0 24px 80px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(245, 158, 11, 0.18);
       }
 
@@ -2199,9 +2123,7 @@
               <div class="menu-kv">
                 <i class="fa-solid fa-user"></i><span id="m-user-email">Signed out</span>
               </div>
-              <button class="btn ghost sm" id="m-login">
-                <i class="fa-solid fa-right-to-bracket"></i>Sign in
-              </button>
+              <button class="btn ghost sm" id="m-login"><i class="fa-solid fa-right-to-bracket"></i>Sign in</button>
               <button class="btn ghost sm hidden" id="m-logout">
                 <i class="fa-solid fa-right-from-bracket"></i>Sign out
               </button>
@@ -2246,6 +2168,15 @@
 
         <!-- Preferences -->
         <div class="account-pref">
+          <!--<div class="pref-row">
+            <label for="pref-title">Title language</label>
+            <select id="pref-title" class="select">
+              <option value="ROMAJI">Romaji</option>
+              <option value="ENGLISH">English</option>
+              <option value="NATIVE">Japanese</option>
+            </select>
+          </div>-->
+
           <div class="pref-row">
             <label for="pref-cover">Default cover source</label>
             <select id="pref-cover" class="select">
@@ -2316,40 +2247,12 @@
         </div>
       </div>
 
-<!--       <div id="empty" class="muted-small" style="display: none; margin: 16px 0">Sign in to start your shelf.</div> -->
-<div
-  id="empty"
-  style="
-    display: none;
-    margin: 35px 16px 20px 16px;
-    padding: 12px 16px;
-    font-size: 0.85rem;
-    color: #bbb;
-    text-align: center;
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px dashed rgba(255, 255, 255, 0.2);
-    border-radius: 8px;
-  "
->
-  Sign in to start your shelf.
-</div>
+      <div id="empty" class="muted-small" style="display: none; margin: 16px 0">Sign in to start your shelf.</div>
 
-
-      <br>
       <div id="no-results" class="no-results hidden">
-      <div class="no-results-row">
-
-          <div class="no-results-text">
-            No anime found!
-            <span style="opacity: 0.5">( •_•)</span>
-
-            <p style="font-weight: normal; font-family: Lexend; margin: 0; font-size: 12px !important; opacity: 0.5">Try a different search or add a new entry.</p>
-
-          </div>
-
-          <button class="btn brand sm" id="no-results-new" type="button" style="margin-right: 20px;">
-
-
+        <div class="no-results-row">
+          <div class="no-results-text">No anime found! <span style="opacity: 0.5">( •_•)</span></div>
+          <button class="btn brand sm" id="no-results-new" type="button">
             <i class="fa-solid fa-plus"></i>New
           </button>
         </div>
@@ -2389,80 +2292,56 @@
         <div class="form">
           <div class="row">
             <div class="float-group input-wrapper">
+              <input id="f-title" class="input" aria-label="Title" />
               <label for="f-title">Title</label>
-              <div class="field">
-                <input id="f-title" class="input" aria-label="Title" />
-                <button class="clear-btn" id="clear-title" aria-label="Clear title">
-                  <i class="fa-solid fa-xmark"></i>
-                </button>
-              </div>
+              <button class="clear-btn" id="clear-title" aria-label="Clear title">
+                <i class="fa-solid fa-xmark"></i>
+              </button>
             </div>
           </div>
 
           <div class="row">
             <div class="float-group input-wrapper">
+              <select id="f-kind" class="select input" aria-label="Kind">
+                <option value="SERIES" selected>Series</option>
+                <option value="MOVIE">Movie</option>
+              </select>
               <label for="f-kind">Series/Movie</label>
-              <div class="field">
-                <select id="f-kind" class="select input" aria-label="Kind">
-                  <option value="SERIES" selected>Series</option>
-                  <option value="MOVIE">Movie</option>
-                </select>
-              </div>
             </div>
 
             <div class="float-group input-wrapper">
+              <select id="f-status" class="select input" aria-label="Status">
+                <option value="WATCHING">WATCHING</option>
+                <option value="PLAN" selected>PLAN</option>
+                <option value="REWATCH">REWATCH</option>
+                <option value="WAITING">WAITING</option>
+                <option value="COMPLETED">COMPLETED</option>
+              </select>
               <label for="f-status">Category</label>
-              <div class="field">
-                <select id="f-status" class="select input" aria-label="Status">
-                  <option value="WATCHING">WATCHING</option>
-                  <option value="PLAN" selected>PLAN</option>
-                  <option value="REWATCH">REWATCH</option>
-                  <option value="WAITING">WAITING</option>
-                  <option value="COMPLETED">COMPLETED</option>
-                </select>
-              </div>
             </div>
           </div>
 
           <div class="row">
             <div class="float-group input-wrapper stepper">
+              <button class="stepper-btn dec" id="season-dec" type="button" aria-label="Decrease season">
+                <i class="fa-solid fa-minus"></i>
+              </button>
+              <input type="number" id="f-season" class="input" inputmode="numeric" aria-label="Season number" min="0" />
+              <button class="stepper-btn inc" id="season-inc" type="button" aria-label="Increase season">
+                <i class="fa-solid fa-plus"></i>
+              </button>
               <label for="f-season">Season #</label>
-              <div class="field">
-                <button class="stepper-btn dec" id="season-dec" type="button" aria-label="Decrease season">
-                  <i class="fa-solid fa-minus"></i>
-                </button>
-                <input
-                  type="number"
-                  id="f-season"
-                  class="input"
-                  inputmode="numeric"
-                  aria-label="Season number"
-                  min="0"
-                />
-                <button class="stepper-btn inc" id="season-inc" type="button" aria-label="Increase season">
-                  <i class="fa-solid fa-plus"></i>
-                </button>
-              </div>
             </div>
 
             <div class="float-group input-wrapper stepper">
+              <button class="stepper-btn dec" id="episode-dec" type="button" aria-label="Decrease episode">
+                <i class="fa-solid fa-minus"></i>
+              </button>
+              <input type="number" id="f-episode" class="input" inputmode="numeric" aria-label="Episode number" min="0" />
+              <button class="stepper-btn inc" id="episode-inc" type="button" aria-label="Increase episode">
+                <i class="fa-solid fa-plus"></i>
+              </button>
               <label for="f-episode">Episode #</label>
-              <div class="field">
-                <button class="stepper-btn dec" id="episode-dec" type="button" aria-label="Decrease episode">
-                  <i class="fa-solid fa-minus"></i>
-                </button>
-                <input
-                  type="number"
-                  id="f-episode"
-                  class="input"
-                  inputmode="numeric"
-                  aria-label="Episode number"
-                  min="0"
-                />
-                <button class="stepper-btn inc" id="episode-inc" type="button" aria-label="Increase episode">
-                  <i class="fa-solid fa-plus"></i>
-                </button>
-              </div>
             </div>
           </div>
 
@@ -2472,32 +2351,28 @@
           <!-- Cover URL (full line) -->
           <div class="row">
             <div class="float-group input-wrapper">
+              <input id="f-image" class="input" aria-label="Image URL" />
               <label for="f-image">Cover URL</label>
-              <div class="field">
-                <input id="f-image" class="input" aria-label="Image URL" />
-                <button class="clear-btn" id="clear-image" aria-label="Clear image URL">
-                  <i class="fa-solid fa-xmark"></i>
-                </button>
-              </div>
+              <button class="clear-btn" id="clear-image" aria-label="Clear image URL">
+                <i class="fa-solid fa-xmark"></i>
+              </button>
             </div>
           </div>
 
           <!-- Mobile: Auto cover + Source split -->
-          <div class="row" style="align-items: flex-end">
+          <div class="row" style="align-items: center">
             <button class="btn ghost" id="btn-autocover" title="Auto fetch cover by title" style="flex: 1">
               <i class="fa-solid fa-wand-magic-sparkles"></i>Auto cover
             </button>
 
             <div class="float-group input-wrapper" style="flex: 1; min-width: 180px">
+              <select id="f-cover-source" class="select input" aria-label="Cover source override">
+                <option value="" selected>Default</option>
+                <option value="ANILIST">AniList</option>
+                <option value="JIKAN">Jikan</option>
+                <option value="KITSU">Kitsu</option>
+              </select>
               <label for="f-cover-source">Source</label>
-              <div class="field">
-                <select id="f-cover-source" class="select input" aria-label="Cover source override">
-                  <option value="" selected>Default</option>
-                  <option value="ANILIST">AniList</option>
-                  <option value="JIKAN">Jikan</option>
-                  <option value="KITSU">Kitsu</option>
-                </select>
-              </div>
             </div>
           </div>
 
@@ -2506,13 +2381,11 @@
 
           <div class="row">
             <div class="float-group input-wrapper">
+              <input id="f-notes" class="input" aria-label="Notes" />
               <label for="f-notes">Notes (optional)</label>
-              <div class="field">
-                <input id="f-notes" class="input" aria-label="Notes" />
-                <button class="clear-btn" id="clear-notes" aria-label="Clear notes">
-                  <i class="fa-solid fa-xmark"></i>
-                </button>
-              </div>
+              <button class="clear-btn" id="clear-notes" aria-label="Clear notes">
+                <i class="fa-solid fa-xmark"></i>
+              </button>
             </div>
           </div>
 
@@ -2551,19 +2424,15 @@
         <div class="form" id="signin-form">
           <div class="row">
             <div class="float-group input-wrapper">
+              <input id="login-identifier" class="input" aria-label="Username or email" />
               <label for="login-identifier">Username or email</label>
-              <div class="field">
-                <input id="login-identifier" class="input" aria-label="Username or email" />
-              </div>
             </div>
           </div>
 
           <div class="row">
             <div class="float-group input-wrapper">
+              <input id="login-password" class="input" type="password" aria-label="Password" />
               <label for="login-password">Password</label>
-              <div class="field">
-                <input id="login-password" class="input" type="password" aria-label="Password" />
-              </div>
             </div>
           </div>
 
@@ -2581,28 +2450,22 @@
         <div class="form hidden" id="signup-form">
           <div class="row">
             <div class="float-group input-wrapper">
+              <input id="signup-username" class="input" aria-label="Username" />
               <label for="signup-username">Username</label>
-              <div class="field">
-                <input id="signup-username" class="input" aria-label="Username" />
-              </div>
             </div>
           </div>
 
           <div class="row">
             <div class="float-group input-wrapper">
+              <input id="signup-email" class="input" type="email" aria-label="Email" />
               <label for="signup-email">Email</label>
-              <div class="field">
-                <input id="signup-email" class="input" type="email" aria-label="Email" />
-              </div>
             </div>
           </div>
 
           <div class="row">
             <div class="float-group input-wrapper">
+              <input id="signup-password" class="input" type="password" aria-label="Password" />
               <label for="signup-password">Password</label>
-              <div class="field">
-                <input id="signup-password" class="input" type="password" aria-label="Password" />
-              </div>
             </div>
           </div>
 
@@ -2673,14 +2536,12 @@
         <div class="form">
           <div class="row">
             <div class="float-group input-wrapper">
+              <select id="import-format" class="select input" aria-label="Import type">
+                <option value="MAL">MyAnimeList (MAL) — XML</option>
+                <option value="ANILIST">AniList — JSON</option>
+                <option value="APP" selected>AniMehList (AML) — JSON</option>
+              </select>
               <label for="import-format">Import type</label>
-              <div class="field">
-                <select id="import-format" class="select input" aria-label="Import type">
-                  <option value="MAL">MyAnimeList (MAL) — XML</option>
-                  <option value="ANILIST">AniList — JSON</option>
-                  <option value="APP" selected>AniMehList (AML) — JSON</option>
-                </select>
-              </div>
             </div>
           </div>
 
@@ -2706,7 +2567,7 @@
 
     <!-- Chat Modal -->
     <div class="modal" id="chat-modal" role="dialog" aria-modal="true" aria-hidden="true">
-      <div class="sheet chat-sheet chat-sheet" role="document">
+      <div class="sheet chat-sheet" role="document">
         <div class="chat-header">
           <div class="chat-title"><i class="fa-solid fa-comments"></i> Global Chat</div>
 
@@ -2760,19 +2621,16 @@
 
     <footer>
       <div class="container foot-wrap">
-        <div class="foot-left">
-          <div class="foot-brand">
-            <div class="foot-brand-top">
-              <i class="fa-solid fa-layer-group" aria-hidden="true"></i>
-              <div class="foot-brand-name">AniMehList</div>
-            </div>
-            <div class="muted-small">© AniMehList<br>Made with ramen &amp; chaos.</div>
-          </div>
+        <div style="display: flex; align-items: center; gap: 10px">
+          <i class="fa-solid fa-layer-group" style="opacity: 0.7"></i>
+          <div style="font-family: var(--title-font)">AniMehList</div><br><br>
+          <div class="muted-small">Made with chaos & ramen. © AniMehList</div>
         </div>
 
-        <div class="foot-right socials" aria-label="Social links">
+
+        <div class="foot-right">
           <a
-            class="social-link"
+            class="icon"
             href="https://github.com/TheAnonymousCrusher/AniMehList"
             target="_blank"
             rel="noopener noreferrer"
@@ -2781,28 +2639,6 @@
           >
             <i class="fa-brands fa-github"></i>
           </a>
-
-          <!--<a
-            class="social-link"
-            href="https://discord.com/"
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="AniMehList Discord (dummy link)"
-            title="Discord"
-          >
-            <i class="fa-brands fa-discord"></i>
-          </a>
-
-          <a
-            class="social-link"
-            href="https://wa.me/0000000000"
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="AniMehList WhatsApp (dummy link)"
-            title="WhatsApp"
-          >
-            <i class="fa-brands fa-whatsapp"></i>
-          </a>-->
         </div>
       </div>
     </footer>
@@ -2833,7 +2669,7 @@
 
       let session = null;
       let user = null;
-      let profile = null; // { username, cover_source }
+      let profile = null; // { username, title_pref, cover_source }
       let data = [];
 
       let activeTab = "ALL";
@@ -2843,6 +2679,7 @@
 
       let presenceCount = 0;
 
+      let titlePref = null; // from profile
       let defaultCoverSource = "ANILIST"; // from profile
 
       // Realtime channels
@@ -2929,6 +2766,7 @@
       const accountExport = document.getElementById("account-export");
       const accountClearList = document.getElementById("account-clear-list");
 
+      // const prefTitle = document.getElementById("pref-title");
       const prefCover = document.getElementById("pref-cover");
 
       // Add/Edit modal
@@ -3213,9 +3051,6 @@
         el.classList.remove("open");
         el.setAttribute("aria-hidden", "true");
 
-        // If confirm closes by backdrop/Esc, don't leave a live callback around
-        if (el === confirmModal) confirmCallback = null;
-
         // only release focus trap if no other modal open
         if (!document.querySelector(".modal.open")) releaseFocus();
       }
@@ -3239,12 +3074,7 @@
           // Don't allow closing static modals with Escape
           const openModals = [...document.querySelectorAll(".modal.open")];
           if (openModals.some(isStaticModal)) return;
-
-          // FIX: make sure closing chat via Escape removes ?chat=1 too
-          openModals.forEach((m) => {
-            if (m === chatModal) closeChat();
-            else closeModal(m);
-          });
+          openModals.forEach((m) => closeModal(m));
         }
       }
 
@@ -3253,10 +3083,6 @@
         document.querySelectorAll(".modal.open").forEach((m) => {
           if (e.target === m) {
             if (isStaticModal(m)) return;
-
-            // FIX: if chat modal closes via backdrop, remove ?chat=1
-            if (m === chatModal) return closeChat();
-
             closeModal(m);
           }
         });
@@ -3292,18 +3118,15 @@
       }
 
       confirmOk.onclick = async () => {
-        // FIX: allow nested confirms (clear-list triple confirm, etc.)
-        const cb = confirmCallback;
-        confirmCallback = null;
         closeModal(confirmModal);
-
-        if (!cb) return;
-
-        try {
-          await cb();
-        } catch (e) {
-          console.error(e);
-          showToast("error", e.message || "Error");
+        if (confirmCallback) {
+          try {
+            await confirmCallback();
+          } catch (e) {
+            console.error(e);
+            showToast("error", e.message || "Error");
+          }
+          confirmCallback = null;
         }
       };
 
@@ -3312,7 +3135,7 @@
         closeModal(confirmModal);
       };
 
-      // ---------- Floating labels (kept for "filled" state, but labels are no longer overlay) ----------
+      // ---------- Floating labels ----------
       function setFloatGroupState(el) {
         const input = el.querySelector("input, textarea, select");
         if (!input) return;
@@ -3394,16 +3217,15 @@
       }
 
       function displayTitle(row) {
-        // FIX: remove title language preference entirely (prefTitle was breaking the app)
-        const typed = row?.title != null ? String(row.title).trim() : "";
-        if (typed) return typed;
+        const romaji = row?.title_romaji || null;
+        const english = row?.title_english || null;
+        const nativeT = row?.title_native || null;
+        const typed = row?.title || null;
 
-        return (
-          String(row?.title_romaji || "").trim() ||
-          String(row?.title_english || "").trim() ||
-          String(row?.title_native || "").trim() ||
-          ""
-        );
+        if (titlePref === "ROMAJI") return romaji || typed || english || nativeT || "";
+        if (titlePref === "ENGLISH") return english || romaji || typed || nativeT || "";
+        if (titlePref === "NATIVE") return nativeT || romaji || typed || english || "";
+        return typed || romaji || english || nativeT || "";
       }
 
       function filteredRows() {
@@ -3817,15 +3639,18 @@
         accountAvatar.style.backgroundImage = `url('${diceAvatar(name)}')`;
 
         // prefs
-        if (prefCover) prefCover.value = defaultCoverSource;
+        prefTitle.value = titlePref;
+        prefCover.value = defaultCoverSource;
       }
 
       // ---------- Load profile ----------
       async function loadProfile() {
         if (!user) return;
-
-        // FIX: prefTitle removed entirely; don't select title_pref anymore.
-        const { data: p, error } = await supabase.from("profiles").select("username,cover_source").eq("id", user.id).single();
+        const { data: p, error } = await supabase
+          .from("profiles")
+          .select("username,title_pref,cover_source")
+          .eq("id", user.id)
+          .single();
 
         if (error) {
           console.warn("Profile load error:", error.message);
@@ -3834,6 +3659,7 @@
         }
 
         profile = p || null;
+        titlePref = profile?.title_pref || "ROMAJI";
         defaultCoverSource = profile?.cover_source || "ANILIST";
       }
 
@@ -3964,7 +3790,7 @@
           user_id: user.id,
         };
 
-        // Save button: spinner + text
+        // Save button: spinner + text (requested)
         btnSave.classList.add("loading");
         btnSave.innerHTML = "Save";
 
@@ -4181,7 +4007,7 @@
         const season = o.season === "" || o.season == null ? null : clampNonNegativeInt(o.season);
         const episode = o.episode === "" || o.episode == null ? null : clampNonNegativeInt(o.episode);
 
-        // Ignore absolute_episode completely
+        // Ignore absolute_episode completely (requested)
         const notes = String(o.notes || "").trim() || null;
 
         let image_url = String(o.image_url || "").trim() || null;
@@ -4473,18 +4299,37 @@
       });
 
       // ---------- Preferences ----------
-      if (prefCover) {
-        prefCover.addEventListener("change", async () => {
-          try {
-            defaultCoverSource = prefCover.value;
-            await supabase.from("profiles").update({ cover_source: defaultCoverSource }).eq("id", user.id);
-            showToast("success", "Cover source set to " + defaultCoverSource);
-            enqueueMissingCovers(data);
-          } catch {
-            showToast("error", "Failed to save preference");
-          }
-        });
-      }
+if (prefTitle) {
+  prefTitle.addEventListener("change", async () => {
+    try {
+      titlePref = prefTitle.value;
+      await supabase
+        .from("profiles")
+        .update({ title_pref: titlePref })
+        .eq("id", user.id);
+      render();
+    } catch {
+      showToast("error", "Failed to save preference");
+    }
+  });
+}
+
+if (prefCover) {
+  prefCover.addEventListener("change", async () => {
+    try {
+      defaultCoverSource = prefCover.value;
+      await supabase
+        .from("profiles")
+        .update({ cover_source: defaultCoverSource })
+        .eq("id", user.id);
+      showToast("success", "Cover source set to " + defaultCoverSource);
+      enqueueMissingCovers(data);
+    } catch {
+      showToast("error", "Failed to save preference");
+    }
+  });
+}
+
 
       // ---------- Clear list (TRIPLE confirm) — FIXED ----------
       accountClearList.onclick = () => {
@@ -4495,7 +4340,7 @@
             openConfirm("Last chance (3/3)", "No undo. Delete everything now?", async () => {
               showLoading(true);
               try {
-                // delete directly (no RPC)
+                // FIX: delete directly instead of relying on a missing/blocked RPC
                 const { error } = await supabase.from("entries").delete().eq("user_id", user.id);
                 if (error) throw error;
 
@@ -4679,7 +4524,7 @@
         try {
           const override = fCoverSource.value || null;
           const preferred = override || defaultCoverSource;
-          const strict = !!override; // per-anime override = no fallback
+          const strict = !!override; // respect intent: per-anime override = no fallback
           const r = await autoFetchCover(title, preferred, strict);
 
           if (r?.image) {
@@ -5318,12 +5163,16 @@
       );
 
       function openChatFromClick() {
-        // FIX: don't set ?chat=1 unless the chat modal actually opens (prevents it reopening on reload)
+        const params = new URLSearchParams(window.location.search);
+        params.set("chat", "1");
+        history.replaceState(null, "", `${location.pathname}?${params.toString()}`);
+
         if (!user) {
           showToast("info", "Sign in to join the chat");
           openModal(authModal);
           return;
         }
+
         openChat();
       }
 
@@ -5343,7 +5192,7 @@
 
       function closeChat() {
         closeModal(chatModal);
-        updateURL(); // FIX: always remove ?chat=1 when chat closes
+        updateURL();
       }
 
       // ---------- Chat open from URL (chat=1) ----------
@@ -5459,7 +5308,7 @@
           showToast("error", e.message || "App failed to start");
           render();
         } finally {
-          // Critical: always hide preloader
+          // Critical: always hide preloader (prevents “stuck forever”)
           hidePreloader();
           startAuthListener();
         }
