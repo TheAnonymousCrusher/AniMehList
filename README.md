@@ -19,13 +19,19 @@
 
 ---
 <div align="center">
+
   <h1>Website</h1>
+
+  <a href="https://theanonymouscrusher.github.io/AniMehList/" target="_blank">
+    <img src="assets/logo.png" height="40" alt="https://theanonymouscrusher.github.io/AniMehList/">
+  </a>
 
   <p>Check it out (beta):</p>
   <a href="https://theanonymouscrusher.github.io/AniMehList/" target="_blank">
     <img src="assets/site_btn.png" height="40"  alt="https://theanonymouscrusher.github.io/AniMehList/">
   </a>
 </div>
+
 
 
 
