@@ -1,6 +1,13 @@
 <!-- Title -->
 <br>
 <div align="center">
+
+  <a href="https://theanonymouscrusher.github.io/AniMehList/" target="_blank">
+    <img src="assets/logo.png" height="120" alt="https://theanonymouscrusher.github.io/AniMehList/">
+  </a>
+
+  <br>
+  
   <img src="assets/wide_logo.png" width="80%" >
 
   Track, organize, and rate your anime with a clean, simple interface. Inspired by MAL and Anilist—built for the bros ;) 
@@ -22,15 +29,17 @@
 
   <h1>Website</h1>
 
-  <a href="https://theanonymouscrusher.github.io/AniMehList/" target="_blank">
-    <img src="assets/logo.png" height="40" alt="https://theanonymouscrusher.github.io/AniMehList/">
-  </a>
+  
 
   <p>Check it out (beta):</p>
   <a href="https://theanonymouscrusher.github.io/AniMehList/" target="_blank">
     <img src="assets/site_btn.png" height="40"  alt="https://theanonymouscrusher.github.io/AniMehList/">
   </a>
+
+  
+  
 </div>
+
 
 
 
