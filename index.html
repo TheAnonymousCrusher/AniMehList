@@ -18,6 +18,11 @@
       rel="stylesheet"
     />
 
+    <!-- anime.js v3 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.2/anime.min.js"></script>
+    <!-- marked.js for markdown -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
     <style>
       :root {
         --bg: #0b0c10;
@@ -1165,7 +1170,7 @@
         font-size: 12px;
       }
 
-      /* Small divider inside modals (FIX: colored like section separators) */
+      /* Small divider inside modals — animated */
       .modal-divider {
         border: 0;
         height: 2px;
@@ -1174,10 +1179,15 @@
         background: linear-gradient(
           90deg,
           transparent,
-          rgba(124, 58, 237, 0.75) 20%,
-          rgba(34, 211, 238, 0.75) 80%,
+          rgba(124, 58, 237, 0.0) 0%,
+          rgba(124, 58, 237, 0.85) 20%,
+          rgba(34, 211, 238, 0.85) 50%,
+          rgba(167, 139, 250, 0.85) 70%,
+          rgba(34, 211, 238, 0.85) 80%,
           transparent
         );
+        background-size: 200% 100%;
+        animation: divider-flow 4s ease infinite;
         filter: drop-shadow(0 2px 10px rgba(124, 58, 237, 0.22));
         opacity: 0.95;
       }
@@ -1419,7 +1429,12 @@
         display: none !important;
       }
 
-      /* Section divider — more visible */
+      /* Section divider — animated gradient */
+      @keyframes divider-flow {
+        0%   { background-position: 0% 50%; }
+        50%  { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+      }
       .section-divider {
         border: 0;
         height: 3px;
@@ -1428,11 +1443,16 @@
         background: linear-gradient(
           90deg,
           transparent,
-          rgba(124, 58, 237, 0.7) 20%,
-          rgba(34, 211, 238, 0.7) 80%,
+          rgba(124, 58, 237, 0.0) 0%,
+          rgba(124, 58, 237, 0.85) 20%,
+          rgba(34, 211, 238, 0.85) 50%,
+          rgba(167, 139, 250, 0.85) 70%,
+          rgba(34, 211, 238, 0.85) 80%,
           transparent
         );
-        filter: drop-shadow(0 2px 10px rgba(124, 58, 237, 0.25));
+        background-size: 200% 100%;
+        animation: divider-flow 4s ease infinite;
+        filter: drop-shadow(0 2px 12px rgba(124, 58, 237, 0.35));
       }
 
       /* global loading spinner (for blocking global ops) */
@@ -1514,15 +1534,33 @@
         footer .foot-wrap {
           flex-direction: column;
           text-align: center;
+          padding-left: 16px;
+          padding-right: 16px;
+        }
+        footer .container {
+          padding: 0 16px;
         }
         .foot-right {
           justify-content: center;
+          flex-direction: column;
+          align-items: center;
+          gap: 8px;
+        }
+        .foot-right .github-link {
+          order: 99; /* push github below */
+        }
+        .socials {
+          flex-direction: column;
+          align-items: center;
         }
         .view-toggle .seg span {
           display: none;
         }
         .view-toggle .seg {
           padding: 8px;
+        }
+        .logo {
+          padding-left: 8px;
         }
       }
 
@@ -2123,6 +2161,287 @@
       #offline-modal h3 i {
         color: var(--warn);
       }
+
+      /* ===================== NOTE HOVER ===================== */
+      .note-hover-panel {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: rgba(8, 10, 20, 0.88);
+        backdrop-filter: blur(8px);
+        border-top: 1px solid rgba(124, 58, 237, 0.3);
+        padding: 10px 12px;
+        z-index: 4;
+        pointer-events: none;
+        opacity: 0;
+        transform: translateY(6px);
+        transition: opacity 0.22s ease, transform 0.22s ease;
+        max-height: 40%;
+        overflow: hidden;
+      }
+      .note-hover-panel.visible {
+        opacity: 1;
+        transform: translateY(0);
+        pointer-events: auto;
+      }
+      .note-hover-panel .note-md {
+        color: #c8d2f0;
+        font-size: 11.5px;
+        line-height: 1.5;
+        overflow: hidden;
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 5;
+      }
+      .note-hover-panel .note-md p { margin: 0 0 4px; }
+      .note-hover-panel .note-md strong { color: #e9ecf3; }
+      .note-hover-panel .note-md em { color: #a78bfa; }
+      .note-hover-panel .note-md code {
+        background: rgba(124,58,237,0.18);
+        border-radius: 4px;
+        padding: 1px 4px;
+        font-size: 10px;
+      }
+      .note-hover-panel .note-label {
+        font-family: var(--title-font);
+        font-size: 9px;
+        letter-spacing: 0.8px;
+        color: #a78bfa;
+        text-transform: uppercase;
+        margin-bottom: 4px;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+      }
+
+      /* Note glyph chip */
+      .note-glyph {
+        font-size: 9px;
+        color: #a78bfa;
+        opacity: 0.85;
+        margin-left: 2px;
+        vertical-align: middle;
+      }
+
+      /* ===================== EYE ICON FOR PASSWORD ===================== */
+      .pw-wrapper {
+        position: relative;
+        min-width: 0;
+      }
+      .pw-wrapper .input {
+        padding-right: 44px;
+      }
+      .pw-eye {
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        color: var(--muted);
+        cursor: pointer;
+        font-size: 15px;
+        padding: 4px;
+        line-height: 1;
+        z-index: 3;
+        transition: color 0.15s;
+      }
+      .pw-eye:hover { color: var(--text); }
+
+      /* ===================== COVER PREVIEW IN MODAL ===================== */
+      .cover-preview-box {
+        width: 90px;
+        flex: 0 0 90px;
+        aspect-ratio: 1/1.4;
+        border-radius: 10px;
+        overflow: hidden;
+        background: #0e1323;
+        border: 1px solid rgba(255,255,255,0.1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+      }
+      .cover-preview-box img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+      }
+      .cover-preview-box .cpv-ph {
+        color: #8899cc;
+        font-size: 10px;
+        text-align: center;
+        padding: 8px;
+        font-family: var(--title-font);
+        font-size: 9px;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+        opacity: 0.6;
+      }
+
+      /* ===================== CUSTOM SELECT ===================== */
+      .csel-wrapper {
+        position: relative;
+        min-width: 0;
+        flex: 1 1 auto;
+      }
+      .csel-trigger {
+        width: 100%;
+        background: #1c2240;
+        border: 1px solid rgba(255,255,255,0.08);
+        border-radius: 12px;
+        color: #e8ecfa;
+        padding: 12px 40px 12px 12px;
+        outline: 0;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        transition: border-color 0.18s, box-shadow 0.18s;
+        min-height: 46px;
+        text-align: left;
+        font-size: 14px;
+        position: relative;
+        user-select: none;
+      }
+      .csel-trigger:focus, .csel-trigger:focus-visible {
+        outline: none;
+        box-shadow: var(--focus-ring);
+        border-color: rgba(124,58,237,0.7);
+      }
+      .csel-trigger .csel-arrow {
+        position: absolute;
+        right: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #cfe0ff;
+        font-size: 12px;
+        transition: transform 0.2s ease;
+        pointer-events: none;
+      }
+      .csel-trigger.open .csel-arrow {
+        transform: translateY(-50%) rotate(180deg);
+      }
+      .csel-dropdown {
+        position: absolute;
+        top: calc(100% + 6px);
+        left: 0;
+        right: 0;
+        background: #111928;
+        border: 1px solid rgba(255,255,255,0.1);
+        border-radius: 12px;
+        box-shadow: 0 16px 40px rgba(0,0,0,0.55);
+        z-index: 999;
+        overflow: hidden;
+        display: none;
+        flex-direction: column;
+      }
+      .csel-dropdown.open {
+        display: flex;
+      }
+      .csel-option {
+        padding: 10px 14px;
+        cursor: pointer;
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        transition: background 0.14s;
+        border-bottom: 1px solid rgba(255,255,255,0.04);
+      }
+      .csel-option:last-child { border-bottom: none; }
+      .csel-option:hover, .csel-option.focused {
+        background: rgba(124,58,237,0.14);
+      }
+      .csel-option.selected {
+        background: rgba(124,58,237,0.2);
+      }
+      .csel-option .csel-opt-label {
+        font-weight: 600;
+        color: #e8ecfa;
+        font-size: 14px;
+      }
+      .csel-option .csel-opt-desc {
+        font-size: 11px;
+        color: #7a8ba8;
+        line-height: 1.4;
+      }
+
+      /* ===================== ANIME.JS PARTICLES ===================== */
+      #banner-particles {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        z-index: 1;
+        overflow: hidden;
+      }
+      .particle {
+        position: absolute;
+        width: 3px;
+        height: 3px;
+        border-radius: 50%;
+        background: rgba(167,139,250,0.6);
+        pointer-events: none;
+      }
+
+      /* Card entrance animation class */
+      .card-enter {
+        will-change: transform, opacity;
+      }
+
+      /* Pref-row for custom select */
+      .pref-row .csel-wrapper {
+        max-width: 340px;
+      }
+
+      /* Source selector options - styled */
+      .csel-option[data-val="ANILIST"] .csel-opt-label { color: #22d3ee; }
+      .csel-option[data-val="JIKAN"] .csel-opt-label { color: #f59e0b; }
+      .csel-option[data-val="KITSU"] .csel-opt-label { color: #ec4899; }
+
+      /* Notes textarea in modal */
+      #f-notes {
+        resize: vertical;
+        min-height: 72px;
+        max-height: 200px;
+        font-family: var(--body-font);
+        line-height: 1.5;
+      }
+      .note-md-preview {
+        background: rgba(124,58,237,0.07);
+        border: 1px solid rgba(124,58,237,0.18);
+        border-radius: 10px;
+        padding: 10px 12px;
+        color: #c8d2f0;
+        font-size: 13px;
+        line-height: 1.6;
+        display: none;
+        min-height: 60px;
+      }
+      .note-md-preview.visible { display: block; }
+      .note-md-preview p { margin: 0 0 6px; }
+      .note-md-preview strong { color: #e9ecf3; }
+      .note-md-preview em { color: #a78bfa; }
+      .note-md-preview code {
+        background: rgba(124,58,237,0.18);
+        border-radius: 4px;
+        padding: 1px 4px;
+        font-size: 12px;
+      }
+      .note-preview-toggle {
+        font-size: 11px;
+        color: #a78bfa;
+        cursor: pointer;
+        user-select: none;
+        margin-top: 4px;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+      }
+      .note-preview-toggle:hover { color: #c4b5fd; }
+
     </style>
   </head>
 
@@ -2247,12 +2566,16 @@
         <!-- Preferences -->
         <div class="account-pref">
           <div class="pref-row">
-            <label for="pref-cover">Default cover source</label>
-            <select id="pref-cover" class="select">
-              <option value="ANILIST">AniList (Default — Recommended, high quality)</option>
-              <option value="JIKAN">Jikan (MAL) (Larger DB — lower quality / sometimes inaccurate)</option>
-              <option value="KITSU">Kitsu (High quality — often inaccurate)</option>
-            </select>
+            <label>Default cover source</label>
+            <div id="pref-cover-csel-wrapper">
+              <!-- hidden real select for JS compat -->
+              <select id="pref-cover" class="select" style="display:none">
+                <option value="ANILIST">AniList</option>
+                <option value="JIKAN">Jikan</option>
+                <option value="KITSU">Kitsu</option>
+              </select>
+              <!-- CustomSelect injected here by JS -->
+            </div>
           </div>
         </div>
 
@@ -2266,6 +2589,7 @@
 
     <section class="banner" aria-label="Featured">
       <div class="banner-image" id="banner-image" aria-hidden="true"></div>
+      <div id="banner-particles" aria-hidden="true"></div>
       <div class="banner-inner">
         <div class="hero container">
           <div class="hero-box">
@@ -2402,8 +2726,8 @@
           <div class="row">
             <div class="float-group input-wrapper">
               <label for="f-kind">Series/Movie</label>
-              <div class="field">
-                <select id="f-kind" class="select input" aria-label="Kind">
+              <div class="field" id="f-kind-wrapper">
+                <select id="f-kind" class="select input" aria-label="Kind" style="display:none">
                   <option value="SERIES" selected>Series</option>
                   <option value="MOVIE">Movie</option>
                 </select>
@@ -2412,8 +2736,8 @@
 
             <div class="float-group input-wrapper">
               <label for="f-status">Category</label>
-              <div class="field">
-                <select id="f-status" class="select input" aria-label="Status">
+              <div class="field" id="f-status-wrapper">
+                <select id="f-status" class="select input" aria-label="Status" style="display:none">
                   <option value="WATCHING">WATCHING</option>
                   <option value="PLAN" selected>PLAN</option>
                   <option value="REWATCH">REWATCH</option>
@@ -2483,21 +2807,29 @@
           </div>
 
           <!-- Mobile: Auto cover + Source split -->
-          <div class="row" style="align-items: flex-end">
-            <button class="btn ghost" id="btn-autocover" title="Auto fetch cover by title" style="flex: 1">
-              <i class="fa-solid fa-wand-magic-sparkles"></i>Auto cover
-            </button>
+          <div class="row" style="align-items: flex-end; gap: 10px">
+            <div style="flex:1; display:flex; flex-direction:column; gap:8px; min-width:0">
+              <button class="btn ghost" id="btn-autocover" title="Auto fetch cover by title" style="width:100%">
+                <i class="fa-solid fa-wand-magic-sparkles"></i>Auto cover
+              </button>
 
-            <div class="float-group input-wrapper" style="flex: 1; min-width: 180px">
-              <label for="f-cover-source">Source</label>
-              <div class="field">
-                <select id="f-cover-source" class="select input" aria-label="Cover source override">
-                  <option value="" selected>Default</option>
-                  <option value="ANILIST">AniList</option>
-                  <option value="JIKAN">Jikan</option>
-                  <option value="KITSU">Kitsu</option>
-                </select>
+              <div class="float-group input-wrapper" style="flex: 1; min-width: 0">
+                <label for="f-cover-source">Source</label>
+                <div class="field" id="f-cover-source-wrapper">
+                  <!-- CustomSelect replaces this -->
+                  <select id="f-cover-source" class="select input" aria-label="Cover source override" style="display:none">
+                    <option value="" selected>Default</option>
+                    <option value="ANILIST">AniList</option>
+                    <option value="JIKAN">Jikan</option>
+                    <option value="KITSU">Kitsu</option>
+                  </select>
+                </div>
               </div>
+            </div>
+
+            <!-- Cover preview box -->
+            <div class="cover-preview-box" id="modal-cover-preview">
+              <div class="cpv-ph">No cover</div>
             </div>
           </div>
 
@@ -2505,14 +2837,16 @@
           <hr class="modal-divider" aria-hidden="true" />
 
           <div class="row">
-            <div class="float-group input-wrapper">
-              <label for="f-notes">Notes (optional)</label>
+            <div class="float-group input-wrapper" style="flex:1">
+              <label for="f-notes">Notes (optional — supports <strong style="color:#a78bfa;font-weight:600">Markdown</strong>)</label>
               <div class="field">
-                <input id="f-notes" class="input" aria-label="Notes" />
-                <button class="clear-btn" id="clear-notes" aria-label="Clear notes">
+                <textarea id="f-notes" class="input" aria-label="Notes" rows="3" placeholder="**Bold**, *italic*, `code`…"></textarea>
+                <button class="clear-btn" id="clear-notes" aria-label="Clear notes" style="top:12px">
                   <i class="fa-solid fa-xmark"></i>
                 </button>
               </div>
+              <span class="note-preview-toggle" id="toggle-note-preview"><i class="fa-regular fa-eye"></i> Preview markdown</span>
+              <div class="note-md-preview" id="note-md-preview"></div>
             </div>
           </div>
 
@@ -2561,8 +2895,9 @@
           <div class="row">
             <div class="float-group input-wrapper">
               <label for="login-password">Password</label>
-              <div class="field">
-                <input id="login-password" class="input" type="password" aria-label="Password" />
+              <div class="field pw-wrapper">
+                <input id="login-password" class="input" type="password" aria-label="Password" style="padding-right:44px" />
+                <button type="button" class="pw-eye" id="toggle-login-pw" aria-label="Toggle password visibility"><i class="fa-regular fa-eye"></i></button>
               </div>
             </div>
           </div>
@@ -2600,8 +2935,9 @@
           <div class="row">
             <div class="float-group input-wrapper">
               <label for="signup-password">Password</label>
-              <div class="field">
-                <input id="signup-password" class="input" type="password" aria-label="Password" />
+              <div class="field pw-wrapper">
+                <input id="signup-password" class="input" type="password" aria-label="Password" style="padding-right:44px" />
+                <button type="button" class="pw-eye" id="toggle-signup-pw" aria-label="Toggle password visibility"><i class="fa-regular fa-eye"></i></button>
               </div>
             </div>
           </div>
@@ -2674,8 +3010,8 @@
           <div class="row">
             <div class="float-group input-wrapper">
               <label for="import-format">Import type</label>
-              <div class="field">
-                <select id="import-format" class="select input" aria-label="Import type">
+              <div class="field" id="import-format-wrapper">
+                <select id="import-format" class="select input" aria-label="Import type" style="display:none">
                   <option value="MAL">MyAnimeList (MAL) — XML</option>
                   <option value="ANILIST">AniList — JSON</option>
                   <option value="APP" selected>AniMehList (AML) — JSON</option>
@@ -2772,7 +3108,7 @@
 
         <div class="foot-right socials" aria-label="Social links">
           <a
-            class="social-link"
+            class="social-link github-link"
             href="https://github.com/TheAnonymousCrusher/AniMehList"
             target="_blank"
             rel="noopener noreferrer"
@@ -3436,6 +3772,7 @@
       function makeGridCard(row) {
         const col = document.createElement("div");
         col.className = "col";
+        col.dataset.rowId = String(row.id);
 
         const card = document.createElement("div");
         card.className = "card";
@@ -3497,10 +3834,24 @@
 
         const chips = document.createElement("div");
         chips.className = "chips";
-        chips.appendChild(chipEl(row.kind === "MOVIE" ? "Movie" : "Series"));
+        chips.appendChild(chipEl(row.kind === "MOVIE" ? "Movie" : "Series", row.notes));
         chips.appendChild(chipEl(progressText(row)));
+        if (row.notes) {
+          const ng = document.createElement("span");
+          ng.className = "note-glyph";
+          ng.title = "Has note";
+          ng.innerHTML = '<i class="fa-solid fa-note-sticky"></i>';
+          chips.appendChild(ng);
+        }
 
         const controls = buildControls(row);
+
+        // Note hover panel
+        if (row.notes) {
+          const nhp = buildNoteHoverPanel(row.notes);
+          cover.appendChild(nhp);
+          setupNoteHover(cover, nhp);
+        }
 
         body.append(titleRow, chips, controls);
         card.append(cover, body);
@@ -3511,6 +3862,7 @@
       function makeCompactCard(row) {
         const col = document.createElement("div");
         col.className = "col";
+        col.dataset.rowId = String(row.id);
 
         const card = document.createElement("div");
         card.className = "card row";
@@ -3567,8 +3919,22 @@
         const meta = document.createElement("div");
         meta.className = "chips";
         meta.append(chipEl(row.kind === "MOVIE" ? "Movie" : "Series"), chipEl(progressText(row)));
+        if (row.notes) {
+          const ng = document.createElement("span");
+          ng.className = "note-glyph";
+          ng.title = "Has note";
+          ng.innerHTML = '<i class="fa-solid fa-note-sticky"></i>';
+          meta.appendChild(ng);
+        }
 
         const controls = buildControls(row);
+
+        // Note hover panel
+        if (row.notes) {
+          const nhp = buildNoteHoverPanel(row.notes);
+          cover.appendChild(nhp);
+          setupNoteHover(cover, nhp);
+        }
 
         body.append(titleRow, meta, controls);
         card.append(cover, body, float);
@@ -3818,6 +4184,7 @@
 
         // prefs
         if (prefCover) prefCover.value = defaultCoverSource;
+        if (typeof cselPrefCover !== "undefined" && cselPrefCover) cselPrefCover.setValue(defaultCoverSource);
       }
 
       // ---------- Load profile ----------
@@ -4336,7 +4703,7 @@
       mLogout.addEventListener("click", () =>
         openConfirm("Sign out", "Are you sure you want to sign out?", async () => {
           await supabase.auth.signOut();
-          location.reload();
+          // No reload - auth listener handles state reset
         })
       );
 
@@ -4516,7 +4883,8 @@
       accountLogout.onclick = () =>
         openConfirm("Sign out", "Are you sure you want to sign out?", async () => {
           await supabase.auth.signOut();
-          location.reload();
+          accountPanel.classList.remove("open");
+          // No reload - auth listener handles state reset
         });
 
       // ---------- Cover sources (AniList / Jikan / Kitsu) ----------
@@ -5465,8 +5833,611 @@
         }
       }
 
+
+      // ============================================================
+      // NOTE HOVER PANEL
+      // ============================================================
+      function buildNoteHoverPanel(noteText) {
+        const panel = document.createElement("div");
+        panel.className = "note-hover-panel";
+        const label = document.createElement("div");
+        label.className = "note-label";
+        label.innerHTML = '<i class="fa-solid fa-note-sticky"></i> Note';
+        const md = document.createElement("div");
+        md.className = "note-md";
+        try {
+          md.innerHTML = marked.parse(noteText || "");
+        } catch(e) {
+          md.textContent = noteText || "";
+        }
+        panel.append(label, md);
+        return panel;
+      }
+
+      let activeNotePanel = null;
+      let noteHideTimer = null;
+
+      function hideNotePanel(panel) {
+        if (!panel) return;
+        panel.classList.remove("visible");
+        if (activeNotePanel === panel) activeNotePanel = null;
+      }
+
+      function showNotePanel(panel) {
+        if (activeNotePanel && activeNotePanel !== panel) {
+          hideNotePanel(activeNotePanel);
+        }
+        clearTimeout(noteHideTimer);
+        panel.classList.add("visible");
+        activeNotePanel = panel;
+      }
+
+      function setupNoteHover(coverEl, panel) {
+        // Desktop: hover
+        coverEl.addEventListener("mouseenter", () => showNotePanel(panel), { passive: true });
+        coverEl.addEventListener("mouseleave", () => hideNotePanel(panel), { passive: true });
+
+        // Mobile: tap to show, tap elsewhere to hide, auto-hide 3s
+        coverEl.addEventListener("touchend", (e) => {
+          e.stopPropagation();
+          if (panel.classList.contains("visible")) {
+            hideNotePanel(panel);
+          } else {
+            showNotePanel(panel);
+            clearTimeout(noteHideTimer);
+            noteHideTimer = setTimeout(() => hideNotePanel(panel), 3000);
+          }
+        }, { passive: true });
+      }
+
+      // Global tap to dismiss note panels
+      document.addEventListener("touchend", () => {
+        if (activeNotePanel) {
+          clearTimeout(noteHideTimer);
+          hideNotePanel(activeNotePanel);
+        }
+      }, { passive: true });
+
+      // ============================================================
+      // COVER PREVIEW in modal
+      // ============================================================
+      const modalCoverPreview = document.getElementById("modal-cover-preview");
+      function updateModalCoverPreview() {
+        const url = (document.getElementById("f-image")?.value || "").trim();
+        modalCoverPreview.innerHTML = "";
+        if (url) {
+          const img = document.createElement("img");
+          img.src = url;
+          img.alt = "Cover preview";
+          img.onerror = () => {
+            modalCoverPreview.innerHTML = '<div class="cpv-ph">Failed</div>';
+          };
+          modalCoverPreview.appendChild(img);
+        } else {
+          modalCoverPreview.innerHTML = '<div class="cpv-ph">No cover</div>';
+        }
+      }
+
+      document.getElementById("f-image")?.addEventListener("input", updateModalCoverPreview);
+      document.getElementById("f-image")?.addEventListener("change", updateModalCoverPreview);
+
+      // ============================================================
+      // PASSWORD EYE TOGGLE
+      // ============================================================
+      function setupPwEye(btnId, inputId) {
+        const btn = document.getElementById(btnId);
+        const inp = document.getElementById(inputId);
+        if (!btn || !inp) return;
+        btn.addEventListener("click", () => {
+          const isHidden = inp.type === "password";
+          inp.type = isHidden ? "text" : "password";
+          btn.querySelector("i").className = isHidden ? "fa-regular fa-eye-slash" : "fa-regular fa-eye";
+        });
+      }
+      setupPwEye("toggle-login-pw", "login-password");
+      setupPwEye("toggle-signup-pw", "signup-password");
+
+      // ============================================================
+      // NOTE MD PREVIEW in modal
+      // ============================================================
+      const noteMdPreview = document.getElementById("note-md-preview");
+      const toggleNotePreviewBtn = document.getElementById("toggle-note-preview");
+      let noteMdVisible = false;
+
+      if (toggleNotePreviewBtn && noteMdPreview) {
+        toggleNotePreviewBtn.addEventListener("click", () => {
+          noteMdVisible = !noteMdVisible;
+          if (noteMdVisible) {
+            try {
+              noteMdPreview.innerHTML = marked.parse(fNotes.value || "");
+            } catch(e) {
+              noteMdPreview.textContent = fNotes.value || "";
+            }
+            noteMdPreview.classList.add("visible");
+            toggleNotePreviewBtn.innerHTML = '<i class="fa-regular fa-eye-slash"></i> Hide preview';
+          } else {
+            noteMdPreview.classList.remove("visible");
+            toggleNotePreviewBtn.innerHTML = '<i class="fa-regular fa-eye"></i> Preview markdown';
+          }
+        });
+
+        fNotes.addEventListener("input", () => {
+          if (noteMdVisible && noteMdPreview) {
+            try {
+              noteMdPreview.innerHTML = marked.parse(fNotes.value || "");
+            } catch(e) {
+              noteMdPreview.textContent = fNotes.value || "";
+            }
+          }
+        });
+      }
+
+      // ============================================================
+      // CUSTOM SELECT CLASS
+      // ============================================================
+      class CustomSelect {
+        constructor(container, realSelect, options) {
+          this.realSelect = realSelect;
+          this.options = options; // [{value, label, desc}]
+          this.value = realSelect.value || (options[0]?.value ?? "");
+          this._onChangeCbs = [];
+          this._build(container);
+        }
+
+        _build(container) {
+          this.wrapper = document.createElement("div");
+          this.wrapper.className = "csel-wrapper";
+
+          this.trigger = document.createElement("button");
+          this.trigger.type = "button";
+          this.trigger.className = "csel-trigger";
+          this.trigger.tabIndex = 0;
+
+          this.triggerLabel = document.createElement("span");
+          this.trigger.appendChild(this.triggerLabel);
+
+          const arrow = document.createElement("span");
+          arrow.className = "csel-arrow";
+          arrow.innerHTML = '<i class="fa-solid fa-chevron-down"></i>';
+          this.trigger.appendChild(arrow);
+
+          this.dropdown = document.createElement("div");
+          this.dropdown.className = "csel-dropdown";
+
+          this.options.forEach((opt, i) => {
+            const item = document.createElement("div");
+            item.className = "csel-option" + (opt.value === this.value ? " selected" : "");
+            item.dataset.val = opt.value;
+            item.tabIndex = -1;
+
+            const lbl = document.createElement("span");
+            lbl.className = "csel-opt-label";
+            lbl.textContent = opt.label;
+            item.appendChild(lbl);
+
+            if (opt.desc) {
+              const d = document.createElement("span");
+              d.className = "csel-opt-desc";
+              d.textContent = opt.desc;
+              item.appendChild(d);
+            }
+
+            item.addEventListener("mousedown", (e) => {
+              e.preventDefault();
+              this._select(opt.value);
+              this.close();
+            });
+
+            this.dropdown.appendChild(item);
+          });
+
+          this.wrapper.appendChild(this.trigger);
+          this.wrapper.appendChild(this.dropdown);
+          container.appendChild(this.wrapper);
+
+          this._updateLabel();
+
+          this.trigger.addEventListener("click", (e) => {
+            e.stopPropagation();
+            this.dropdown.classList.contains("open") ? this.close() : this.open();
+          });
+
+          document.addEventListener("click", (e) => {
+            if (!this.wrapper.contains(e.target)) this.close();
+          });
+
+          this.trigger.addEventListener("keydown", (e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              this.dropdown.classList.contains("open") ? this.close() : this.open();
+            }
+            if (e.key === "Escape") this.close();
+          });
+        }
+
+        _updateLabel() {
+          const opt = this.options.find(o => o.value === this.value) || this.options[0];
+          this.triggerLabel.textContent = opt?.label ?? this.value;
+        }
+
+        _select(val) {
+          this.value = val;
+          this.realSelect.value = val;
+          // fire change event on real select
+          this.realSelect.dispatchEvent(new Event("change", { bubbles: true }));
+          this._updateLabel();
+          this.dropdown.querySelectorAll(".csel-option").forEach(el => {
+            el.classList.toggle("selected", el.dataset.val === val);
+          });
+          this._onChangeCbs.forEach(cb => cb(val));
+        }
+
+        open() {
+          this.dropdown.classList.add("open");
+          this.trigger.classList.add("open");
+          if (typeof anime !== "undefined") {
+            anime({
+              targets: this.dropdown,
+              opacity: [0, 1],
+              translateY: [-6, 0],
+              duration: 200,
+              easing: "easeOutCubic"
+            });
+          }
+        }
+
+        close() {
+          this.dropdown.classList.remove("open");
+          this.trigger.classList.remove("open");
+        }
+
+        setValue(val) {
+          if (this.options.some(o => o.value === val)) {
+            this.value = val;
+            this.realSelect.value = val;
+            this._updateLabel();
+            this.dropdown.querySelectorAll(".csel-option").forEach(el => {
+              el.classList.toggle("selected", el.dataset.val === val);
+            });
+          }
+        }
+
+        onChange(cb) { this._onChangeCbs.push(cb); }
+      }
+
+      // ============================================================
+      // INIT CUSTOM SELECTS
+      // ============================================================
+      const SOURCE_OPTIONS = [
+        { value: "", label: "Default (uses account preference)", desc: "" },
+        { value: "ANILIST", label: "AniList", desc: "Recommended · High quality covers · Accurate metadata" },
+        { value: "JIKAN", label: "Jikan / MAL", desc: "Larger database · Lower quality · Sometimes inaccurate" },
+        { value: "KITSU", label: "Kitsu", desc: "High quality art · Often inaccurate for obscure titles" },
+      ];
+
+      const SOURCE_OPTIONS_PREF = [
+        { value: "ANILIST", label: "AniList", desc: "Recommended · High quality covers · Accurate metadata" },
+        { value: "JIKAN", label: "Jikan / MAL", desc: "Larger database · Lower quality · Sometimes inaccurate" },
+        { value: "KITSU", label: "Kitsu", desc: "High quality art · Often inaccurate for obscure titles" },
+      ];
+
+      const KIND_OPTIONS = [
+        { value: "SERIES", label: "Series", desc: "" },
+        { value: "MOVIE", label: "Movie", desc: "" },
+      ];
+
+      const STATUS_OPTIONS = [
+        { value: "WATCHING", label: "Watching", desc: "" },
+        { value: "PLAN", label: "Plan to watch", desc: "" },
+        { value: "REWATCH", label: "Rewatch", desc: "" },
+        { value: "WAITING", label: "Waiting", desc: "" },
+        { value: "COMPLETED", label: "Completed", desc: "" },
+      ];
+
+      const IMPORT_FORMAT_OPTIONS = [
+        { value: "MAL", label: "MyAnimeList (MAL)", desc: "XML export from your MAL profile" },
+        { value: "ANILIST", label: "AniList", desc: "JSON export from AniList" },
+        { value: "APP", label: "AniMehList (AML)", desc: "JSON exported from this app" },
+      ];
+
+      // Cover source in modal
+      let cselCoverSource = null;
+      const coverSourceWrapper = document.getElementById("f-cover-source-wrapper");
+      if (coverSourceWrapper && fCoverSource) {
+        cselCoverSource = new CustomSelect(coverSourceWrapper, fCoverSource, SOURCE_OPTIONS);
+      }
+
+      // Kind select in modal
+      let cselKind = null;
+      const kindWrapper = document.getElementById("f-kind-wrapper");
+      if (kindWrapper && fKind) {
+        cselKind = new CustomSelect(kindWrapper, fKind, KIND_OPTIONS);
+      }
+
+      // Status select in modal
+      let cselStatus = null;
+      const statusWrapper = document.getElementById("f-status-wrapper");
+      if (statusWrapper && fStatus) {
+        cselStatus = new CustomSelect(statusWrapper, fStatus, STATUS_OPTIONS);
+      }
+
+      // Import format
+      let cselImportFormat = null;
+      const importFormatWrapper = document.getElementById("import-format-wrapper");
+      const importFormatReal = document.getElementById("import-format");
+      if (importFormatWrapper && importFormatReal) {
+        cselImportFormat = new CustomSelect(importFormatWrapper, importFormatReal, IMPORT_FORMAT_OPTIONS);
+      }
+
+      // Account pref cover source
+      let cselPrefCover = null;
+      const prefCoverWrapper = document.getElementById("pref-cover-csel-wrapper");
+      if (prefCoverWrapper && prefCover) {
+        cselPrefCover = new CustomSelect(prefCoverWrapper, prefCover, SOURCE_OPTIONS_PREF);
+      }
+
+      // ============================================================
+      // PATCH openModalFor to also update custom selects + cover preview
+      // ============================================================
+      const _origOpenModalFor = openModalFor;
+
+      // We must redefine openModalFor after the fact
+      // (the original is already bound; we monkey-patch it)
+      // Actually we need to override the existing function.
+      // Since it's declared with `function`, we do it via a wrapper on the save button area.
+      // Instead, we hook into the existing openModalFor by patching the relevant parts:
+
+      const origOpenModalFor = window.__origOpenModalFor = openModalFor;
+      function openModalForPatched(row) {
+        origOpenModalFor(row);
+        // Sync custom selects
+        if (cselKind) cselKind.setValue(row?.kind || "SERIES");
+        if (cselStatus) cselStatus.setValue(row?.status || "PLAN");
+        if (cselCoverSource) cselCoverSource.setValue(row?.cover_source || "");
+        // Reset note md preview
+        if (noteMdPreview) { noteMdPreview.classList.remove("visible"); noteMdVisible = false; }
+        if (toggleNotePreviewBtn) toggleNotePreviewBtn.innerHTML = '<i class="fa-regular fa-eye"></i> Preview markdown';
+        // Update cover preview
+        updateModalCoverPreview();
+      }
+      // Override the onclick handlers that call openModalFor
+      // We patch by wrapping with a global override via prototype chain trick
+      // Easiest: re-assign btnAdd.onclick and the card edit buttons will call openModalForPatched too
+      // We store openModalForPatched globally so card buttons can call it
+      window._openModalForPatched = openModalForPatched;
+
+      // Patch btnAdd
+      btnAdd.onclick = () => openModalForPatched();
+      if (typeof mAdd !== "undefined") {
+        mAdd.addEventListener("click", () => { closeMenu(); openModalForPatched(); });
+      }
+
+      // Also patch noResultsNewBtn
+      const _origNoResultsClick = noResultsNewBtn.onclick;
+      noResultsNewBtn.onclick = null;
+      noResultsNewBtn.addEventListener("click", () => {
+        if (!user) { showToast("info", "Sign in to add items"); openModal(authModal); return; }
+        openModalForPatched();
+      });
+
+      // ============================================================
+      // ANIME.JS ANIMATIONS
+      // ============================================================
+      function initAnime() {
+        if (typeof anime === "undefined") return;
+
+        // 1. Hero title letter-by-letter reveal
+        const heroTitle = document.getElementById("hero-title");
+        if (heroTitle) {
+          const text = heroTitle.textContent;
+          heroTitle.innerHTML = text.split("").map(c =>
+            c === " " ? " " : `<span class="hero-char" style="display:inline-block;opacity:0;transform:translateY(12px)">${c}</span>`
+          ).join("");
+          anime({
+            targets: "#hero-title .hero-char",
+            opacity: [0, 1],
+            translateY: [12, 0],
+            delay: anime.stagger(28, { start: 300 }),
+            duration: 400,
+            easing: "easeOutCubic"
+          });
+        }
+
+        // 2. Banner particles
+        spawnParticles();
+
+        // 3. Preloader logo pulse (subtle)
+        anime({
+          targets: ".preloader-logo",
+          scale: [1, 1.04, 1],
+          duration: 1800,
+          loop: true,
+          easing: "easeInOutSine"
+        });
+
+        // 4. Scroll-to-top glow pulse
+        anime({
+          targets: "#scroll-to-top",
+          boxShadow: [
+            "0 0 0px 0px rgba(34,211,238,0)",
+            "0 0 14px 4px rgba(34,211,238,0.35)",
+            "0 0 0px 0px rgba(34,211,238,0)"
+          ],
+          duration: 2200,
+          loop: true,
+          easing: "easeInOutSine"
+        });
+      }
+
+      function spawnParticles() {
+        const container = document.getElementById("banner-particles");
+        if (!container) return;
+
+        const colors = ["rgba(167,139,250,0.5)", "rgba(34,211,238,0.4)", "rgba(124,58,237,0.45)", "rgba(110,231,255,0.35)"];
+
+        for (let i = 0; i < 20; i++) {
+          const p = document.createElement("div");
+          p.className = "particle";
+          const size = Math.random() * 3 + 1.5;
+          p.style.width = size + "px";
+          p.style.height = size + "px";
+          p.style.left = Math.random() * 100 + "%";
+          p.style.top = Math.random() * 100 + "%";
+          p.style.background = colors[Math.floor(Math.random() * colors.length)];
+          container.appendChild(p);
+
+          anime({
+            targets: p,
+            translateX: () => anime.random(-80, 80),
+            translateY: () => anime.random(-80, 80),
+            opacity: [
+              { value: 0, duration: 0 },
+              { value: anime.random(0.3, 0.8), duration: anime.random(1200, 2500), easing: "easeInOutSine" },
+              { value: 0, duration: anime.random(1200, 2500), easing: "easeInOutSine" }
+            ],
+            scale: [0.8, () => anime.random(1.0, 1.8), 0.8],
+            loop: true,
+            delay: anime.random(0, 3000),
+            duration: anime.random(4000, 9000),
+            easing: "easeInOutSine"
+          });
+        }
+      }
+
+      // Animate cards on render (staggered entrance)
+      const _origRender = render;
+      let _renderCardAnimPending = false;
+      function animateCardsEntrance() {
+        if (_renderCardAnimPending) return;
+        _renderCardAnimPending = true;
+        requestAnimationFrame(() => {
+          _renderCardAnimPending = false;
+          if (typeof anime === "undefined") return;
+          const cards = document.querySelectorAll(".grid .col, .section .col");
+          if (!cards.length) return;
+          anime({
+            targets: cards,
+            opacity: [0, 1],
+            translateY: [18, 0],
+            delay: anime.stagger(40, { start: 0 }),
+            duration: 380,
+            easing: "easeOutCubic"
+          });
+        });
+      }
+
+      // Patch render to also animate cards
+      const _baseRender = render;
+      // We wrap by hooking into the debounce via render itself being called.
+      // Simplest: observe DOM mutations on sectionsEl / gridEl
+      const _cardObserver = new MutationObserver(() => { animateCardsEntrance(); });
+      _cardObserver.observe(sectionsEl, { childList: true });
+      _cardObserver.observe(gridEl, { childList: true });
+
+      // Modal open/close anime
+      const _origOpenModal = openModal;
+      const _origCloseModal = closeModal;
+
+      function openModalAnimated(el) {
+        _origOpenModal(el);
+        if (typeof anime !== "undefined") {
+          const sheet = el.querySelector(".sheet, .chat-sheet");
+          if (sheet) {
+            anime({
+              targets: sheet,
+              opacity: [0, 1],
+              translateY: [16, 0],
+              scale: [0.97, 1],
+              duration: 320,
+              easing: "spring(1, 80, 14, 0)"
+            });
+          }
+        }
+      }
+
+      // Patch card edit buttons to use patched openModalFor
+      // We do this by re-wrapping makeGridCard and makeCompactCard
+      const _origMakeGridCard = makeGridCard;
+      const _origMakeCompactCard = makeCompactCard;
+
+      // Override by monkey-patching the inner editBtn onclick in buildCard
+      // Instead, we intercept after render via event delegation
+      sectionsEl.addEventListener("click", (e) => {
+        const editBtn = e.target.closest(".floating-actions .icon-btn");
+        if (!editBtn) return;
+        // find the row id from the card
+        const col = editBtn.closest(".col");
+        if (!col) return;
+        // Find corresponding data row - we tagged the col with data-id in our patched render
+        const rowId = col.dataset.rowId;
+        if (!rowId) return;
+        const row = data.find(r => String(r.id) === rowId);
+        if (row) { e.stopPropagation(); openModalForPatched(row); }
+      });
+      gridEl.addEventListener("click", (e) => {
+        const editBtn = e.target.closest(".floating-actions .icon-btn");
+        if (!editBtn) return;
+        const col = editBtn.closest(".col");
+        if (!col) return;
+        const rowId = col.dataset.rowId;
+        if (!rowId) return;
+        const row = data.find(r => String(r.id) === rowId);
+        if (row) { e.stopPropagation(); openModalForPatched(row); }
+      });
+
+      // Section title slide-in observer
+      const sectionTitleObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting && typeof anime !== "undefined") {
+            anime({
+              targets: entry.target,
+              opacity: [0, 1],
+              translateX: [-14, 0],
+              duration: 420,
+              easing: "easeOutCubic"
+            });
+            sectionTitleObserver.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.15 });
+
+      // Observe section titles on render
+      const _stObserver = new MutationObserver(() => {
+        document.querySelectorAll(".section-title:not([data-animated])").forEach(el => {
+          el.dataset.animated = "1";
+          el.style.opacity = "0";
+          sectionTitleObserver.observe(el);
+        });
+      });
+      _stObserver.observe(sectionsEl, { childList: true, subtree: true });
+
+      // Tab click animation
+      document.getElementById("tabs")?.addEventListener("click", (e) => {
+        const tab = e.target.closest(".tab");
+        if (tab && typeof anime !== "undefined") {
+          anime({
+            targets: tab,
+            scale: [0.93, 1],
+            duration: 300,
+            easing: "spring(1, 80, 14, 0)"
+          });
+        }
+      });
+
+      // Btn brand hover wiggle for Add button
+      const addBtn = document.getElementById("btn-add");
+      if (addBtn && typeof anime !== "undefined") {
+        addBtn.addEventListener("mouseenter", () => {
+          anime({ targets: addBtn, rotate: [-2, 2, 0], duration: 320, easing: "easeInOutSine" });
+        });
+      }
+
+
       // Init
       initApp();
+      // Init anime after app starts
+      setTimeout(initAnime, 100);
+
     </script>
   </body>
 </html>
