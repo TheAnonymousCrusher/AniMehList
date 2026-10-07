@@ -5,9 +5,21 @@
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <meta name="color-scheme" content="dark" />
     <meta name="theme-color" content="#0b0c10" />
-    <meta name="description" content="AniMehList is a shared anime shelf. Track what you're watching and where you left off, and chat with the bros." />
+    <meta name="description" content="AniMehList is a shared anime shelf. Track what you're watching and where you left off, and chat with fellow fans." />
     <title>AniMehList - Your Anime Shelf</title>
     <link rel="icon" href="assets/logo.png" type="image/png" />
+    <link rel="apple-touch-icon" href="assets/logo.png" />
+    <!-- Link previews (Discord, WhatsApp, X, iMessage...): crawlers need ABSOLUTE urls. Replace YOUR-SITE.com below. -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="AniMehList" />
+    <meta property="og:title" content="AniMehList: The Anime Watchlist That Remembers" />
+    <meta property="og:description" content="Track what you're watching and where you left off. So you don't have to." />
+    <meta property="og:image" content="https://YOUR-SITE.com/assets/logo.png" />
+    <meta property="og:image:alt" content="AniMehList logo" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="AniMehList: The Anime Watchlist That Remembers" />
+    <meta name="twitter:description" content="Track what you're watching and where you left off. So you don't have to." />
+    <meta name="twitter:image" content="https://YOUR-SITE.com/assets/logo.png" />
 
     <!-- Resource hints: start the slow handshakes early (helps a lot on a weak connection) -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -85,6 +97,7 @@
         function mark(id) {
           var g = document.getElementById("theme-grid");
           if (!g) return;
+          var cn = document.getElementById("theme-current"); if (cn) cn.textContent = find(id)[1];
           [].forEach.call(g.querySelectorAll(".theme-chip"), function (b) {
             var on = b.getAttribute("data-id") === id;
             b.classList.toggle("on", on);
@@ -3691,6 +3704,87 @@
         --k-fee2e2: color-mix(in srgb, #fee2e2 var(--pa-mix, 100%), var(--text));
         --k-ffb4b4: color-mix(in srgb, #ffb4b4 var(--pa-mix, 100%), var(--text));
       }
+
+      /* ---- Spinners: icons marked .spin (chat loader, empty state...) were static ---- */
+      .spin { animation: spin 0.9s linear infinite; }
+
+      /* ---- Card "move to list": button + overlay list (shares the .csel-* look) ---- */
+      button.move-select {
+        font-family: inherit;
+        font-size: 13px;
+        font-weight: 600;
+        text-align: left;
+        text-transform: none;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      button.move-select:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+      button.move-select.open { border-color: rgb(var(--brand-rgb) / 0.7); }
+      .move-menu { position: fixed; z-index: 999; }
+      .move-menu .csel-option:focus { outline: none; background: rgb(var(--brand-rgb) / 0.14); }
+
+      /* ---- Account panel: "Themes >" row and its slide-in sub-menu ---- */
+      .acct-nav {
+        display: flex; align-items: center; gap: 10px; width: 100%;
+        padding: 10px 12px; border-radius: 12px;
+        border: 1px solid var(--stroke); background: rgb(var(--fg-rgb) / 0.04);
+        color: var(--text); font: inherit; font-size: 14px; font-weight: 600; text-align: left; cursor: pointer;
+      }
+      .acct-nav:hover { background: rgb(var(--fg-rgb) / 0.08); }
+      .acct-nav:focus-visible, .acct-back:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+      .acct-nav .an-label { flex: 1; display: flex; align-items: center; gap: 8px; }
+      .acct-nav .an-val { max-width: 48%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12px; font-weight: 500; color: var(--muted); }
+      .acct-nav .an-chev { font-size: 12px; color: var(--muted); }
+      .acct-sub {
+        position: absolute; inset: 0; z-index: 3;
+        display: flex; flex-direction: column;
+        background: var(--k-101525); border-radius: 16px;
+        clip-path: inset(0 0 0 100% round 16px); /* slides in from the right, never leaks outside the panel */
+        visibility: hidden;
+        transition: clip-path 0.26s ease, visibility 0s linear 0.26s;
+      }
+      .acct-sub.open { clip-path: inset(0 0 0 0 round 16px); visibility: visible; transition: clip-path 0.26s ease, visibility 0s; }
+      .acct-sub-head {
+        display: flex; align-items: center; gap: 10px; padding: 12px 14px;
+        font-weight: 700; border-bottom: 1px solid rgb(var(--fg-rgb) / 0.08);
+      }
+      .acct-back {
+        width: 34px; height: 34px; border-radius: 10px; cursor: pointer;
+        border: 1px solid var(--stroke); background: rgb(var(--fg-rgb) / 0.05); color: var(--text);
+      }
+      .acct-sub .theme-grid { flex: 1; min-height: 0; max-height: none; padding: 12px; }
+      @media (prefers-reduced-motion: reduce) { .acct-sub, .acct-sub.open { transition: none; } }
+
+      /* ---- Offline mode ---- */
+      #offline-pill {
+        position: fixed; top: 70px; left: 50%; transform: translateX(-50%);
+        z-index: calc(var(--z-header) + 1);
+        display: flex; align-items: center; gap: 8px; max-width: 94vw; white-space: nowrap;
+        padding: 6px 8px 6px 12px; border-radius: 999px;
+        background: var(--k-111928); color: var(--text);
+        border: 1px solid rgb(var(--warn-rgb, 245 158 11) / 0.6);
+        font-size: 12.5px; font-weight: 600; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+      }
+      #offline-pill[hidden] { display: none; }
+      #offline-pill i { color: var(--warn); }
+      #offline-pill #offline-pending { color: var(--muted); font-weight: 500; }
+      #offline-pill button {
+        border: 0; border-radius: 999px; padding: 4px 10px; cursor: pointer;
+        background: var(--brand); color: var(--on-brand, #fff); font: inherit; font-size: 12px; font-weight: 700;
+      }
+      .off-ico { position: relative; }
+      .off-ico::after { content: ""; position: absolute; left: -2px; right: -2px; top: 50%; height: 2px; border-radius: 2px; background: currentColor; transform: rotate(-40deg); }
+      html.aml-offline #btn-chat { opacity: 0.45; }
+      #sync-modal { z-index: calc(var(--z-confirm) + 5); }
+      .sync-actions { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; margin-top: 14px; }
+      .sync-list { display: flex; flex-direction: column; gap: 10px; max-height: min(52vh, 420px); overflow-y: auto; margin-top: 10px; overscroll-behavior: contain; }
+      .sync-item { border: 1px solid var(--stroke); border-radius: 12px; padding: 10px; background: rgb(var(--fg-rgb) / 0.04); }
+      .sync-diff { font-size: 12px; color: var(--muted); margin: 6px 0; word-break: break-word; }
+      .sync-diff b { color: var(--text); }
+      .sync-pick { display: flex; gap: 6px; }
+      .sync-pick button { flex: 1; border: 1px solid var(--stroke); border-radius: 10px; padding: 7px; background: transparent; color: var(--text); font: inherit; font-size: 12.5px; font-weight: 600; cursor: pointer; }
+      .sync-pick button.on { border-color: var(--brand); background: var(--active-fill); }
     </style>
   </head>
 
@@ -3789,6 +3883,13 @@
 
       <!-- Account panel -->
       <div class="account-panel" id="account-panel" aria-label="Account panel">
+        <div class="acct-sub" id="theme-view" aria-hidden="true" role="group" aria-label="Themes">
+          <div class="acct-sub-head">
+            <button type="button" class="acct-back" id="theme-back" aria-label="Back to account"><i class="fa-solid fa-chevron-left"></i></button>
+            <span>Themes</span>
+          </div>
+          <div class="theme-grid" id="theme-grid" role="radiogroup" aria-label="Theme"></div>
+        </div>
         <div class="account-header">
           <div class="account-avatar" id="account-avatar">U</div>
           <div class="account-id">
@@ -3833,8 +3934,11 @@
             </div>
           </div>
           <div class="pref-row">
-            <label id="theme-label">Theme</label>
-            <div class="theme-grid" id="theme-grid" role="radiogroup" aria-labelledby="theme-label"></div>
+            <button type="button" class="acct-nav" id="theme-open" aria-haspopup="true" aria-expanded="false">
+              <span class="an-label"><i class="fa-solid fa-palette"></i>Themes</span>
+              <span class="an-val" id="theme-current"></span>
+              <i class="fa-solid fa-chevron-right an-chev"></i>
+            </button>
           </div>
         </div>
 
@@ -3852,8 +3956,8 @@
       <div class="banner-inner">
         <div class="hero container">
           <div class="hero-box">
-            <h1 id="hero-title">AniMehList: Anime Watchlist For The Bros</h1>
-            <div class="sub">Built for bros who binge and forget where they left off.</div>
+            <h1 id="hero-title">AniMehList: The Anime Watchlist That Remembers</h1>
+            <div class="sub">So you don’t have to.</div>
           </div>
         </div>
       </div>
@@ -4229,7 +4333,20 @@
           Your connection dropped. AniMehList will sync again automatically when you’re back online.
         </p>
         <p class="hint">Tip: keep this tab open, no need to reload.</p>
+        <p class="muted-small">Or keep using your shelf offline: add, edit and delete as usual and it syncs when you’re back.</p>
+        <div style="display: flex; justify-content: flex-end; margin-top: 12px">
+          <button class="btn" id="offline-use"><i class="fa-solid fa-hard-drive"></i>Use offline mode</button>
+        </div>
       </div>
+    </div>
+
+    <!-- Offline mode indicator + sync prompt -->
+    <div id="offline-pill" role="status" hidden>
+      <i class="fa-solid fa-wifi off-ico"></i> Offline mode <span id="offline-pending"></span>
+      <button type="button" id="offline-go-online">Go online</button>
+    </div>
+    <div class="modal" id="sync-modal" role="dialog" aria-modal="true" aria-hidden="true" data-static="true">
+      <div class="sheet" role="document" style="max-width: 520px"><div id="sync-body"></div></div>
     </div>
 
     <!-- Confirm Modal -->
@@ -4470,7 +4587,114 @@
         showFatalLoadError();
         throw e; // nothing in the app can work without it
       }
-      const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+      // ---------- Offline layer: a local copy of the shelf + a queue of changes made without a connection ----------
+      // While OFF.on is true, supabase.from("entries" | "profiles") is answered from this device and every write is queued.
+      const OFF = (() => {
+        const LU = "aml-last-user";
+        const rd = (k, d) => { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch { return d; } };
+        const wr = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); return true; } catch { return false; } };
+        const uid = () => (rd(LU, null) || {}).id;
+        const K = (n) => "aml-off:" + uid() + ":" + n;
+        const clone = (x) => JSON.parse(JSON.stringify(x));
+        const o = { on: false, loaded: false, onChange: () => {} };
+        o.lastUser = () => rd(LU, null);
+        o.hasCache = () => !!uid() && Array.isArray(rd(K("rows"), null));
+        o.queue = () => (uid() ? rd(K("queue"), []) : []);
+        o.saveQ = (q) => { const ok = wr(K("queue"), q); o.onChange(); return ok; };
+        o.saveRows = (r) => wr(K("rows"), r);
+        o.wipe = () => {
+          const id = uid();
+          o.on = false; o.loaded = false;
+          try { localStorage.removeItem(LU); ["rows", "queue", "profile"].forEach((n) => localStorage.removeItem("aml-off:" + id + ":" + n)); } catch {}
+        };
+        let t = 0; // keeps the saved copy fresh while online (debounced, called from render)
+        o.mirror = () => {
+          if (o.on || t || !user || !o.loaded) return;
+          t = setTimeout(() => {
+            t = 0;
+            if (o.on || !user) return;
+            wr(LU, { id: user.id, email: user.email, user_metadata: user.user_metadata || {} });
+            if (o.queue().length) return; // unsynced changes: keep the working copy as is
+            wr(K("rows"), data); wr(K("profile"), profile);
+          }, 400);
+        };
+        // one queued op per entry: edits merge, add+delete cancels out
+        function enq(q, op) {
+          const i = q.findIndex((x) => x.k !== "prof" && x.id === op.id);
+          if (i < 0) return q.push(op);
+          const c = q[i];
+          if (op.k === "upd") { if (c.k === "ins") Object.assign(c.row, op.patch); else if (c.k === "upd") Object.assign(c.patch, op.patch); }
+          else if (op.k === "del") { if (c.k === "ins") q.splice(i, 1); else { c.k = "del"; delete c.patch; } }
+        }
+        function run(st) {
+          if (st.table === "profiles") {
+            const p = rd(K("profile"), null);
+            if (st.op === "upd") { wr(K("profile"), { ...(p || {}), ...st.patch }); const q = o.queue(); q.push({ k: "prof", patch: { ...st.patch } }); o.saveQ(q); return { data: null, error: null }; }
+            return p ? { data: p, error: null } : { data: null, error: { message: "No saved profile on this device" } };
+          }
+          let rows = o.rows ? o.rows() : rd(K("rows"), []) || [];
+          const q = o.queue();
+          const hit = (r) => st.f.every(([c, v]) => r[c] === v);
+          let out = [];
+          if (st.op === "ins") {
+            // single row or a bulk array (file import)
+            [].concat(st.patch).forEach((p) => {
+              const r = { ...p, id: "local-" + Date.now().toString(36) + Math.random().toString(36).slice(2, 8), created_at: p.created_at || new Date().toISOString() };
+              rows.unshift(r); q.push({ k: "ins", id: r.id, row: clone(r) }); out.push(r);
+            });
+          } else if (st.op === "upd" || st.op === "del") {
+            const keep = [];
+            rows.forEach((r) => {
+              if (!hit(r)) return keep.push(r);
+              const base = clone(r);
+              if (st.op === "upd") { Object.assign(r, st.patch); out.push(r); keep.push(r); enq(q, { k: "upd", id: r.id, patch: { ...st.patch }, base }); }
+              else enq(q, { k: "del", id: r.id, base });
+            });
+            rows = keep;
+          } else {
+            out = rows.filter(hit);
+            if (st.order) { const [c, d] = st.order; out.sort((a, b) => (a[c] > b[c] ? 1 : a[c] < b[c] ? -1 : 0) * d); }
+            if (st.limit) out = out.slice(0, st.limit);
+          }
+          if (st.op !== "sel") {
+            if (!o.saveRows(rows) || !o.saveQ(q)) return { data: null, error: { message: "Device storage is full" } };
+          }
+          if (st.op !== "sel" && !st.sel) return { data: null, error: null };
+          if (st.single) return out[0] ? { data: out[0], error: null } : { data: null, error: { message: "Not found" } };
+          if (st.maybe) return { data: out[0] || null, error: null };
+          return { data: out, error: null };
+        }
+        o.rows = () => rd(K("rows"), []);
+        function qb(table) {
+          const st = { table, op: "sel", patch: null, f: [], sel: false, single: false, maybe: false, order: null, limit: 0 };
+          const go = () => Promise.resolve().then(() => run(st));
+          const b = {
+            select() { if (st.op !== "sel") st.sel = true; return b; },
+            insert(r) { st.op = "ins"; st.patch = r; return b; },
+            update(p) { st.op = "upd"; st.patch = p; return b; },
+            delete() { st.op = "del"; return b; },
+            eq(c, v) { st.f.push([c, v]); return b; },
+            order(c, a) { st.order = [c, a && a.ascending === false ? -1 : 1]; return b; },
+            limit(n) { st.limit = n; return b; },
+            single() { st.single = true; return b; },
+            maybeSingle() { st.maybe = true; return b; },
+            then(a, r) { return go().then(a, r); },
+            catch(r) { return go().catch(r); },
+            finally(f) { return go().finally(f); },
+          };
+          return b;
+        }
+        o.real = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        o.proxy = new Proxy(o.real, {
+          get(t, p) {
+            if (p === "from") return (tb) => (o.on && (tb === "entries" || tb === "profiles") ? qb(tb) : t.from(tb));
+            const v = t[p];
+            return typeof v === "function" ? v.bind(t) : v;
+          },
+        });
+        return o;
+      })();
+      const supabase = OFF.proxy;
 
       // ---------- State ----------
       const STATUSES = ["WATCHING", "PLAN", "REWATCH", "WAITING", "COMPLETED"];
@@ -5462,14 +5686,16 @@
         inc.innerHTML = '<i class="fa-solid fa-plus"></i>';
         inc.onclick = (e) => adjustEpisode(row, e.shiftKey ? +5 : +1);
 
-        const move = document.createElement("select");
+        const move = document.createElement("button");
+        move.type = "button";
         move.className = "move-select";
         move.setAttribute("aria-label", "Move to list");
-        move.innerHTML = STATUSES.map((s) => `<option ${row.status === s ? "selected" : ""}>${s}</option>`).join("");
+        move.setAttribute("aria-haspopup", "listbox");
+        move.setAttribute("aria-expanded", "false");
+        move.textContent = row.status;
 
-        move.onchange = async (e) => {
+        const moveTo = async (next) => {
           try {
-            const next = e.target.value;
             const { error } = await supabase.from("entries").update({ status: next }).eq("id", row.id);
             if (error) throw error;
 
@@ -5483,10 +5709,80 @@
             showToast("error", err.message || "Failed");
           }
         };
+        move.onclick = (e) => {
+          e.stopPropagation();
+          openMoveMenu(move, row.status, moveTo);
+        };
 
         controls.append(dec, prog, inc, move);
         return controls;
       }
+
+      // Overlay list for a card's "move to list" (replaces the browser's native select popup)
+      let _moveMenu = null;
+      function closeMoveMenu(refocus) {
+        if (!_moveMenu) return;
+        const { el, btn } = _moveMenu;
+        _moveMenu = null;
+        el.remove();
+        btn.classList.remove("open");
+        btn.setAttribute("aria-expanded", "false");
+        if (refocus && btn.isConnected) btn.focus({ preventScroll: true });
+      }
+      function openMoveMenu(btn, current, onPick) {
+        const same = _moveMenu && _moveMenu.btn === btn;
+        closeMoveMenu();
+        if (same) return;
+        const el = document.createElement("div");
+        el.className = "csel-dropdown move-menu open";
+        el.setAttribute("role", "listbox");
+        STATUSES.forEach((s) => {
+          const o = document.createElement("div");
+          o.className = "csel-option" + (s === current ? " selected" : "");
+          o.setAttribute("role", "option");
+          o.setAttribute("aria-selected", s === current ? "true" : "false");
+          o.tabIndex = 0;
+          const l = document.createElement("span");
+          l.className = "csel-opt-label";
+          l.textContent = s;
+          o.appendChild(l);
+          o.addEventListener("click", (e) => {
+            e.stopPropagation();
+            closeMoveMenu(true);
+            if (s !== current) onPick(s);
+          });
+          el.appendChild(o);
+        });
+        el.addEventListener("keydown", (e) => {
+          const opts = [...el.children], i = opts.indexOf(document.activeElement);
+          if (e.key === "ArrowDown") { e.preventDefault(); (opts[i + 1] || opts[0]).focus(); }
+          else if (e.key === "ArrowUp") { e.preventDefault(); (opts[i - 1] || opts[opts.length - 1]).focus(); }
+          else if (e.key === "Enter" || e.key === " ") { e.preventDefault(); document.activeElement.click(); }
+          else if (e.key === "Tab") closeMoveMenu();
+        });
+        document.body.appendChild(el);
+        const r = btn.getBoundingClientRect(), w = Math.max(r.width, 150);
+        const below = innerHeight - r.bottom - 10, above = r.top - 10;
+        const up = below < Math.min(el.scrollHeight, 200) && above > below;
+        el.style.right = "auto";
+        el.style.width = w + "px";
+        el.style.left = Math.max(8, Math.min(r.left, innerWidth - w - 8)) + "px";
+        el.style.maxHeight = Math.max(110, up ? above : below) + "px";
+        if (up) { el.style.top = "auto"; el.style.bottom = innerHeight - r.top + 6 + "px"; }
+        else el.style.top = r.bottom + 6 + "px";
+        btn.classList.add("open");
+        btn.setAttribute("aria-expanded", "true");
+        _moveMenu = { el, btn };
+        (el.querySelector(".selected") || el.firstChild).focus({ preventScroll: true });
+      }
+      document.addEventListener("pointerdown", (e) => {
+        if (_moveMenu && !_moveMenu.el.contains(e.target) && !_moveMenu.btn.contains(e.target)) closeMoveMenu();
+      }, true);
+      addEventListener("scroll", (e) => {
+        if (_moveMenu && !_moveMenu.el.contains(e.target)) closeMoveMenu();
+      }, true);
+      addEventListener("resize", () => closeMoveMenu());
+      document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeMoveMenu(true); });
 
       function renderSkeletons(count = 6) {
         _domGen++;
@@ -5537,6 +5833,7 @@
       // render({ quiet: true }) = rebuild the DOM without replaying the card/title entrance animations.
       // If several renders coalesce, the result is only quiet when every one of them asked to be quiet.
       function render(opts) {
+        OFF.mirror();
         const quiet = !!(opts && opts.quiet);
         _pendingRenderQuiet = renderDebounce ? _pendingRenderQuiet && quiet : quiet;
         if (renderDebounce) clearTimeout(renderDebounce);
@@ -5879,6 +6176,7 @@
           if (error) throw error;
           loadFailed = false;
           data = rows || [];
+          OFF.loaded = true;
           render();
 
           // background covers (do NOT block preloader)
@@ -7056,6 +7354,7 @@
       }
 
       function enqueueMissingCovers(rows) {
+        if (OFF.on || !navigator.onLine) return; // covers are fetched once you are back online
         const list = Array.isArray(rows) ? rows : data;
         let added = 0;
 
@@ -7384,9 +7683,153 @@
         }
       }
 
+      // ---------- Offline mode: indicator, entering it, syncing back ----------
+      (function () {
+        const g = (i) => document.getElementById(i), H = document.documentElement;
+        const pill = g("offline-pill"), cnt = g("offline-pending"), sm = g("sync-modal"), body = g("sync-body");
+        const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+        const eq = (a, b) => JSON.stringify(a ?? null) === JSON.stringify(b ?? null);
+        const show = (v) => (v === undefined ? "(gone)" : v === null || v === "" ? "(empty)" : String(v).length > 60 ? String(v).slice(0, 57) + "…" : String(v));
+        let cur = null;
+
+        function ui() {
+          const n = OFF.queue().length;
+          H.classList.toggle("aml-offline", OFF.on);
+          pill.hidden = !OFF.on;
+          cnt.textContent = n ? "· " + n + " pending" : "";
+        }
+        OFF.onChange = ui;
+
+        async function enter() {
+          if (!OFF.hasCache()) return showToast("error", "Nothing is saved on this device yet. Open AniMehList once while online first.", 3800);
+          if (user && !OFF.on && !OFF.queue().length && data.length) OFF.saveRows(data); // freshest copy
+          OFF.on = true;
+          if (!user) { user = OFF.lastUser(); updateAuthUI(); updateMobileMenuUI(); }
+          if (offlineModal.classList.contains("open")) closeModal(offlineModal);
+          await loadProfile();
+          await loadEntries(); // answered from this device
+          ui();
+          showToast("info", "Offline mode", 1800);
+        }
+        async function exit() {
+          OFF.on = false;
+          ui();
+          try { await loadProfile(); await loadEntries(); reviveChannels(); } catch (e) { console.warn(e); }
+        }
+        async function goOnline() {
+          if (!navigator.onLine) return showToast("info", "Still offline");
+          if (!user) return;
+          if (OFF.queue().length) showPrompt(OFF.queue()); else if (OFF.on) await exit();
+        }
+
+        function screen(html) { body.innerHTML = html; if (!sm.classList.contains("open")) openModal(sm); }
+        function showPrompt(q) {
+          const c = { ins: 0, upd: 0, del: 0, prof: 0 };
+          q.forEach((x) => c[x.k]++);
+          screen(
+            '<h3><i class="fa-solid fa-arrows-rotate"></i> Sync offline changes</h3>' +
+            '<p class="muted-small">You made ' + q.length + " change" + (q.length > 1 ? "s" : "") + " while offline (" + c.ins + " added, " + c.upd + " edited, " + c.del + " deleted). Overwrite what’s on the server with them?</p>" +
+            '<div class="sync-actions"><button class="btn" data-act="accept"><i class="fa-solid fa-check"></i>Overwrite server</button>' +
+            '<button class="btn ghost" data-act="review"><i class="fa-solid fa-code-compare"></i>Review conflicts</button>' +
+            '<button class="btn danger" data-act="decline"><i class="fa-solid fa-xmark"></i>Discard mine</button></div>'
+          );
+        }
+        function showReview() {
+          const its = cur.items, cf = its.filter((x) => x.c), rest = its.length - cf.length;
+          const list = cf.map((x) => {
+            const i = its.indexOf(x);
+            const why = x.c.gone ? "deleted on the server" : x.op.k === "del" ? "you deleted it, but it changed on the server" : "changed on both sides";
+            const d = x.c.fields.slice(0, 6).map((f) => "<div><b>" + esc(f.f) + "</b>: mine " + esc(show(f.mine)) + " · server " + esc(show(f.server)) + "</div>").join("");
+            return '<div class="sync-item"><b>' + esc(x.op.base?.title || x.s?.title || x.op.row?.title || "Entry") + '</b> <span class="muted-small">' + why + '</span><div class="sync-diff">' + d + "</div>" +
+              '<div class="sync-pick"><button data-pick="' + i + ':mine" class="' + (x.pick === "mine" ? "on" : "") + '">Keep mine</button>' +
+              '<button data-pick="' + i + ':server" class="' + (x.pick === "server" ? "on" : "") + '">Keep server</button></div></div>';
+          }).join("");
+          screen(
+            '<h3><i class="fa-solid fa-code-compare"></i> ' + (cf.length ? "Review conflicts" : "No conflicts") + "</h3>" +
+            '<p class="muted-small">' + (cf.length ? cf.length + " conflict" + (cf.length > 1 ? "s" : "") + ". " : "") + rest + " other change" + (rest === 1 ? "" : "s") + " apply cleanly.</p>" +
+            '<div class="sync-list">' + list + "</div>" +
+            '<div class="sync-actions"><button class="btn ghost" data-act="back"><i class="fa-solid fa-chevron-left"></i>Back</button><button class="btn" data-act="apply"><i class="fa-solid fa-check"></i>Apply</button></div>'
+          );
+        }
+
+        async function fetchServer() {
+          try {
+            const s = await OFF.real.auth.getSession();
+            if (!s?.data?.session) { showToast("error", "Please sign in again to sync your changes.", 3500); closeModal(sm); openModal(authModal); return null; }
+            const r = await withTimeout(OFF.real.from("entries").select("*"), 15000, "Server check");
+            if (r.error) throw r.error;
+            return r.data || [];
+          } catch (e) { showToast("error", "Can’t reach the server yet: " + (e.message || e), 3500); return null; }
+        }
+        function plan(q, srv) {
+          const by = new Map(srv.map((r) => [r.id, r]));
+          return q.map((op) => {
+            const s = by.get(op.id); let c = null;
+            if (op.k === "upd") {
+              if (!s) c = { gone: true, fields: Object.keys(op.patch).map((f) => ({ f, mine: op.patch[f], server: undefined })) };
+              else { const fs = Object.keys(op.patch).filter((f) => !eq(s[f], op.base?.[f]) && !eq(s[f], op.patch[f])); if (fs.length) c = { fields: fs.map((f) => ({ f, mine: op.patch[f], server: s[f] })) }; }
+            } else if (op.k === "del" && s) {
+              const fs = Object.keys(s).filter((f) => !eq(s[f], op.base?.[f]));
+              if (fs.length) c = { fields: fs.map((f) => ({ f, mine: "(deleted)", server: s[f] })) };
+            }
+            return { op, s, c, pick: "mine" };
+          });
+        }
+        async function commit() {
+          const sb = OFF.real, left = [], strip = ({ id, created_at, updated_at, ...r }) => ({ ...r, user_id: user.id });
+          let ok = 0;
+          for (const { op, s, c, pick } of cur.items) {
+            if (c && pick === "server") continue; // keep the server's version: drop my change
+            try {
+              let r = { error: null };
+              if (op.k === "ins") r = await sb.from("entries").insert(strip(op.row));
+              else if (op.k === "upd") r = s ? await sb.from("entries").update(op.patch).eq("id", op.id) : await sb.from("entries").insert(strip({ ...op.base, ...op.patch }));
+              else if (op.k === "del") { if (s) r = await sb.from("entries").delete().eq("id", op.id); }
+              else if (op.k === "prof") r = await sb.from("profiles").update(op.patch).eq("id", user.id);
+              if (r.error) throw r.error;
+              ok++;
+            } catch (e) { console.warn("sync failed", e); left.push(op); }
+          }
+          OFF.saveQ(left);
+          closeModal(sm);
+          if (left.length) return showToast("error", left.length + " change" + (left.length > 1 ? "s" : "") + " couldn’t sync and " + (left.length > 1 ? "were" : "was") + " kept for later.", 4000);
+          await exit(); // reloads the shelf; entries without a cover get one automatically
+          showToast("success", "Synced " + ok + " change" + (ok === 1 ? "" : "s"));
+        }
+
+        sm.addEventListener("click", async (e) => {
+          const b = e.target.closest("[data-act],[data-pick]");
+          if (!b) return;
+          if (b.dataset.pick) { const [i, p] = b.dataset.pick.split(":"); cur.items[+i].pick = p; return showReview(); }
+          const a = b.dataset.act;
+          if (a === "back") return showPrompt(OFF.queue());
+          if (a === "apply") return commit();
+          if (a === "decline") { OFF.saveQ([]); closeModal(sm); return exit(); }
+          b.disabled = true;
+          const srv = await fetchServer();
+          b.disabled = false;
+          if (!srv) return;
+          cur = { items: plan(OFF.queue(), srv) };
+          if (a === "review") showReview(); else commit();
+        });
+
+        g("offline-use").onclick = enter;
+        g("offline-go-online").onclick = goOnline;
+        window.addEventListener("online", () => { if (OFF.on || OFF.queue().length) setTimeout(goOnline, 800); });
+        OFF.afterBoot = () => {
+          ui();
+          if (OFF.on) showToast("info", "Offline mode", 2200);
+          else if (user && navigator.onLine && OFF.queue().length) showPrompt(OFF.queue());
+        };
+
+        // Web offline support: the service worker keeps the app shell, libraries, fonts and covers
+        if ("serviceWorker" in navigator && /^https?:$/.test(location.protocol))
+          window.addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(() => {}));
+      })();
+
       // ---------- Offline modal ----------
       function syncOfflineModal() {
-        if (!navigator.onLine) {
+        if (!navigator.onLine && !OFF.on) {
           openModal(offlineModal);
         } else {
           if (offlineModal.classList.contains("open")) closeModal(offlineModal);
@@ -7445,7 +7888,7 @@
 
       async function wakeUp() {
         if (_waking) return _waking;
-        if (!navigator.onLine) return; // the offline modal already covers this
+        if (!navigator.onLine || OFF.on) return; // the offline modal already covers this
         if (Date.now() - _lastWakeAt < WAKE_MIN_GAP_MS) return;
         _lastWakeAt = Date.now();
 
@@ -8428,6 +8871,7 @@
       });
 
       function openChatFromClick() {
+        if (OFF.on || !navigator.onLine) return showToast("info", "Chat isn’t available while you’re offline", 2600);
         // FIX: don't set ?chat=1 unless the chat modal actually opens (prevents it reopening on reload)
         if (!user) {
           showToast("info", "Sign in to join the chat");
@@ -8438,7 +8882,7 @@
       }
 
       function openChat() {
-        if (!user) return;
+        if (!user || OFF.on || !navigator.onLine) return;
         if (chatCacheUser !== user.id) resetChatCache();
         openModal(chatModal);
         updateSelfAvatar();
@@ -8572,6 +9016,7 @@
             render();
             maybeOpenChatFromURL();
           } else {
+            OFF.wipe(); // signed out: nothing of this account stays on the device
             [...epPending.keys()].forEach(dropPendingEpisode);
             data = [];
             render();
@@ -8594,7 +9039,7 @@
         initFloatingLabels(document);
 
         try {
-          const r = await getSessionWithTimeout(2500);
+          const r = !navigator.onLine && OFF.hasCache() ? { session: null, timedOut: false, offline: true } : await getSessionWithTimeout(2500);
           if (r.timedOut) {
             console.warn("Supabase getSession timed out; continuing without blocking UI.");
           }
@@ -8604,6 +9049,7 @@
 
           session = r.session;
           user = session?.user ?? null;
+          if (!user && r.offline) { OFF.on = true; user = OFF.lastUser(); }
           sessionPending = !!r.timedOut && !user;
 
           updateAuthUI();
@@ -8630,6 +9076,7 @@
           window.__appBooted = true;
           hidePreloader();
           startAuthListener();
+          OFF.afterBoot?.();
         }
       }
 
@@ -9647,6 +10094,29 @@
       // Init anime after app starts
       setTimeout(initAnime, 100);
 
+    </script>
+    <script>
+      (function () {
+        var p = document.getElementById("account-panel"), v = document.getElementById("theme-view"),
+          o = document.getElementById("theme-open"), b = document.getElementById("theme-back");
+        if (!p || !v || !o || !b) return;
+        function show(on) {
+          v.classList.toggle("open", on);
+          v.setAttribute("aria-hidden", on ? "false" : "true");
+          o.setAttribute("aria-expanded", on ? "true" : "false");
+          if (on) {
+            p.scrollTop = 0;
+            var c = v.querySelector(".theme-chip.on");
+            (c || b).focus({ preventScroll: true });
+            if (c) c.scrollIntoView({ block: "nearest" });
+          } else o.focus({ preventScroll: true });
+        }
+        o.addEventListener("click", function () { show(true); });
+        b.addEventListener("click", function () { show(false); });
+        v.addEventListener("keydown", function (e) { if (e.key === "Escape") { e.stopPropagation(); show(false); } });
+        new MutationObserver(function () { if (!p.classList.contains("open")) v.classList.remove("open"); })
+          .observe(p, { attributes: true, attributeFilter: ["class"] });
+      })();
     </script>
   </body>
 </html>

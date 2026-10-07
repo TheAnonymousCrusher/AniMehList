@@ -1,0 +1,64 @@
+# Save this in your repo as:  .github/workflows/android.yml
+# It builds a debug APK (directly installable) from the SAME index.html as the website.
+# Nothing else to commit: the Capacitor project is generated fresh on every run.
+name: Build Android APK
+
+on:
+  push:
+    branches: [main, master]
+  workflow_dispatch: # also gives you a "Run workflow" button in the Actions tab
+
+jobs:
+  android:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Web bundle (the same index.html as the website)
+        run: |
+          mkdir www
+          cp index.html sw.js www/
+          if [ -d assets ]; then cp -r assets www/assets; fi
+
+      - name: Create the Capacitor project
+        run: |
+          npm init -y
+          npm i @capacitor/core@7 @capacitor/cli@7 @capacitor/android@7
+          npx cap init AniMehList com.animehlist.app --web-dir www
+          node -e "
+          const fs = require('fs'), f = 'capacitor.config.json';
+          const c = JSON.parse(fs.readFileSync(f, 'utf8'));
+          c.backgroundColor = '#0b0c10';
+          c.android = Object.assign({}, c.android, { adjustMarginsForEdgeToEdge: 'force' });
+          fs.writeFileSync(f, JSON.stringify(c, null, 2));
+          "
+          npx cap add android
+
+      - name: App icon from assets/logo.png (skipped if the logo is too small)
+        continue-on-error: true
+        run: |
+          mkdir resources
+          cp assets/logo.png resources/logo.png
+          npm i @capacitor/assets
+          npx capacitor-assets generate --android --assetPath resources --iconBackgroundColor '#0b0c10' --splashBackgroundColor '#0b0c10'
+
+      - name: Build the APK
+        run: |
+          npx cap sync android
+          cd android
+          chmod +x gradlew
+          ./gradlew assembleDebug
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: AniMehList-apk
+          path: android/app/build/outputs/apk/debug/app-debug.apk
