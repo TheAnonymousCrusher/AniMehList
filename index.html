@@ -2,12 +2,29 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
     <meta name="color-scheme" content="dark" />
     <meta name="theme-color" content="#0b0c10" />
-    <meta name="description" content="AniMehList is a shared anime shelf. Track what you're watching and where you left off, and chat with the bros." />
+    <meta name="description" content="AniMehList: The Anime Watchlist That Remembers. Track what you're watching and where you left off, so you don't have to." />
     <title>AniMehList - Your Anime Shelf</title>
     <link rel="icon" href="assets/logo.png" type="image/png" />
+    <link rel="apple-touch-icon" href="assets/logo.png" />
+    <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="canonical" href="https://theanonymouscrusher.github.io/AniMehList/" />
+
+    <!-- Share previews: the logo is the preview image. og:image must be an ABSOLUTE url, so it points at the public site. -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="AniMehList" />
+    <meta property="og:title" content="AniMehList: The Anime Watchlist That Remembers" />
+    <meta property="og:description" content="Track what you're watching and where you left off, so you don't have to." />
+    <meta property="og:url" content="https://theanonymouscrusher.github.io/AniMehList/" />
+    <meta property="og:image" content="https://theanonymouscrusher.github.io/AniMehList/assets/logo.png" />
+    <meta property="og:image:alt" content="AniMehList logo" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="AniMehList: The Anime Watchlist That Remembers" />
+    <meta name="twitter:description" content="Track what you're watching and where you left off, so you don't have to." />
+    <meta name="twitter:image" content="https://theanonymouscrusher.github.io/AniMehList/assets/logo.png" />
+    <meta name="twitter:image:alt" content="AniMehList logo" />
 
     <!-- Resource hints: start the slow handshakes early (helps a lot on a weak connection) -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -119,6 +136,7 @@
           var c = document.querySelector('meta[name="color-scheme"]'); if (c) c.setAttribute("content", dk ? "dark" : "light");
           if (save) { try { localStorage.setItem(K, t[0]); } catch (e) {} }
           mark(t[0]);
+          try { document.dispatchEvent(new CustomEvent("aml-theme", { detail: { id: t[0], name: t[1], dark: dk } })); } catch (e) {}
           return t[0];
         }
         function build() {
@@ -581,8 +599,8 @@
       .menu-panel,
       .account-panel {
         position: fixed;
-        top: 66px;
-        right: 12px;
+        top: calc(66px + var(--sat, 0px));
+        right: calc(12px + var(--sar, 0px));
         z-index: var(--z-panel);
         width: min(360px, 94vw);
         background: var(--k-101525);
@@ -1549,7 +1567,7 @@
       #toasts {
         position: fixed;
         left: 50%;
-        bottom: calc(18px + env(safe-area-inset-bottom, 0px));
+        bottom: calc(18px + var(--sab, 0px));
         transform: translateX(-50%);
         width: min(420px, calc(100vw - 24px));
         display: flex;
@@ -3463,8 +3481,8 @@
       /* Short screens (phone landscape): let the account panel scroll instead of running off-screen */
       @media (max-height: 560px) {
         .account-panel {
-          max-height: calc(100vh - 78px);
-          max-height: calc(100dvh - 78px);
+          max-height: calc(100vh - 78px - var(--sat, 0px) - var(--sab, 0px) - var(--off-bar-h, 0px));
+          max-height: calc(100dvh - 78px - var(--sat, 0px) - var(--sab, 0px) - var(--off-bar-h, 0px));
           overflow-y: auto;
           overscroll-behavior: contain;
         }
@@ -3625,8 +3643,8 @@
       /* With the theme list the account panel is taller: on shorter screens it scrolls instead of running off the bottom. */
       @media (max-height: 760px) {
         .account-panel {
-          max-height: calc(100vh - 78px);
-          max-height: calc(100dvh - 78px);
+          max-height: calc(100vh - 78px - var(--sat, 0px) - var(--sab, 0px) - var(--off-bar-h, 0px));
+          max-height: calc(100dvh - 78px - var(--sat, 0px) - var(--sab, 0px) - var(--off-bar-h, 0px));
           overflow-y: auto;
           overscroll-behavior: contain;
         }
@@ -3691,6 +3709,658 @@
         --k-fee2e2: color-mix(in srgb, #fee2e2 var(--pa-mix, 100%), var(--text));
         --k-ffb4b4: color-mix(in srgb, #ffb4b4 var(--pa-mix, 100%), var(--text));
       }
+
+      /* ============================================================
+         aml5 - spinners
+         Only #cover-progress had a rule for `.spin`, so every other <i class="fa-solid fa-spinner spin"> (older chat
+         messages, "Sending", the send button, the empty-state loader) just sat there. One shared rule fixes all of them.
+         ============================================================ */
+      .spin {
+        display: inline-block;
+        animation: spin 0.9s linear infinite;
+      }
+      /* The global "reduce motion" rule freezes every animation, which also froze the loading indicators, so you could
+         not tell "loading" from "stuck". Spinners are essential feedback: keep them turning, just slower. */
+      @media (prefers-reduced-motion: reduce) {
+        .spin,
+        .cover-loader i,
+        #loading-spinner,
+        .preloader-spinner,
+        .cover-preview-box .cpv-spin,
+        #cover-progress .cp-text i.spin {
+          animation: spin 1.8s linear infinite !important;
+        }
+        .btn.loading::before {
+          animation: spin 1.8s linear infinite !important;
+        }
+      }
+
+      /* ============================================================
+         aml5 - account panel: the main view + a "Themes" sub-view that slides in over it
+         (the inline theme grid used to make the whole panel very tall)
+         ============================================================ */
+      .account-panel .acct-main {
+        position: relative;
+        transition: transform 0.26s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.2s ease, visibility 0s linear 0s;
+      }
+      .account-panel.sub-open .acct-main {
+        transform: translateX(-22%);
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+        transition: transform 0.26s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.2s ease, visibility 0s linear 0.26s;
+      }
+      /* The panel is overflow:visible (so the cover-source dropdown can overlay); clip only while a slide is running / the
+         sub-view is up, otherwise the off-screen pane would show outside the panel. */
+      .account-panel.sub-open,
+      .account-panel.acct-anim {
+        overflow: hidden !important;
+      }
+      .acct-sub {
+        position: absolute;
+        inset: 0;
+        z-index: 2;
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
+        background: var(--k-101525);
+        border-radius: 16px;
+        transform: translateX(100%);
+        opacity: 0;
+        transition: transform 0.26s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.2s ease;
+      }
+      .account-panel.sub-open .acct-sub {
+        transform: none;
+        opacity: 1;
+      }
+      .acct-sub-head {
+        flex: 0 0 auto;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 12px;
+        background: rgb(var(--brand-rgb) / 0.10);
+        border-bottom: 1px solid rgb(var(--fg-rgb) / 0.08);
+        border-radius: 15px 15px 0 0;
+      }
+      .acct-back {
+        flex: 0 0 auto;
+        width: 36px;
+        height: 36px;
+        display: grid;
+        place-items: center;
+        border-radius: 11px;
+        border: 1px solid rgb(var(--fg-rgb) / 0.14);
+        background: rgb(var(--fg-rgb) / 0.06);
+        color: var(--text);
+        cursor: pointer;
+        transition: background 0.15s ease, transform 0.1s ease;
+      }
+      .acct-back:hover {
+        background: rgb(var(--fg-rgb) / 0.12);
+      }
+      .acct-back:active {
+        transform: scale(0.94);
+      }
+      .acct-back:focus-visible {
+        outline: none;
+        box-shadow: var(--focus-ring);
+      }
+      .acct-sub-title {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        min-width: 0;
+        font-family: var(--title-font);
+        font-weight: 700;
+        font-size: 14px;
+        letter-spacing: 0.3px;
+        color: var(--text);
+      }
+      .acct-sub-title i {
+        color: var(--brand);
+      }
+      .acct-sub-cur {
+        margin-left: auto;
+        min-width: 0;
+        max-width: 46%;
+        font-size: 12px;
+        color: color-mix(in srgb, var(--muted) 55%, var(--text));
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .acct-sub .theme-group {
+        color: color-mix(in srgb, var(--muted) 55%, var(--text));
+      }
+      .acct-sub .theme-grid {
+        position: relative;
+        flex: 1 1 auto;
+        min-height: 0;
+        max-height: none;
+        padding: 12px;
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        align-content: start;
+      }
+      /* "Themes  Midnight (default)  >" row in the main view */
+      .pref-nav {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        width: 100%;
+        padding: 9px 12px;
+        border-radius: 12px;
+        border: 1px solid rgb(var(--fg-rgb) / 0.1);
+        background: rgb(var(--fg-rgb) / 0.04);
+        color: var(--text);
+        text-align: left;
+        cursor: pointer;
+        transition: background 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
+      }
+      .pref-nav:hover {
+        background: rgb(var(--fg-rgb) / 0.08);
+        border-color: rgb(var(--fg-rgb) / 0.18);
+      }
+      .pref-nav:active {
+        transform: scale(0.99);
+      }
+      .pref-nav:focus-visible {
+        outline: none;
+        box-shadow: var(--focus-ring);
+      }
+      .pref-nav .pn-ico {
+        flex: 0 0 auto;
+        width: 30px;
+        height: 30px;
+        display: grid;
+        place-items: center;
+        border-radius: 9px;
+        background: rgb(var(--brand-rgb) / 0.18);
+        color: var(--brand);
+        font-size: 14px;
+      }
+      .pref-nav .pn-label {
+        font-family: var(--title-font);
+        font-size: 13px;
+        letter-spacing: 0.3px;
+        color: var(--k-cbd5f7);
+      }
+      .pref-nav .pn-val {
+        margin-left: auto;
+        min-width: 0;
+        font-size: 12px;
+        color: color-mix(in srgb, var(--muted) 55%, var(--text));
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .pref-nav .pn-chev {
+        flex: 0 0 auto;
+        font-size: 12px;
+        color: var(--muted);
+        transition: transform 0.15s ease;
+      }
+      .pref-nav:hover .pn-chev {
+        transform: translateX(2px);
+      }
+
+      /* ============================================================
+         aml5 - card status menu (replaces the native <select> popup)
+         ============================================================ */
+      .move-select.move-trigger {
+        display: flex;
+        align-items: center;
+        text-align: left;
+        white-space: nowrap;
+        overflow: hidden;
+        font-weight: inherit;
+      }
+      .move-trigger .mt-label {
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      /* The old select drew its arrow from an SVG with a fixed pale colour, which all but vanished on the light themes.
+         The button draws it in the text colour instead, and flips it while the list is open. */
+      .move-select.move-trigger {
+        background-image: linear-gradient(180deg, rgb(var(--fg-rgb) / 0.06), rgb(var(--fg-rgb) / 0) 40%);
+        background-repeat: no-repeat;
+        background-position: 0 0;
+        background-size: auto;
+      }
+      .move-select.move-trigger::after {
+        content: "";
+        position: absolute;
+        right: 14px;
+        top: 50%;
+        width: 6px;
+        height: 6px;
+        border-right: 2px solid currentColor;
+        border-bottom: 2px solid currentColor;
+        opacity: 0.75;
+        transform: translateY(-72%) rotate(45deg);
+        transition: transform 0.15s ease;
+        pointer-events: none;
+      }
+      .move-select.move-trigger.open::after {
+        transform: translateY(-28%) rotate(-135deg);
+      }
+      /* The gear on a cover sits on a dark scrim in every theme, so it must stay light even on the light themes
+         (it took the theme's dark text colour there and could barely be seen). */
+      .floating-actions .icon-btn {
+        color: #eaf0ff;
+      }
+      .move-select.move-trigger:focus-visible,
+      .move-select.move-trigger.open {
+        border-color: rgb(var(--brand-rgb) / 0.7);
+        box-shadow: var(--focus-ring);
+      }
+      .status-menu {
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 120;
+        box-sizing: border-box;
+        padding: 4px;
+        background: var(--k-111928);
+        border: 1px solid rgb(var(--fg-rgb) / 0.12);
+        border-radius: 12px;
+        box-shadow: 0 16px 40px rgba(0, 0, 0, 0.55);
+        overflow-x: hidden;
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        outline: none;
+        opacity: 0;
+        transform: translateY(-4px) scale(0.98);
+        transform-origin: top center;
+        transition: opacity 0.12s ease, transform 0.12s ease;
+      }
+      .status-menu.up {
+        transform: translateY(4px) scale(0.98);
+        transform-origin: bottom center;
+      }
+      .status-menu.open {
+        opacity: 1;
+        transform: none;
+      }
+      .status-opt {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        padding: 10px 10px;
+        border-radius: 8px;
+        color: var(--k-e8ecfa);
+        font-size: 13px;
+        font-weight: 600;
+        letter-spacing: 0.2px;
+        cursor: pointer;
+        user-select: none;
+        -webkit-tap-highlight-color: transparent;
+        outline: none;
+      }
+      .status-opt:hover,
+      .status-opt:focus-visible {
+        background: rgb(var(--brand-rgb) / 0.11);
+      }
+      .status-opt.selected {
+        background: rgb(var(--brand-rgb) / 0.15);
+      }
+      .status-opt .so-check {
+        font-size: 11px;
+        color: var(--brand);
+        opacity: 0;
+      }
+      .status-opt.selected .so-check {
+        opacity: 1;
+      }
+
+      /* ============================================================
+         aml5 - offline mode: indicator bar, offline dialog buttons, sync + review dialog
+         ============================================================ */
+      html.is-offline {
+        --off-bar-h: 30px;
+      }
+      html.is-offline .menu-panel,
+      html.is-offline .account-panel {
+        top: calc(66px + var(--off-bar-h) + var(--sat, 0px));
+      }
+      .offline-bar {
+        background: rgb(var(--warn-rgb) / 0.12);
+        border-top: 1px solid rgb(var(--warn-rgb) / 0.28);
+        color: var(--text);
+        font-size: 12.5px;
+      }
+      .offline-bar .ob-inner {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        min-height: var(--off-bar-h, 30px);
+        padding-top: 3px;
+        padding-bottom: 3px;
+      }
+      .ob-ico {
+        position: relative;
+        flex: 0 0 auto;
+        display: inline-grid;
+        place-items: center;
+        width: 18px;
+        height: 18px;
+        color: var(--warn);
+      }
+      .ob-ico::after {
+        content: "";
+        position: absolute;
+        left: 1px;
+        right: 1px;
+        top: 50%;
+        height: 1.75px;
+        margin-top: -0.9px;
+        border-radius: 2px;
+        background: var(--warn);
+        box-shadow: 0 0 0 1px var(--bg);
+        transform: rotate(-42deg);
+      }
+      .ob-text {
+        flex: 1 1 auto;
+        min-width: 0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .ob-btn {
+        flex: 0 0 auto;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 3px 10px;
+        border-radius: 999px;
+        border: 1px solid rgb(var(--warn-rgb) / 0.55);
+        background: rgb(var(--warn-rgb) / 0.2);
+        color: var(--text);
+        font-size: 12px;
+        font-weight: 700;
+        cursor: pointer;
+      }
+      .ob-btn:hover {
+        background: rgb(var(--warn-rgb) / 0.32);
+      }
+      .ob-btn:disabled {
+        opacity: 0.6;
+        cursor: default;
+      }
+      /* chat has no offline mode */
+      .btn.is-unavailable,
+      .menu-item .btn.is-unavailable {
+        opacity: 0.5;
+        filter: grayscale(0.5);
+      }
+      #offline-modal .off-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 14px;
+      }
+      #offline-modal .off-note {
+        margin: 12px 0 0;
+      }
+
+      /* sync + review dialog */
+      #sync-modal .sheet {
+        max-height: min(88vh, 720px);
+        max-height: min(88dvh, 720px);
+        overflow-y: auto;
+        overscroll-behavior: contain;
+      }
+      .sync-pane[hidden] {
+        display: none !important;
+      }
+      .sync-progress {
+        height: 8px;
+        margin-top: 14px;
+        border-radius: 999px;
+        background: rgb(var(--fg-rgb) / 0.1);
+        overflow: hidden;
+        position: relative;
+      }
+      .sync-progress > div {
+        height: 100%;
+        width: 0;
+        border-radius: inherit;
+        background: var(--brand);
+        transition: width 0.25s ease;
+      }
+      .sync-progress.indeterminate > div {
+        width: 38% !important;
+        position: absolute;
+        left: 0;
+        animation: sync-slide 1.1s ease-in-out infinite;
+      }
+      @keyframes sync-slide {
+        0% { left: -40%; }
+        100% { left: 102%; }
+      }
+      .sync-chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin: 12px 0 4px;
+      }
+      /* The status colours (ok / warn / danger / accent) are not readable as TEXT on every theme (pastel greens and cyans on
+         the light ones), so chips and badges keep the normal text colour and show the status in the icon, border and wash. */
+      .sync-chip {
+        --c: var(--muted);
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 5px 10px;
+        border-radius: 999px;
+        font-size: 12.5px;
+        font-weight: 700;
+        color: var(--text);
+        border: 1px solid color-mix(in srgb, var(--c) 60%, transparent);
+        background: color-mix(in srgb, var(--c) 10%, transparent);
+      }
+      .sync-chip i { color: var(--c); }
+      .sync-chip.add { --c: var(--ok); }
+      .sync-chip.edit { --c: var(--accent-3); }
+      .sync-chip.del { --c: var(--danger); }
+      .sync-chip.warn { --c: var(--warn); }
+      .sync-chip.ok { --c: var(--ok); }
+      .sync-actions {
+        display: grid;
+        gap: 8px;
+        margin-top: 14px;
+      }
+      .sync-actions .btn {
+        justify-content: flex-start;
+        text-align: left;
+        white-space: normal;
+        padding: 11px 14px;
+      }
+      .sync-actions .btn small {
+        display: block;
+        font-size: 11.5px;
+        font-weight: 400;
+        margin-top: 1px;
+        color: inherit;
+        opacity: 0.9;
+      }
+      .sync-actions .btn > span {
+        display: block;
+        min-width: 0;
+      }
+      .sync-later {
+        display: block;
+        margin: 12px auto 0;
+        padding: 6px 10px;
+        border: 0;
+        background: none;
+        color: var(--text);
+        font-size: 13px;
+        text-decoration: underline;
+        cursor: pointer;
+      }
+      .rv-head-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .rv-head-row h3 {
+        margin: 0;
+      }
+      .rv-list {
+        display: grid;
+        gap: 10px;
+        margin: 12px 0 4px;
+      }
+      .rv-item {
+        border: 1px solid rgb(var(--fg-rgb) / 0.12);
+        border-radius: 12px;
+        background: rgb(var(--fg-rgb) / 0.04);
+        padding: 10px 12px;
+      }
+      .rv-item.clash {
+        border-color: rgb(var(--warn-rgb) / 0.55);
+        background: rgb(var(--warn-rgb) / 0.07);
+      }
+      .rv-head {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 6px 8px;
+        font-weight: 700;
+      }
+      .rv-title {
+        min-width: 0;
+        overflow-wrap: anywhere;
+      }
+      .rv-badge {
+        --c: var(--muted);
+        flex: 0 0 auto;
+        padding: 1px 8px;
+        border-radius: 999px;
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: 0.3px;
+        text-transform: uppercase;
+        color: var(--text);
+        border: 1px solid color-mix(in srgb, var(--c) 75%, transparent);
+        background: color-mix(in srgb, var(--c) 11%, transparent);
+      }
+      .rv-badge.new { --c: var(--ok); }
+      .rv-badge.edit { --c: var(--accent-3); }
+      .rv-badge.del { --c: var(--danger); }
+      .rv-badge.warn { --c: var(--warn); }
+      .rv-body {
+        display: grid;
+        gap: 8px;
+        margin-top: 8px;
+      }
+      .rv-note {
+        font-size: 12.5px;
+        color: var(--text);
+      }
+      .rv-fname {
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--text);
+        margin-bottom: 4px;
+      }
+      .rv-field.clash .rv-fname {
+        color: var(--text);
+      }
+      .rv-field.clash .rv-fname i {
+        color: var(--warn);
+      }
+      .rv-seg {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 6px;
+      }
+      .rv-opt {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        min-width: 0;
+        text-align: left;
+        padding: 7px 10px;
+        border-radius: 10px;
+        border: 1px solid rgb(var(--fg-rgb) / 0.14);
+        background: rgb(var(--fg-rgb) / 0.04);
+        color: var(--text);
+        cursor: pointer;
+      }
+      .rv-opt b {
+        font-size: 12.5px;
+      }
+      .rv-opt span {
+        font-size: 12px;
+        color: var(--text);
+        overflow-wrap: anywhere;
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
+      .rv-opt.on {
+        border-color: var(--brand);
+        background: rgb(var(--brand-rgb) / 0.13);
+        box-shadow: inset 0 0 0 1px var(--brand);
+      }
+      /* the chosen side is also marked with a tick, so it never depends on how strong the wash is on a given theme */
+      .rv-opt.on b::after {
+        content: "";
+        display: inline-block;
+        width: 5px;
+        height: 9px;
+        margin-left: 8px;
+        border: solid currentColor;
+        border-width: 0 2px 2px 0;
+        transform: translateY(-2px) rotate(45deg);
+      }
+      .rv-opt:focus-visible,
+      .rv-opt.on:focus-visible {
+        outline: none;
+        box-shadow: var(--focus-ring);
+      }
+      .rv-count {
+        margin-top: 10px;
+        font-size: 12.5px;
+        color: var(--text);
+        text-align: center;
+      }
+
+      /* ============================================================
+         aml5 - safe areas. The Android app draws edge-to-edge (behind the status bar / gesture bar), and phones with a
+         notch do the same in landscape. Capacitor publishes the insets as --safe-area-inset-*; browsers and installed
+         web apps publish them as env(safe-area-inset-*). On a normal browser tab both are 0, so nothing moves.
+         ============================================================ */
+      :root {
+        --sat: max(env(safe-area-inset-top, 0px), var(--safe-area-inset-top, 0px));
+        --sab: max(env(safe-area-inset-bottom, 0px), var(--safe-area-inset-bottom, 0px));
+        --sal: max(env(safe-area-inset-left, 0px), var(--safe-area-inset-left, 0px));
+        --sar: max(env(safe-area-inset-right, 0px), var(--safe-area-inset-right, 0px));
+      }
+      .header {
+        padding-top: var(--sat);
+      }
+      body {
+        padding-left: var(--sal);
+        padding-right: var(--sar);
+        padding-bottom: var(--sab);
+      }
+      #scroll-to-top,
+      #cover-progress {
+        margin-bottom: var(--sab);
+      }
+      html.is-native {
+        overscroll-behavior: none;
+      }
+      html.is-native body {
+        -webkit-touch-callout: none;
+      }
     </style>
   </head>
 
@@ -3722,6 +4392,15 @@
         >
           <i class="fa-solid fa-bars"></i>
         </button>
+      </div>
+
+      <!-- aml5: offline-mode indicator (shown only while working offline) -->
+      <div class="offline-bar" id="offline-bar" role="status" aria-live="polite" hidden>
+        <div class="container ob-inner">
+          <span class="ob-ico" aria-hidden="true"><i class="fa-solid fa-wifi"></i></span>
+          <span class="ob-text" id="ob-text">Offline mode · changes are saved on this device</span>
+          <button type="button" class="ob-btn" id="ob-sync" hidden><i class="fa-solid fa-rotate"></i> Sync</button>
+        </div>
       </div>
 
       <!-- Mobile menu -->
@@ -3789,6 +4468,7 @@
 
       <!-- Account panel -->
       <div class="account-panel" id="account-panel" aria-label="Account panel">
+        <div class="acct-view acct-main" id="acct-main">
         <div class="account-header">
           <div class="account-avatar" id="account-avatar">U</div>
           <div class="account-id">
@@ -3833,8 +4513,12 @@
             </div>
           </div>
           <div class="pref-row">
-            <label id="theme-label">Theme</label>
-            <div class="theme-grid" id="theme-grid" role="radiogroup" aria-labelledby="theme-label"></div>
+            <button type="button" class="pref-nav" id="open-themes" aria-expanded="false" aria-controls="acct-themes">
+              <span class="pn-ico"><i class="fa-solid fa-palette"></i></span>
+              <span class="pn-label">Themes</span>
+              <span class="pn-val" id="theme-current"></span>
+              <i class="fa-solid fa-chevron-right pn-chev" aria-hidden="true"></i>
+            </button>
           </div>
         </div>
 
@@ -3842,6 +4526,19 @@
           <button class="btn ghost sm" id="account-export"><i class="fa-solid fa-file-export"></i>Export JSON</button>
           <button class="btn danger sm" id="account-clear-list"><i class="fa-solid fa-bomb"></i>Clear list</button>
           <button class="btn ghost sm" id="account-logout"><i class="fa-solid fa-right-from-bracket"></i>Sign out</button>
+        </div>
+        </div>
+
+        <!-- Themes sub-view: slides in over the panel, back button returns -->
+        <div class="acct-view acct-sub" id="acct-themes" role="group" aria-labelledby="acct-themes-title" hidden>
+          <div class="acct-sub-head">
+            <button type="button" class="acct-back" id="acct-themes-back" aria-label="Back to account">
+              <i class="fa-solid fa-chevron-left"></i>
+            </button>
+            <div class="acct-sub-title" id="acct-themes-title"><i class="fa-solid fa-palette"></i> Themes</div>
+            <div class="acct-sub-cur" id="acct-themes-cur" aria-live="polite"></div>
+          </div>
+          <div class="theme-grid" id="theme-grid" role="radiogroup" aria-label="Theme"></div>
         </div>
       </div>
     </header>
@@ -3852,8 +4549,8 @@
       <div class="banner-inner">
         <div class="hero container">
           <div class="hero-box">
-            <h1 id="hero-title">AniMehList: Anime Watchlist For The Bros</h1>
-            <div class="sub">Built for bros who binge and forget where they left off.</div>
+            <h1 id="hero-title">AniMehList: The Anime Watchlist That Remembers</h1>
+            <div class="sub">So you don't have to.</div>
           </div>
         </div>
       </div>
@@ -4224,11 +4921,71 @@
     <!-- Offline modal -->
     <div class="modal" id="offline-modal" role="dialog" aria-modal="true" aria-hidden="true" data-static="true">
       <div class="sheet" role="document" style="max-width: 520px">
-        <h3><i class="fa-solid fa-wifi"></i> You’re offline</h3>
-        <p class="muted-small">
-          Your connection dropped. AniMehList will sync again automatically when you’re back online.
+        <h3 id="offline-title"><i class="fa-solid fa-wifi"></i> You’re offline</h3>
+        <p class="muted-small" id="offline-text">
+          Your connection dropped. AniMehList reconnects by itself when you’re back online.
         </p>
-        <p class="hint">Tip: keep this tab open, no need to reload.</p>
+        <p class="hint off-note" id="offline-note">
+          Don’t want to wait? Work offline: your shelf stays usable, and your changes are saved on this device and synced later.
+        </p>
+        <div class="off-actions">
+          <button class="btn brand" id="offline-work" type="button"><i class="fa-solid fa-plane"></i>Work offline</button>
+          <button class="btn ghost" id="offline-retry" type="button"><i class="fa-solid fa-rotate"></i>Retry</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sync dialog: shown when you are back online with changes made offline -->
+    <div class="modal" id="sync-modal" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="sync-title" data-static="true">
+      <div class="sheet" role="document" style="max-width: 560px">
+        <div class="sync-pane" id="sync-busy" hidden>
+          <h3><i class="fa-solid fa-rotate spin"></i> <span id="sync-busy-title">Syncing…</span></h3>
+          <p class="muted-small" id="sync-busy-text"></p>
+          <div class="sync-progress indeterminate"><div id="sync-progress-bar"></div></div>
+        </div>
+
+        <div class="sync-pane" id="sync-ask" hidden>
+          <h3 id="sync-title"><i class="fa-solid fa-cloud-arrow-up"></i> Sync your offline changes</h3>
+          <p class="muted-small" id="sync-ask-text"></p>
+          <div class="sync-chips" id="sync-summary"></div>
+          <div class="sync-actions">
+            <button class="btn brand" id="sync-mine" type="button">
+              <i class="fa-solid fa-cloud-arrow-up"></i>
+              <span>Overwrite the server<small>Send my changes. Where we both changed something, mine wins.</small></span>
+            </button>
+            <button class="btn ghost" id="sync-review" type="button">
+              <i class="fa-solid fa-list-check"></i>
+              <span>Review changes<small>See what differs and choose item by item.</small></span>
+            </button>
+            <button class="btn ghost" id="sync-server" type="button">
+              <i class="fa-solid fa-rotate-left"></i>
+              <span>Keep the server’s version<small>Throw away what I changed offline.</small></span>
+            </button>
+          </div>
+          <button class="sync-later" id="sync-later" type="button">Not now, keep working offline</button>
+        </div>
+
+        <div class="sync-pane" id="sync-review-pane" hidden>
+          <div class="rv-head-row">
+            <button type="button" class="acct-back" id="rv-back" aria-label="Back"><i class="fa-solid fa-chevron-left"></i></button>
+            <h3><i class="fa-solid fa-list-check"></i> Review changes</h3>
+          </div>
+          <p class="muted-small">Pick what each item should end up as. Conflicts (changed in both places) are listed first.</p>
+          <div class="rv-list" id="rv-list"></div>
+          <div class="rv-count" id="rv-count"></div>
+          <div class="sync-actions">
+            <button class="btn brand" id="rv-apply" type="button"><i class="fa-solid fa-check"></i>Apply my choices</button>
+          </div>
+        </div>
+
+        <div class="sync-pane" id="sync-error" hidden>
+          <h3><i class="fa-solid fa-triangle-exclamation"></i> Couldn’t finish syncing</h3>
+          <p class="muted-small" id="sync-error-text"></p>
+          <div class="sync-actions">
+            <button class="btn brand" id="sync-error-retry" type="button"><i class="fa-solid fa-rotate"></i>Try again</button>
+            <button class="btn ghost" id="sync-error-close" type="button"><i class="fa-solid fa-xmark"></i>Keep working offline</button>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -4467,10 +5224,569 @@
       try {
         ({ createClient } = await loadSupabaseLib());
       } catch (e) {
-        showFatalLoadError();
-        throw e; // nothing in the app can work without it
+        // aml5: with a shelf saved on this device the app can still start (offline mode). Otherwise nothing can work.
+        let saved = null;
+        try {
+          saved = JSON.parse(localStorage.getItem("aml-off-id") || "null");
+        } catch (e2) {}
+        if (!(saved && saved.id)) {
+          showFatalLoadError();
+          throw e;
+        }
+        createClient = null;
+        console.warn("Online library unavailable: starting from the saved shelf");
       }
-      const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+      // ============================================================
+      // aml5 OFFLINE CORE (pure logic: no DOM, no network). Everything the offline mode decides lives here:
+      //   offExec     runs a Supabase-style query chain against the saved copy of the shelf
+      //   offDiff     3-way compare (last known server state / my copy / server now) -> a list of changes
+      //   offBuildOps turns the list (plus the user's choices) into server writes
+      // ============================================================
+      const OFF_SKIP = new Set(["id", "user_id", "created_at", "updated_at"]); // never compared / patched
+      const offIsTemp = (id) => typeof id === "string" && id.startsWith("tmp-");
+      const offNorm = (v) => (v === undefined ? null : v);
+      function offSame(a, b) {
+        a = offNorm(a);
+        b = offNorm(b);
+        if (a === b) return true;
+        if (a && b && typeof a === "object" && typeof b === "object") return JSON.stringify(a) === JSON.stringify(b);
+        return false;
+      }
+      function offFields(...rows) {
+        const s = new Set();
+        rows.forEach((r) => r && Object.keys(r).forEach((k) => !OFF_SKIP.has(k) && s.add(k)));
+        return [...s];
+      }
+      // fields whose value differs between two versions of a row
+      function offChanged(a, b) {
+        return offFields(a, b).filter((f) => !offSame(a && a[f], b && b[f]));
+      }
+      const offClone = (o) => (o == null ? o : typeof structuredClone === "function" ? structuredClone(o) : JSON.parse(JSON.stringify(o)));
+      const offTitleOf = (r) => String((r && (r.title || r.title_english || r.title_romaji || r.title_native)) || "Untitled");
+
+      // ---- 3-way compare -------------------------------------------------------------------------------------
+      // base   = the server's rows the last time this device was in sync
+      // local  = this device's rows now (offline edits applied)
+      // server = the server's rows now
+      // Returns { items, summary }. Each item is one thing I changed offline:
+      //   type "new"    created offline                      (pick: mine = create it, server = drop it)
+      //   type "edit"   some fields changed                  (fieldPick[f]: mine | server, per field)
+      //   type "delete" deleted offline                      (pick: mine = delete it, server = keep it)
+      // plus item.clash when the server moved too: "fields" (same field edited on both sides),
+      // "edit-vs-delete" (I edited, the server deleted it) or "delete-vs-edit" (I deleted, the server edited it).
+      function offDiff(base, local, server) {
+        const B = new Map(base.map((r) => [r.id, r]));
+        const L = new Map(local.map((r) => [r.id, r]));
+        const S = new Map(server.map((r) => [r.id, r]));
+        const ids = new Set([...B.keys(), ...L.keys()]);
+        const items = [];
+        for (const id of ids) {
+          const b = B.get(id) || null;
+          const l = L.get(id) || null;
+          const s = S.get(id) || null;
+          if (!b && l) {
+            // never on the server as far as we know: created offline (an id the server already has is a re-created copy)
+            items.push({ key: String(id), type: "new", clash: null, id: offIsTemp(id) ? null : id, base: null, local: l, server: s, fields: [], conflicts: [], pick: "mine", fieldPick: {} });
+          } else if (b && l && s) {
+            const mine = offChanged(b, l);
+            if (!mine.length) continue; // I did not touch it: the server's copy simply wins
+            const theirs = offChanged(b, s);
+            const conflicts = mine.filter((f) => theirs.includes(f) && !offSame(l[f], s[f]));
+            items.push({ key: String(id), type: "edit", clash: conflicts.length ? "fields" : null, id, base: b, local: l, server: s, fields: mine, conflicts, pick: "mine", fieldPick: {} });
+          } else if (b && l && !s) {
+            if (!offChanged(b, l).length) continue; // untouched here, deleted there: the deletion simply wins
+            items.push({ key: String(id), type: "edit", clash: "edit-vs-delete", id, base: b, local: l, server: null, fields: offChanged(b, l), conflicts: [], pick: "mine", fieldPick: {} });
+          } else if (b && !l && s) {
+            const theirs = offChanged(b, s);
+            items.push({ key: String(id), type: "delete", clash: theirs.length ? "delete-vs-edit" : null, id, base: b, local: null, server: s, fields: [], conflicts: theirs, pick: "mine", fieldPick: {} });
+          }
+          // b && !l && !s: deleted on both sides. Nothing to do.
+        }
+        const summary = { new: 0, edit: 0, delete: 0, conflicts: 0 };
+        items.forEach((it) => {
+          summary[it.type]++;
+          if (it.clash) summary.conflicts++;
+        });
+        return { items, summary };
+      }
+
+      // what a row looks like when sent to the server as a brand-new row
+      function offInsertRow(r, userId) {
+        const o = { ...r };
+        delete o.id;
+        delete o.updated_at;
+        if (userId) o.user_id = userId;
+        return o;
+      }
+
+      // The writes needed for the user's choices. (Choices default to "mine" = the Overwrite button.)
+      function offBuildOps(items, userId) {
+        const inserts = [];
+        const updates = [];
+        const deletes = [];
+        for (const it of items) {
+          if (it.type === "new") {
+            if (it.pick !== "server") inserts.push({ key: it.key, oldId: it.local.id, row: offInsertRow(it.local, userId) });
+          } else if (it.type === "delete") {
+            if (it.pick !== "server") deletes.push({ key: it.key, id: it.id });
+          } else if (it.clash === "edit-vs-delete") {
+            if (it.pick !== "server") inserts.push({ key: it.key, oldId: it.local.id, row: offInsertRow(it.local, userId), recreate: true });
+          } else {
+            const patch = {};
+            for (const f of it.fields) if ((it.fieldPick[f] || "mine") !== "server") patch[f] = offNorm(it.local[f]);
+            if (Object.keys(patch).length) updates.push({ key: it.key, id: it.id, patch });
+          }
+        }
+        return { inserts, updates, deletes };
+      }
+
+      // ---- local query executor ------------------------------------------------------------------------------
+      // log = [[method, args], ...] recorded from a supabase.from("entries") chain. state = { rows: Map, userId, hasUpdatedAt }
+      // Returns { result, changed }. result looks like what supabase-js returns ({ data, error, ... }).
+      function offExec(state, log) {
+        const q = { action: null, payload: null, filters: [], order: null, limit: null, single: false, maybe: false, returning: false, cols: "*", bad: null };
+        for (const [m, a] of log) {
+          if (m === "select") {
+            if (!q.action) {
+              q.action = "select";
+              q.cols = a[0] == null ? "*" : String(a[0]);
+            } else q.returning = true;
+          } else if (m === "insert" || m === "update") {
+            q.action = m;
+            q.payload = a[0];
+          } else if (m === "delete") q.action = "delete";
+          else if (m === "eq" || m === "neq" || m === "in" || m === "lt" || m === "lte" || m === "gt" || m === "gte") q.filters.push({ op: m, col: a[0], val: a[1] });
+          else if (m === "order") q.order = { col: a[0], asc: !(a[1] && a[1].ascending === false) };
+          else if (m === "limit") q.limit = a[0];
+          else if (m === "single") q.single = true;
+          else if (m === "maybeSingle") q.maybe = true;
+          else q.bad = m;
+        }
+        const ok = (data) => ({ result: { data, error: null, count: null, status: 200, statusText: "OK" }, changed: false });
+        const fail = (message, code) => ({ result: { data: null, error: { message, code: code || "OFFLINE", details: "", hint: "" }, count: null, status: 400, statusText: "Bad Request" }, changed: false });
+        if (q.bad || !q.action) return fail("This action isn't available offline");
+
+        const test = (row, f) => {
+          const v = row[f.col];
+          switch (f.op) {
+            case "eq": return offSame(v, f.val) || String(v) === String(f.val);
+            case "neq": return !(offSame(v, f.val) || String(v) === String(f.val));
+            case "in": return (f.val || []).some((x) => String(x) === String(v));
+            case "lt": return v < f.val;
+            case "lte": return v <= f.val;
+            case "gt": return v > f.val;
+            case "gte": return v >= f.val;
+          }
+          return false;
+        };
+        const matches = () => [...state.rows.values()].filter((r) => q.filters.every((f) => test(r, f)));
+        const project = (r) => {
+          if (q.cols === "*" || q.cols.includes("*")) return offClone(r);
+          const o = {};
+          q.cols.split(",").map((c) => c.trim()).filter(Boolean).forEach((c) => (o[c] = offNorm(r[c])));
+          return o;
+        };
+        const shape = (rows, wantRows) => {
+          if (!wantRows) return ok(null);
+          if (q.single) {
+            if (rows.length !== 1) return { result: { data: null, error: { message: "JSON object requested, multiple (or no) rows returned", code: "PGRST116", details: "", hint: "" }, count: null, status: 406, statusText: "Not Acceptable" }, changed: false };
+            return ok(rows[0]);
+          }
+          if (q.maybe) return rows.length > 1 ? fail("JSON object requested, multiple (or no) rows returned", "PGRST116") : ok(rows[0] || null);
+          return ok(rows);
+        };
+
+        const now = new Date().toISOString();
+        if (q.action === "select") {
+          let rows = matches();
+          if (q.order) {
+            const { col, asc } = q.order;
+            rows.sort((x, y) => {
+              const a = x[col] == null ? "" : x[col];
+              const b = y[col] == null ? "" : y[col];
+              const c = a < b ? -1 : a > b ? 1 : 0;
+              return asc ? c : -c;
+            });
+          }
+          if (q.limit != null) rows = rows.slice(0, q.limit);
+          return shape(rows.map(project), true);
+        }
+        if (q.action === "insert") {
+          const list = Array.isArray(q.payload) ? q.payload : [q.payload];
+          const made = list.map((p) => {
+            const r = { ...p };
+            r.id = "tmp-" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 8);
+            if (!r.created_at) r.created_at = now;
+            if (state.hasUpdatedAt && !r.updated_at) r.updated_at = now;
+            if (!r.user_id && state.userId) r.user_id = state.userId;
+            return r;
+          });
+          made.forEach((r) => state.rows.set(r.id, r));
+          const out = shape(made.map(project), q.returning);
+          out.changed = true;
+          return out;
+        }
+        if (q.action === "update") {
+          const hit = matches();
+          hit.forEach((r) => {
+            Object.assign(r, q.payload);
+            if (state.hasUpdatedAt) r.updated_at = now;
+          });
+          const out = shape(hit.map(project), q.returning);
+          out.changed = hit.length > 0;
+          return out;
+        }
+        if (q.action === "delete") {
+          const hit = matches();
+          hit.forEach((r) => state.rows.delete(r.id));
+          const out = shape(hit.map(project), q.returning);
+          out.changed = hit.length > 0;
+          return out;
+        }
+        return fail("This action isn't available offline");
+      }
+
+      // ============================================================
+      // aml5 OFFLINE STATE + DATA LAYER
+      // `supabase` (used all over the app) is now a thin wrapper around the real client:
+      //   * online  -> every call is forwarded untouched, so nothing behaves differently
+      //   * offline -> reads/writes on the "entries" table run against the copy saved on this device (offExec), "profiles"
+      //                keeps the cover-source preference, everything else (chat, sign-up ...) answers "you're offline"
+      // ============================================================
+      const OFF_SIGNOUT_MSG = "You're in offline mode. Signing out deletes the shelf saved on this device, including changes that aren't synced yet. Sign out anyway?";
+      const OFF_LS_MODE = "aml-off-mode"; // "1" while this device holds an offline copy that is not synced yet
+      const OFF_LS_ID = "aml-off-id"; // who the saved copy belongs to (read synchronously at start-up)
+      const OFF = {
+        active: false, // offline mode
+        syncing: false,
+        rows: new Map(), // this device's copy (id -> row); offline edits land here
+        base: new Map(), // the server's rows the last time we were in sync (what the 3-way compare starts from)
+        identity: null, // { id, email, user_metadata }
+        profile: null, // { username, cover_source }
+        profileDirty: false,
+        hasUpdatedAt: false,
+        sb: null, // the real client (null when the library could not be loaded)
+        dbP: null,
+        dbFailed: false,
+        queue: Promise.resolve(),
+        lastAuth: null,
+        authCbs: [], // the app's own auth listeners (so signing out offline can run the normal "signed out" path in place)
+        state() {
+          return { rows: this.rows, userId: this.identity && this.identity.id, hasUpdatedAt: this.hasUpdatedAt };
+        },
+      };
+
+      // ---- IndexedDB (one tiny key/value store; every write is queued so they land in order) ----
+      function offOpenDb() {
+        if (OFF.dbP) return OFF.dbP;
+        OFF.dbP = new Promise((resolve) => {
+          try {
+            const rq = indexedDB.open("aml-offline", 1);
+            rq.onupgradeneeded = () => rq.result.createObjectStore("kv");
+            rq.onsuccess = () => resolve(rq.result);
+            rq.onerror = () => {
+              OFF.dbFailed = true;
+              resolve(null);
+            };
+            rq.onblocked = () => resolve(null);
+          } catch (e) {
+            OFF.dbFailed = true;
+            resolve(null);
+          }
+        });
+        return OFF.dbP;
+      }
+      async function offKvGet(key) {
+        const db = await offOpenDb();
+        if (!db) return undefined;
+        return new Promise((resolve) => {
+          try {
+            const rq = db.transaction("kv", "readonly").objectStore("kv").get(key);
+            rq.onsuccess = () => resolve(rq.result);
+            rq.onerror = () => resolve(undefined);
+          } catch (e) {
+            resolve(undefined);
+          }
+        });
+      }
+      async function offKvSet(key, val) {
+        const db = await offOpenDb();
+        if (!db) return false;
+        return new Promise((resolve) => {
+          try {
+            const tx = db.transaction("kv", "readwrite");
+            tx.objectStore("kv").put(val, key);
+            tx.oncomplete = () => resolve(true);
+            tx.onerror = tx.onabort = () => {
+              OFF.dbFailed = true;
+              resolve(false);
+            };
+          } catch (e) {
+            OFF.dbFailed = true;
+            resolve(false);
+          }
+        });
+      }
+      async function offKvClear() {
+        const db = await offOpenDb();
+        if (!db) return;
+        await new Promise((resolve) => {
+          try {
+            const tx = db.transaction("kv", "readwrite");
+            tx.objectStore("kv").clear();
+            tx.oncomplete = tx.onerror = tx.onabort = () => resolve();
+          } catch (e) {
+            resolve();
+          }
+        });
+      }
+      function offQueue(fn) {
+        OFF.queue = OFF.queue.then(fn, fn).catch(() => {});
+        return OFF.queue;
+      }
+      function offMetaObject() {
+        return {
+          userId: OFF.identity && OFF.identity.id,
+          identity: OFF.identity,
+          profile: OFF.profile,
+          profileDirty: OFF.profileDirty,
+          hasUpdatedAt: OFF.hasUpdatedAt,
+          savedAt: Date.now(),
+        };
+      }
+      const offLsSet = (k, v) => {
+        try {
+          if (v == null) localStorage.removeItem(k);
+          else localStorage.setItem(k, v);
+        } catch (e) {}
+      };
+      const offLsGet = (k) => {
+        try {
+          return localStorage.getItem(k);
+        } catch (e) {
+          return null;
+        }
+      };
+      // offline: the working copy changed
+      function offPersistRows() {
+        if (!OFF.active) return;
+        const rows = [...OFF.rows.values()].map(offClone);
+        offQueue(() => offKvSet("rows", rows));
+      }
+      function offPersistBase() {
+        const base = [...OFF.base.values()].map(offClone);
+        offQueue(() => offKvSet("base", base));
+      }
+      function offPersistMeta() {
+        const m = offMetaObject();
+        offQueue(() => offKvSet("meta", m));
+      }
+      // online: keep a snapshot of the shelf so the app can start without a connection next time
+      let offSnapTimer = 0;
+      function offSnapshotSoon() {
+        if (OFF.active || OFF.syncing) return;
+        clearTimeout(offSnapTimer);
+        offSnapTimer = setTimeout(() => {
+          offSnapshotNow();
+          offWarmCaches();
+        }, 1500);
+      }
+      function offSnapshotNow() {
+        clearTimeout(offSnapTimer);
+        if (OFF.active || OFF.syncing || !user || loadFailed) return;
+        const rows = data.map((r) => offClone(r));
+        // an unsent +/- click is not on the server yet: the base must still hold the confirmed value
+        const base = data.map((r) => {
+          const p = epPending.get(r.id);
+          return p ? { ...offClone(r), episode: p.baseRaw ?? p.base } : offClone(r);
+        });
+        OFF.identity = { id: user.id, email: user.email || null, user_metadata: user.user_metadata || {} };
+        if (profile) OFF.profile = { username: profile.username ?? null, cover_source: profile.cover_source ?? null };
+        OFF.hasUpdatedAt = rows.some((r) => "updated_at" in r);
+        const meta = offMetaObject();
+        offQueue(async () => {
+          await offKvSet("rows", rows);
+          await offKvSet("base", base);
+          await offKvSet("meta", meta);
+        });
+        offLsSet(OFF_LS_ID, JSON.stringify(OFF.identity));
+      }
+      // forget everything saved on this device (sign-out, discarded offline copy)
+      async function offWipeAll() {
+        clearTimeout(offSnapTimer);
+        OFF.rows = new Map();
+        OFF.base = new Map();
+        OFF.profile = null;
+        OFF.profileDirty = false;
+        offLsSet(OFF_LS_MODE, null);
+        offLsSet(OFF_LS_ID, null);
+        await offQueue(() => offKvClear());
+      }
+
+      // ---- the profile row while offline: only the cover-source preference is editable ----
+      function offProfileExec(log) {
+        const dead = (msg) => ({ data: null, error: { message: msg || "You're offline", code: "OFFLINE", details: "", hint: "" }, count: null, status: 0, statusText: "" });
+        let action = null,
+          payload = null,
+          cols = "*",
+          single = false,
+          maybe = false;
+        const filters = [];
+        for (const [m, a] of log) {
+          if (m === "select" && !action) {
+            action = "select";
+            cols = a[0] == null ? "*" : String(a[0]);
+          } else if (m === "update") {
+            action = "update";
+            payload = a[0];
+          } else if (m === "eq") filters.push(a[0]);
+          else if (m === "single") single = true;
+          else if (m === "maybeSingle") maybe = true;
+          else if (m !== "select") return dead("This action isn't available offline");
+        }
+        if (filters.includes("username")) return dead("Needs a connection");
+        if (!OFF.profile) return dead("Profile isn't saved on this device");
+        if (action === "select") {
+          const o = {};
+          (cols === "*" ? Object.keys(OFF.profile) : cols.split(",").map((c) => c.trim())).forEach((c) => (o[c] = offNorm(OFF.profile[c])));
+          return { data: single || maybe ? o : [o], error: null, count: null, status: 200, statusText: "OK" };
+        }
+        if (action === "update") {
+          Object.assign(OFF.profile, payload);
+          OFF.profileDirty = true;
+          offPersistMeta();
+          return { data: null, error: null, count: null, status: 200, statusText: "OK" };
+        }
+        return dead("This action isn't available offline");
+      }
+
+      function offMakeClient(real) {
+        OFF.sb = real;
+        const dead = () => ({ data: null, error: { message: "You're offline", code: "OFFLINE", details: "", hint: "" }, count: null, status: 0, statusText: "" });
+        // an inert builder for when there is no real client (library not loaded): every method returns itself
+        const inert = () => new Proxy({}, { get: (t, p) => (p === "then" ? undefined : () => inert()) });
+
+        function run(table, target, log) {
+          if (!OFF.active && real) {
+            // online: the real builder, untouched. (Only watch the answer, to notice a server that cannot be reached.)
+            return Promise.resolve(target).then((res) => {
+              if (res && res.error && offIsNetError(res.error)) offNoteNetError();
+              return res;
+            });
+          }
+          if (table === "entries") {
+            const out = offExec(OFF.state(), log);
+            if (out.changed) offPersistRows();
+            return Promise.resolve(out.result);
+          }
+          if (table === "profiles") return Promise.resolve(offProfileExec(log));
+          return Promise.resolve(dead());
+        }
+        function wrap(table, builder, log) {
+          return new Proxy(builder, {
+            get(target, prop) {
+              if (prop === "then") return (ok, bad) => run(table, target, log).then(ok, bad);
+              const v = target[prop];
+              if (typeof v !== "function") return v;
+              return (...args) => {
+                const out = v.apply(target, args);
+                return out && typeof out === "object" ? wrap(table, out, log.concat([[prop, args]])) : out;
+              };
+            },
+          });
+        }
+
+        const dummyChannel = () => {
+          const ch = {
+            __dummy: true,
+            state: "closed",
+            on: () => ch,
+            subscribe: () => ch,
+            track: async () => "ok",
+            send: async () => "ok",
+            presenceState: () => ({}),
+            unsubscribe: async () => "ok",
+          };
+          return ch;
+        };
+
+        // sign-in state events are not for us while offline / syncing (a failed token refresh must not wipe the shelf)
+        const noAuth = {
+          getSession: async () => ({ data: { session: null }, error: null }),
+          onAuthStateChange: () => ({ data: { subscription: { unsubscribe() {} } } }),
+        };
+        const authBase = real ? real.auth : noAuth;
+        const auth = new Proxy(authBase, {
+          get(target, prop) {
+            if (prop === "onAuthStateChange") {
+              return (cb) => {
+                OFF.authCbs.push(cb);
+                return target.onAuthStateChange((event, s) => {
+                  if (OFF.active || OFF.syncing) {
+                    OFF.lastAuth = [event, s];
+                    // we asked for a fresh sign-in to be able to sync: carry on as soon as it happens
+                    if (OFF.awaitSignIn && event === "SIGNED_IN" && s && s.user) {
+                      OFF.awaitSignIn = false;
+                      setTimeout(() => offGoOnline(), 50);
+                    }
+                    return;
+                  }
+                  return cb(event, s);
+                });
+              };
+            }
+            if (prop === "signOut") {
+              return async (...args) => {
+                if (OFF.active || !real) {
+                  // offline the server cannot be told: forget the sign-in on this device and show the signed-out app.
+                  // No page reload: it needs the network (and a cached page), so the app's own "signed out" path runs in place.
+                  await offWipeAll();
+                  try {
+                    Object.keys(localStorage).filter((k) => /^sb-.*-auth-token/.test(k)).forEach((k) => localStorage.removeItem(k));
+                  } catch (e) {}
+                  OFF.active = false;
+                  OFF.syncing = false;
+                  OFF.awaitSignIn = false;
+                  OFF.unreachable = false;
+                  try {
+                    offApplyUI();
+                    OFF.authCbs.forEach((f) => f("SIGNED_OUT", null));
+                    syncOfflineModal();
+                  } catch (e) {
+                    setTimeout(() => location.reload(), 50);
+                  }
+                  return { error: null };
+                }
+                const r = await target.signOut(...args);
+                if (!r || !r.error) offWipeAll(); // a different person may use this browser next
+                return r;
+              };
+            }
+            const v = target[prop];
+            if (typeof v !== "function") return v;
+            if (!real) return async () => ({ data: null, error: { message: "You're offline" } });
+            return v.bind(target);
+          },
+        });
+
+        return {
+          from(table) {
+            return wrap(table, real ? real.from(table) : inert(), []);
+          },
+          rpc(...a) {
+            return (!OFF.active || OFF.awaitSignIn) && real ? real.rpc(...a) : Promise.resolve(dead());
+          },
+          auth,
+          channel(...a) {
+            return !OFF.active && real ? real.channel(...a) : dummyChannel();
+          },
+          removeChannel(ch) {
+            return ch && ch.__dummy ? Promise.resolve("ok") : real ? real.removeChannel(ch) : Promise.resolve("ok");
+          },
+        };
+      }
+
+      const supabase = offMakeClient(createClient ? createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null);
 
       // ---------- State ----------
       const STATUSES = ["WATCHING", "PLAN", "REWATCH", "WAITING", "COMPLETED"];
@@ -5435,6 +6751,178 @@
         return col;
       }
 
+      // ============================================================
+      // aml5: CARD STATUS MENU
+      // The status <select> on every card opened the browser's own popup (a different look on every platform, and a
+      // full-screen picker on phones). It is now a button that opens an overlay list in the app's own style.
+      // One menu at a time, appended to <body>: the cards use container queries / overflow, which would clip or
+      // mis-place a menu living inside them. The menu follows its button while the page scrolls and re-anchors when the
+      // cards are re-rendered (realtime, covers).
+      // ============================================================
+      let statusMenu = null; // { el, btn, rowId }
+      let statusMenuRaf = 0;
+      const statusMenuObserver = new MutationObserver(() => statusMenuSchedule());
+
+      function statusMenuClose(returnFocus) {
+        if (!statusMenu) return;
+        const { el, btn } = statusMenu;
+        statusMenu = null;
+        document.removeEventListener("pointerdown", statusMenuOutside, true);
+        document.removeEventListener("scroll", statusMenuSchedule, true);
+        window.removeEventListener("resize", statusMenuSchedule);
+        window.removeEventListener("keydown", statusMenuKey, true);
+        statusMenuObserver.disconnect();
+        cancelAnimationFrame(statusMenuRaf);
+        el.classList.remove("open");
+        if (btn) {
+          btn.setAttribute("aria-expanded", "false");
+          btn.classList.remove("open");
+        }
+        setTimeout(() => el.remove(), 140); // let the fade-out play
+        if (returnFocus && btn && btn.isConnected) {
+          try { btn.focus({ preventScroll: true }); } catch {}
+        }
+      }
+
+      function statusMenuOutside(e) {
+        if (!statusMenu) return;
+        if (statusMenu.el.contains(e.target) || (statusMenu.btn && statusMenu.btn.contains(e.target))) return;
+        statusMenuClose();
+      }
+
+      function statusMenuSchedule() {
+        if (!statusMenu || statusMenuRaf) return;
+        statusMenuRaf = requestAnimationFrame(() => {
+          statusMenuRaf = 0;
+          statusMenuPlace();
+        });
+      }
+
+      function statusMenuPlace() {
+        if (!statusMenu) return;
+        const m = statusMenu;
+        if (!m.btn.isConnected) {
+          // the cards were re-rendered under us: find the same card's new button, or give up if it is gone
+          const nb = document.querySelector('.move-trigger[data-id="' + String(m.rowId).replace(/["\\]/g, "\\$&") + '"]');
+          if (!nb) return statusMenuClose();
+          m.btn = nb;
+          nb.setAttribute("aria-expanded", "true");
+          nb.classList.add("open");
+        }
+        const r = m.btn.getBoundingClientRect();
+        const vw = document.documentElement.clientWidth;
+        const vh = window.innerHeight;
+        if ((r.width === 0 && r.height === 0) || r.bottom < 0 || r.top > vh) return statusMenuClose(); // scrolled out of view
+        const el = m.el;
+        const gap = 6;
+        const margin = 8;
+        const width = Math.min(Math.max(r.width, 150), vw - margin * 2);
+        const left = Math.min(Math.max(margin, r.left), vw - width - margin);
+        el.style.width = width + "px";
+        el.style.left = left + "px";
+        el.style.maxHeight = "";
+        const natural = el.scrollHeight;
+        const below = vh - r.bottom - gap - margin;
+        const above = r.top - gap - margin;
+        const goUp = below < Math.min(natural, 240) && above > below;
+        const room = goUp ? above : below;
+        el.style.maxHeight = Math.max(110, Math.min(natural, room, 320)) + "px";
+        const h = el.offsetHeight;
+        el.style.top = (goUp ? r.top - gap - h : r.bottom + gap) + "px";
+        el.classList.toggle("up", goUp);
+      }
+
+      function statusMenuKey(e) {
+        if (!statusMenu) return;
+        const opts = [...statusMenu.el.querySelectorAll(".status-opt")];
+        const cur = opts.indexOf(document.activeElement);
+        const go = (i) => {
+          const o = opts[(i + opts.length) % opts.length];
+          if (o) o.focus({ preventScroll: true });
+        };
+        if (e.key === "Escape") {
+          e.preventDefault();
+          e.stopPropagation();
+          statusMenuClose(true);
+        } else if (e.key === "ArrowDown") {
+          e.preventDefault();
+          go(cur < 0 ? 0 : cur + 1);
+        } else if (e.key === "ArrowUp") {
+          e.preventDefault();
+          go(cur < 0 ? opts.length - 1 : cur - 1);
+        } else if (e.key === "Home") {
+          e.preventDefault();
+          go(0);
+        } else if (e.key === "End") {
+          e.preventDefault();
+          go(opts.length - 1);
+        } else if ((e.key === "Enter" || e.key === " ") && cur >= 0) {
+          e.preventDefault();
+          e.stopPropagation();
+          opts[cur].click();
+        } else if (e.key === "Tab") {
+          statusMenuClose();
+        }
+      }
+
+      function statusMenuOpen(btn, row) {
+        statusMenuClose();
+        const el = document.createElement("div");
+        el.className = "status-menu";
+        el.setAttribute("role", "listbox");
+        el.setAttribute("aria-label", "Move to list");
+        el.tabIndex = -1;
+        STATUSES.forEach((s) => {
+          const o = document.createElement("div");
+          const on = s === row.status;
+          o.className = "status-opt" + (on ? " selected" : "");
+          o.setAttribute("role", "option");
+          o.setAttribute("aria-selected", on ? "true" : "false");
+          o.dataset.val = s;
+          o.tabIndex = -1;
+          o.innerHTML = `<span class="so-label">${escapeHtml(s)}</span><i class="fa-solid fa-check so-check" aria-hidden="true"></i>`;
+          o.addEventListener("click", (e) => {
+            e.stopPropagation();
+            statusMenuClose(true);
+            if (s !== row.status) moveRowTo(row, s);
+          });
+          el.appendChild(o);
+        });
+        document.body.appendChild(el);
+        statusMenu = { el, btn, rowId: row.id };
+        btn.setAttribute("aria-expanded", "true");
+        btn.classList.add("open");
+        statusMenuPlace();
+        void el.offsetWidth; // so the fade-in runs
+        el.classList.add("open");
+        document.addEventListener("pointerdown", statusMenuOutside, true);
+        document.addEventListener("scroll", statusMenuSchedule, true);
+        window.addEventListener("resize", statusMenuSchedule);
+        window.addEventListener("keydown", statusMenuKey, true);
+        statusMenuObserver.observe(gridEl, { childList: true });
+        statusMenuObserver.observe(sectionsEl, { childList: true });
+        const sel = el.querySelector(".status-opt.selected") || el.querySelector(".status-opt");
+        if (sel) {
+          try { sel.focus({ preventScroll: true }); } catch {}
+        }
+      }
+
+      async function moveRowTo(row, next) {
+        try {
+          const { error } = await supabase.from("entries").update({ status: next }).eq("id", row.id);
+          if (error) throw error;
+
+          // local update (instant)
+          const i = data.findIndex((r) => r.id === row.id);
+          if (i >= 0) data[i] = { ...data[i], status: next };
+
+          showToast("success", "Moved to " + next);
+          render({ quiet: true });
+        } catch (err) {
+          showToast("error", err.message || "Failed");
+        }
+      }
+
       function buildControls(row) {
         const controls = document.createElement("div");
         controls.className = "controls";
@@ -5462,25 +6950,20 @@
         inc.innerHTML = '<i class="fa-solid fa-plus"></i>';
         inc.onclick = (e) => adjustEpisode(row, e.shiftKey ? +5 : +1);
 
-        const move = document.createElement("select");
-        move.className = "move-select";
+        // aml5: a button that opens the overlay list (statusMenuOpen) instead of the browser's native <select> popup
+        const move = document.createElement("button");
+        move.type = "button";
+        move.className = "move-select move-trigger";
+        move.dataset.id = String(row.id);
         move.setAttribute("aria-label", "Move to list");
-        move.innerHTML = STATUSES.map((s) => `<option ${row.status === s ? "selected" : ""}>${s}</option>`).join("");
-
-        move.onchange = async (e) => {
-          try {
-            const next = e.target.value;
-            const { error } = await supabase.from("entries").update({ status: next }).eq("id", row.id);
-            if (error) throw error;
-
-            // local update (instant)
-            const i = data.findIndex((r) => r.id === row.id);
-            if (i >= 0) data[i] = { ...data[i], status: next };
-
-            showToast("success", "Moved to " + next);
-            render({ quiet: true });
-          } catch (err) {
-            showToast("error", err.message || "Failed");
+        move.setAttribute("aria-haspopup", "listbox");
+        move.setAttribute("aria-expanded", "false");
+        move.innerHTML = `<span class="mt-label">${escapeHtml(row.status || STATUSES[0])}</span>`;
+        move.onclick = () => (statusMenu && statusMenu.btn === move ? statusMenuClose() : statusMenuOpen(move, row));
+        move.onkeydown = (e) => {
+          if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+            e.preventDefault();
+            statusMenuOpen(move, row);
           }
         };
 
@@ -5542,6 +7025,7 @@
         if (renderDebounce) clearTimeout(renderDebounce);
         renderDebounce = setTimeout(() => {
           renderDebounce = null;
+          offSnapshotSoon(); // aml5: keep the shelf saved on this device
           _domGen++;
           if (_pendingRenderQuiet) _quietGen = _domGen;
           renderTabs();
@@ -5769,6 +7253,7 @@
           p.base = value;
           p.baseRaw = value;
           p.inflight = null;
+          offSnapshotSoon();
           if (!opts.silent) showToast("success", `${net > 0 ? `+${net}` : net} EP`);
           // Clicks that arrived while this was in flight have their own timer; otherwise we're done.
           if (p.target === value && !p.timer) epPending.delete(id);
@@ -5776,6 +7261,15 @@
           p.inflight = null;
           clearTimeout(p.timer);
           epPending.delete(id);
+          if (OFF.active) {
+            // aml5: the connection dropped while this was on its way. The new value stays as an offline change.
+            const keep = OFF.rows.get(id);
+            if (keep) {
+              keep.episode = p.target;
+              offPersistRows();
+            }
+            return;
+          }
           // Put the UI back to what the server actually has, and say so.
           const i = data.findIndex((r) => r.id === id);
           if (i >= 0) data[i] = { ...data[i], episode: p.baseRaw };
@@ -5800,6 +7294,11 @@
         chatBtn.id = "btn-chat";
         chatBtn.innerHTML = '<i class="fa-solid fa-comments"></i> Chat<span class="nav-badge" id="chat-badge" hidden></span>';
         chatBtn.onclick = () => openChatFromClick();
+        if (OFF.active) {
+          chatBtn.classList.add("is-unavailable");
+          chatBtn.title = "Chat is unavailable offline";
+          chatBtn.setAttribute("aria-disabled", "true");
+        }
         authCta.append(chatBtn);
         updateChatBadge();
 
@@ -5832,7 +7331,7 @@
 
         accountTotal.textContent = data.length;
         accountWatching.textContent = data.filter((d) => d.status === "WATCHING").length;
-        accountOnline.textContent = presenceCount;
+        accountOnline.textContent = OFF.active ? "–" : presenceCount;
         accountWaiting.textContent = data.filter((d) => d.status === "WAITING").length;
         accountCompleted.textContent = data.filter((d) => d.status === "COMPLETED").length;
 
@@ -5893,6 +7392,7 @@
 
       // ---------- Realtime ----------
       function setupRealtime() {
+        if (OFF.active) return;
         if (changesChannel) supabase.removeChannel(changesChannel);
         if (!user) return;
 
@@ -5942,6 +7442,7 @@
 
       // ---------- Presence ----------
       function setupPresence() {
+        if (OFF.active) return;
         if (presenceChannel) supabase.removeChannel(presenceChannel);
 
         const key = user?.id || `anon_${Math.random().toString(36).slice(2)}`;
@@ -6117,6 +7618,10 @@
       clearNotes.onclick = () => {
         fNotes.value = "";
         toggleClearButtons();
+        // aml5: the preview used to keep showing the old note until the next keystroke
+        clearTimeout(_pvTimer);
+        _pvTimer = 0;
+        renderNotePreview(true);
         fNotes.focus();
       };
 
@@ -6176,16 +7681,27 @@
         const d = new Date();
         const stamp = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 
-        const blob = new Blob([JSON.stringify(rows, null, 2)], { type: "application/json" });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = `animehlist-export-${stamp}.json`;
-        document.body.appendChild(a); // Firefox needs the link to be in the document
-        a.click();
-        a.remove();
-        setTimeout(() => URL.revokeObjectURL(url), 1500); // revoking at once can cancel the download on some phones
-        showToast("success", `Exported ${rows.length} item${rows.length === 1 ? "" : "s"}`);
+        const json = JSON.stringify(rows, null, 2);
+        const fileName = `animehlist-export-${stamp}.json`;
+        const doneMsg = `Exported ${rows.length} item${rows.length === 1 ? "" : "s"}`;
+        const browserDownload = () => {
+          const blob = new Blob([json], { type: "application/json" });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = fileName;
+          document.body.appendChild(a); // Firefox needs the link to be in the document
+          a.click();
+          a.remove();
+          setTimeout(() => URL.revokeObjectURL(url), 1500); // revoking at once can cancel the download on some phones
+          showToast("success", doneMsg);
+        };
+        if (IS_NATIVE) {
+          // the Android app has no download manager for blob links: write the file and open the share sheet
+          nativeSaveFile(fileName, json).then((ok) => (ok ? showToast("success", doneMsg) : browserDownload()));
+          return;
+        }
+        browserDownload();
       }
 
       // ---------- Import ----------
@@ -6593,7 +8109,7 @@
       });
 
       mLogout.addEventListener("click", () =>
-        openConfirm("Sign out", "Are you sure you want to sign out?", async () => {
+        openConfirm("Sign out", OFF.active ? OFF_SIGNOUT_MSG : "Are you sure you want to sign out?", async () => {
           await flushAllEpisodes({ silent: true }); // don't lose unsent +/- clicks
           await supabase.auth.signOut();
           // No reload - auth listener handles state reset
@@ -6620,7 +8136,9 @@
           mLogin.classList.remove("hidden");
           mLogout.classList.add("hidden");
         }
-        mChatOnline.textContent = `(${presenceCount} online)`;
+        mChatOnline.textContent = OFF.active ? "(offline)" : `(${presenceCount} online)`;
+        mOpenChat.classList.toggle("is-unavailable", OFF.active);
+        mOpenChat.title = OFF.active ? "Chat is unavailable offline" : "";
       }
 
       // ---------- View toggle / sort ----------
@@ -6732,6 +8250,93 @@
         window.addEventListener(evt, refreshScrollTopVisibilityFromActivity, { passive: true });
       });
 
+      // ============================================================
+      // aml5: ACCOUNT PANEL -> "Themes ›" SUB-MENU (slides in over the panel, with a back button)
+      // The theme list itself (#theme-grid) is still built / highlighted by the theme script in <head>.
+      // ============================================================
+      const acctMain = document.getElementById("acct-main");
+      const acctThemes = document.getElementById("acct-themes");
+      const openThemesBtn = document.getElementById("open-themes");
+      const themesBackBtn = document.getElementById("acct-themes-back");
+      let themesPaneOpen = false;
+      let themesPaneTimer = 0;
+
+      function themeInfo(id) {
+        const list = (window.amlThemes && window.amlThemes.list) || [];
+        return list.find((t) => t[0] === id) || list[0] || ["aml", "Midnight (default)", 1];
+      }
+      function syncThemeLabel() {
+        const t = themeInfo(window.amlThemes ? window.amlThemes.get() : "aml");
+        const a = document.getElementById("theme-current");
+        const b = document.getElementById("acct-themes-cur");
+        if (a) a.textContent = t[1];
+        if (b) b.textContent = t[1];
+      }
+      document.addEventListener("aml-theme", syncThemeLabel);
+      syncThemeLabel();
+
+      function setThemesPane(open) {
+        if (!acctThemes || !acctMain || open === themesPaneOpen) return;
+        themesPaneOpen = open;
+        clearTimeout(themesPaneTimer);
+        const instant = REDUCE_MOTION();
+        if (open) {
+          accountPanel.scrollTop = 0;
+          acctThemes.hidden = false;
+          if (!instant) accountPanel.classList.add("acct-anim");
+          void acctThemes.offsetWidth; // let the browser see the "before" state so the slide really animates
+          accountPanel.classList.add("sub-open");
+          acctMain.inert = true;
+          acctMain.setAttribute("aria-hidden", "true");
+          openThemesBtn.setAttribute("aria-expanded", "true");
+          const grid = document.getElementById("theme-grid");
+          const on = grid && grid.querySelector(".theme-chip.on");
+          if (grid && on) grid.scrollTop = Math.max(0, on.offsetTop - grid.clientHeight / 2 + on.offsetHeight / 2);
+          themesPaneTimer = setTimeout(() => accountPanel.classList.remove("acct-anim"), instant ? 0 : 320);
+          try { themesBackBtn.focus({ preventScroll: true }); } catch {}
+        } else {
+          if (!instant) accountPanel.classList.add("acct-anim");
+          accountPanel.classList.remove("sub-open");
+          acctMain.inert = false;
+          acctMain.removeAttribute("aria-hidden");
+          openThemesBtn.setAttribute("aria-expanded", "false");
+          themesPaneTimer = setTimeout(() => {
+            acctThemes.hidden = true;
+            accountPanel.classList.remove("acct-anim");
+          }, instant ? 0 : 320);
+          try { openThemesBtn.focus({ preventScroll: true }); } catch {}
+        }
+      }
+      // Snap back to the main account view (used when the panel closes, so it always re-opens on the main view)
+      function resetThemesPane() {
+        clearTimeout(themesPaneTimer);
+        themesPaneOpen = false;
+        accountPanel.classList.remove("sub-open", "acct-anim");
+        if (acctThemes) acctThemes.hidden = true;
+        if (acctMain) {
+          acctMain.inert = false;
+          acctMain.removeAttribute("aria-hidden");
+        }
+        if (openThemesBtn) openThemesBtn.setAttribute("aria-expanded", "false");
+      }
+      if (openThemesBtn) openThemesBtn.addEventListener("click", () => setThemesPane(true));
+      if (themesBackBtn) themesBackBtn.addEventListener("click", () => setThemesPane(false));
+      accountPanel.addEventListener("keydown", (e) => {
+        if (e.key === "Escape" && themesPaneOpen) {
+          e.preventDefault();
+          e.stopPropagation();
+          setThemesPane(false);
+        }
+      });
+      new MutationObserver(() => {
+        if (accountPanel.classList.contains("open")) return;
+        if (!themesPaneOpen && (!acctThemes || acctThemes.hidden)) return;
+        clearTimeout(themesPaneTimer);
+        themesPaneTimer = setTimeout(() => {
+          if (!accountPanel.classList.contains("open")) resetThemesPane();
+        }, 260); // after the panel's own fade-out
+      }).observe(accountPanel, { attributes: true, attributeFilter: ["class"] });
+
       // ---------- Preferences ----------
       if (prefCover) {
         prefCover.addEventListener("change", async () => {
@@ -6776,7 +8381,7 @@
       };
 
       accountLogout.onclick = () =>
-        openConfirm("Sign out", "Are you sure you want to sign out?", async () => {
+        openConfirm("Sign out", OFF.active ? OFF_SIGNOUT_MSG : "Are you sure you want to sign out?", async () => {
           await flushAllEpisodes({ silent: true }); // don't lose unsent +/- clicks
           await supabase.auth.signOut();
           accountPanel.classList.remove("open");
@@ -6957,7 +8562,7 @@
       }
 
       async function autoFetchCover(title, preferredSource, strict = false) {
-        if (!title) return { image: null, titles: null, anilist_id: null };
+        if (!title || OFF.active || !navigator.onLine) return { image: null, titles: null, anilist_id: null };
 
         const pref = preferredSource || "ANILIST";
         const order = strict ? [pref] : sourceOrder(pref);
@@ -6997,6 +8602,7 @@
 
       // Auto cover button
       btnAutoCover.addEventListener("click", async () => {
+        if (OFF.active) return showToast("info", "Cover lookup needs a connection. New entries get their cover automatically after you sync.", 3600);
         const title = fTitle.value?.trim();
         if (!title) return showToast("error", "Enter title first");
 
@@ -7056,6 +8662,7 @@
       }
 
       function enqueueMissingCovers(rows) {
+        if (OFF.active) return; // covers need the internet: they are fetched after the sync
         const list = Array.isArray(rows) ? rows : data;
         let added = 0;
 
@@ -7294,7 +8901,7 @@
           if (!email) throw new Error("User not found");
 
           const { error } = await supabase.auth.resetPasswordForEmail(email, {
-            redirectTo: window.location.origin + window.location.pathname,
+            redirectTo: authRedirectUrl(),
           });
           if (error) throw error;
 
@@ -7385,18 +8992,11 @@
       }
 
       // ---------- Offline modal ----------
-      function syncOfflineModal() {
-        if (!navigator.onLine) {
-          openModal(offlineModal);
-        } else {
-          if (offlineModal.classList.contains("open")) closeModal(offlineModal);
-        }
-      }
-
-      window.addEventListener("offline", syncOfflineModal);
+      // (aml5: syncOfflineModal() lives in the offline engine block, further down)
+      window.addEventListener("offline", () => syncOfflineModal());
       window.addEventListener("online", () => {
         syncOfflineModal();
-        showToast("success", "Back online");
+        if (!OFF.active) showToast("success", "Back online");
       });
 
       // ---------- Wake-up after being away ----------
@@ -7411,6 +9011,7 @@
       let _waking = null;
 
       function reviveChannels() {
+        if (OFF.active) return;
         const dead = (ch) => !ch || (ch.state && ch.state !== "joined" && ch.state !== "joining");
         if (user && dead(changesChannel)) setupRealtime();
         if (dead(presenceChannel)) setupPresence();
@@ -7422,7 +9023,7 @@
 
       // Silent refetch: repaint only if something really changed, and never clobber unsent +/- clicks.
       async function refreshEntriesQuiet() {
-        if (!user) return;
+        if (!user || OFF.active) return;
         const { data: rows, error } = await supabase.from("entries").select("*").order("created_at", { ascending: false });
         if (error) throw error;
 
@@ -7444,6 +9045,7 @@
       }
 
       async function wakeUp() {
+        if (OFF.active) return;
         if (_waking) return _waking;
         if (!navigator.onLine) return; // the offline modal already covers this
         if (Date.now() - _lastWakeAt < WAKE_MIN_GAP_MS) return;
@@ -7742,7 +9344,7 @@
         if (!chatMsgs.length && !chatPending.length && chatHistoryState === "ready") {
           const e = document.createElement("div");
           e.className = "chat-empty";
-          e.textContent = "No messages yet. Say hi to the bros.";
+          e.textContent = "No messages yet. Say hi!";
           frag.appendChild(e);
         }
         el.replaceChildren(frag);
@@ -7831,7 +9433,7 @@
       }
 
       async function loadChatHistory() {
-        if (chatHistoryState === "loading") return;
+        if (OFF.active || chatHistoryState === "loading") return;
         chatHistoryState = "loading";
         setChatError(false);
         setChatLoading(true);
@@ -7898,7 +9500,7 @@
 
       // After a dropped connection (or coming back to the tab): fetch what we missed and feed it through the normal path
       async function chatCatchUp() {
-        if (!user || chatHistoryState !== "ready" || !chatMsgs.length) return;
+        if (OFF.active || !user || chatHistoryState !== "ready" || !chatMsgs.length) return;
         if (Date.now() - chatLastCatchUp < 2500) return;
         chatLastCatchUp = Date.now();
         try {
@@ -7998,6 +9600,7 @@
       }
 
       function setupChatRealtime() {
+        if (OFF.active) return;
         if (chatChannel) {
           try {
             supabase.removeChannel(chatChannel);
@@ -8024,7 +9627,7 @@
 
       // Join (or re-join) the chat channel without churning a healthy one: auth events fire for token refreshes too.
       function ensureChatRealtime() {
-        if (!user) return;
+        if (!user || OFF.active) return;
         if (chatCacheUser && chatCacheUser !== user.id) resetChatCache();
         const dead = !chatChannel || (chatChannel.state && chatChannel.state !== "joined" && chatChannel.state !== "joining");
         if (dead) setupChatRealtime();
@@ -8078,6 +9681,7 @@
 
       function setupTyping() {
         teardownTyping();
+        if (OFF.active) return;
         const ch = supabase.channel("room:chat-typing", { config: { broadcast: { ack: false } } });
         typingChannel = ch;
         ch.on("broadcast", { event: "typing" }, ({ payload }) => {
@@ -8428,6 +10032,10 @@
       });
 
       function openChatFromClick() {
+        if (OFF.active) {
+          showToast("info", "Chat isn't available offline. It comes back when you sync.", 3000);
+          return;
+        }
         // FIX: don't set ?chat=1 unless the chat modal actually opens (prevents it reopening on reload)
         if (!user) {
           showToast("info", "Sign in to join the chat");
@@ -8439,6 +10047,10 @@
 
       function openChat() {
         if (!user) return;
+        if (OFF.active) {
+          showToast("info", "Chat isn't available offline. It comes back when you sync.", 3000);
+          return;
+        }
         if (chatCacheUser !== user.id) resetChatCache();
         openModal(chatModal);
         updateSelfAvatar();
@@ -8512,8 +10124,664 @@
       // ---------- Verify landing ----------
       checkEmailVerifyLanding();
 
+      // ============================================================
+      // aml5 OFFLINE ENGINE: switching modes, the indicator, start-up from the saved shelf
+      // (the sync / review dialog is in the next block)
+      // ============================================================
+      const offBar = document.getElementById("offline-bar");
+      const offBarText = document.getElementById("ob-text");
+      const offBarSync = document.getElementById("ob-sync");
+      const offModalWork = document.getElementById("offline-work");
+      const offModalRetry = document.getElementById("offline-retry");
+      const offModalNote = document.getElementById("offline-note");
+      const offModalTitle = document.getElementById("offline-title");
+      const offModalText = document.getElementById("offline-text");
+
+      OFF.unreachable = false; // online according to the browser, but the server cannot be reached
+      OFF.awaitSignIn = false;
+      let offProbeLoop = 0;
+
+      const offIsNetError = (e) => !!e && (e.status === 0 || /failed to fetch|networkerror|load failed|network request failed|fetch failed/i.test(String(e.message || e)));
+
+      // Is the server reachable? (navigator.onLine only knows about the local network, not the internet behind it.)
+      async function offProbe(ms = 5000) {
+        if (!navigator.onLine) return false;
+        const ctl = typeof AbortController === "function" ? new AbortController() : null;
+        const timer = setTimeout(() => ctl && ctl.abort(), ms);
+        try {
+          const r = await fetch(SUPABASE_URL + "/auth/v1/settings", { headers: { apikey: SUPABASE_ANON_KEY }, cache: "no-store", signal: ctl ? ctl.signal : undefined });
+          return r.status > 0 && r.status < 500;
+        } catch (e) {
+          return false;
+        } finally {
+          clearTimeout(timer);
+        }
+      }
+
+      // A request failed the way a dead connection fails: check whether the server is really gone, and if so say so.
+      let offNetChecking = false;
+      function offNoteNetError() {
+        if (OFF.active || OFF.syncing || OFF.unreachable || offNetChecking || !navigator.onLine) return;
+        offNetChecking = true;
+        offProbe(4000).then((ok) => {
+          offNetChecking = false;
+          if (!ok && !OFF.active && navigator.onLine) {
+            OFF.unreachable = true;
+            syncOfflineModal();
+          }
+        });
+      }
+
+      function offRefreshModal() {
+        const canWork = !!user;
+        const lost = navigator.onLine === false;
+        if (offModalTitle) offModalTitle.innerHTML = lost ? '<i class="fa-solid fa-wifi"></i> You’re offline' : '<i class="fa-solid fa-wifi"></i> Can’t reach the server';
+        if (offModalText)
+          offModalText.textContent = lost
+            ? "Your connection dropped. AniMehList reconnects by itself when you’re back online."
+            : "You seem to be connected, but the server isn’t answering. AniMehList keeps trying in the background.";
+        if (offModalWork) offModalWork.hidden = !canWork;
+        if (offModalNote)
+          offModalNote.textContent = canWork
+            ? "Don’t want to wait? Work offline: your shelf stays usable, and your changes are saved on this device and synced later."
+            : "Offline mode needs your shelf saved on this device. Sign in once while you’re online to use it.";
+        if (offModalRetry) offModalRetry.disabled = false;
+      }
+
+      // The offline dialog: shown when the connection drops, unless you chose to work offline
+      function syncOfflineModal() {
+        const down = !navigator.onLine || OFF.unreachable;
+        if (OFF.active) {
+          if (offlineModal.classList.contains("open")) closeModal(offlineModal);
+          return;
+        }
+        if (down) {
+          offRefreshModal();
+          if (!offlineModal.classList.contains("open")) openModal(offlineModal);
+          if (!offProbeLoop)
+            offProbeLoop = setInterval(async () => {
+              if (OFF.active || !offlineModal.classList.contains("open")) {
+                clearInterval(offProbeLoop);
+                offProbeLoop = 0;
+                return;
+              }
+              if (await offProbe(4000)) {
+                OFF.unreachable = false;
+                syncOfflineModal();
+                showToast("success", "Back online");
+              }
+            }, 6000);
+        } else if (offlineModal.classList.contains("open")) {
+          closeModal(offlineModal);
+        }
+      }
+
+      // Indicator + everything that looks different offline (chat is greyed out, the Sync button shows up ...)
+      function offApplyUI() {
+        const on = OFF.active;
+        document.documentElement.classList.toggle("is-offline", on);
+        if (offBar) {
+          offBar.hidden = !on;
+          if (on) {
+            const back = navigator.onLine;
+            offBarText.textContent = OFF.dbFailed
+              ? back ? "Back online. Sync soon: changes are only kept while this tab is open." : "Offline mode · changes are only kept while this tab is open"
+              : back ? "Back online. Your changes are saved here until you sync." : "Offline mode · changes are saved on this device";
+            offBarSync.hidden = !back;
+            offBarSync.disabled = !!OFF.syncing;
+          }
+        }
+        try {
+          updateAuthUI();
+          updateMobileMenuUI();
+          updateAccountUI();
+        } catch (e) {}
+      }
+
+      // Switch to offline mode with the shelf that is on screen right now
+      async function offEnter() {
+        if (OFF.active) return true;
+        if (!user) {
+          showToast("error", "Sign in once while you're online to use offline mode");
+          return false;
+        }
+        // unsent +/- clicks stay on screen as offline edits; the saved server state keeps the confirmed value
+        const base = data.map((r) => {
+          const p = epPending.get(r.id);
+          return p ? { ...offClone(r), episode: p.baseRaw ?? p.base } : offClone(r);
+        });
+        [...epPending.keys()].forEach(dropPendingEpisode);
+        OFF.identity = { id: user.id, email: user.email || null, user_metadata: user.user_metadata || {} };
+        if (profile) OFF.profile = { username: profile.username ?? null, cover_source: profile.cover_source ?? null };
+        OFF.hasUpdatedAt = data.some((r) => "updated_at" in r);
+        OFF.rows = new Map(data.map((r) => [r.id, offClone(r)]));
+        OFF.base = new Map(base.map((r) => [r.id, r]));
+        OFF.profileDirty = false;
+        OFF.active = true;
+        offLsSet(OFF_LS_MODE, "1");
+        offLsSet(OFF_LS_ID, JSON.stringify(OFF.identity));
+        const rows = [...OFF.rows.values()].map(offClone);
+        const baseArr = [...OFF.base.values()].map(offClone);
+        const meta = offMetaObject();
+        await offQueue(async () => {
+          await offKvSet("rows", rows);
+          await offKvSet("base", baseArr);
+          await offKvSet("meta", meta);
+        });
+
+        // everything that needs the network stops
+        [changesChannel, presenceChannel].forEach((ch) => ch && supabase.removeChannel(ch));
+        changesChannel = presenceChannel = null;
+        presenceCount = 0;
+        coverQueue.clear();
+        try {
+          if (chatModal.classList.contains("open")) closeChat();
+          teardownChat();
+        } catch (e) {}
+        if (offlineModal.classList.contains("open")) closeModal(offlineModal);
+        offApplyUI();
+        render({ quiet: true });
+        if (OFF.dbFailed) showToast("error", "This browser won't let AniMehList save offline data, so changes are kept only while this tab stays open.", 6500);
+        else showToast("info", "Offline mode on. Your changes are saved on this device.", 3200);
+        return true;
+      }
+
+      // Start-up from the saved shelf (no connection, library missing, or an unsynced offline copy from last time).
+      // Returns true when it handled the start-up.
+      async function offBoot() {
+        const flagged = offLsGet(OFF_LS_MODE) === "1";
+        const lib = !!OFF.sb;
+        if (!flagged && navigator.onLine && lib) return false;
+        let ident = null;
+        try {
+          ident = JSON.parse(offLsGet(OFF_LS_ID) || "null");
+        } catch (e) {}
+        if (!ident || !ident.id) return false; // nothing saved: the normal start-up (and its offline dialog) applies
+        const [rows, base, meta] = await Promise.all([offKvGet("rows"), offKvGet("base"), offKvGet("meta")]);
+        if (!Array.isArray(rows) || !meta || (meta.userId && meta.userId !== ident.id)) return false;
+        OFF.identity = meta.identity || ident;
+        OFF.profile = meta.profile || null;
+        OFF.profileDirty = !!meta.profileDirty;
+        OFF.hasUpdatedAt = !!meta.hasUpdatedAt;
+        OFF.rows = new Map(rows.map((r) => [r.id, r]));
+        OFF.base = new Map((Array.isArray(base) ? base : rows).map((r) => [r.id, r]));
+        OFF.active = true;
+        offLsSet(OFF_LS_MODE, "1");
+
+        session = null;
+        user = { id: OFF.identity.id, email: OFF.identity.email, user_metadata: OFF.identity.user_metadata || {} };
+        profile = OFF.profile ? { ...OFF.profile } : null;
+        defaultCoverSource = (profile && profile.cover_source) || "ANILIST";
+        data = [...OFF.rows.values()].map(offClone).sort((a, b) => String(b.created_at || "").localeCompare(String(a.created_at || "")));
+        loadFailed = false;
+        sessionPending = false;
+        updateAuthUI();
+        updateMobileMenuUI();
+        render();
+        offApplyUI();
+        syncOfflineModal(); // closes the "you're offline" dialog if it got opened first
+        if (navigator.onLine && lib) setTimeout(() => offGoOnline({ boot: true }), 700); // there is a connection: offer the sync
+        else showToast("info", navigator.onLine ? "Couldn't load the online services. Showing the shelf saved on this device." : "You're offline: showing the shelf saved on this device.", 3800);
+        return true;
+      }
+
+      // ---- events ----
+      window.addEventListener("offline", () => {
+        if (OFF.active) offApplyUI();
+      });
+      window.addEventListener("online", () => {
+        OFF.unreachable = false;
+        if (OFF.active) {
+          offApplyUI();
+          if (!OFF.syncing) showToast("info", "You're back online. Tap Sync to upload your changes.", 3600);
+        }
+      });
+      if (offBarSync) offBarSync.addEventListener("click", () => offGoOnline());
+      if (offModalWork)
+        offModalWork.addEventListener("click", async () => {
+          offModalWork.disabled = true;
+          try {
+            await offEnter();
+          } finally {
+            offModalWork.disabled = false;
+          }
+        });
+      if (offModalRetry)
+        offModalRetry.addEventListener("click", async () => {
+          offModalRetry.disabled = true;
+          const ok = await offProbe(5000);
+          offModalRetry.disabled = false;
+          if (ok) {
+            OFF.unreachable = false;
+            syncOfflineModal();
+            showToast("success", "Back online");
+          } else showToast("error", navigator.onLine ? "Still can't reach the server" : "Still offline");
+        });
+      // keep the saved copy fresh when the tab goes to the background / closes
+      document.addEventListener("visibilitychange", () => {
+        if (document.hidden) offSnapshotNow();
+      });
+      window.addEventListener("pagehide", () => offSnapshotNow());
+
+      // ---- service worker (app shell + libraries + cover images, so the page itself also opens offline) ----
+      const OFF_NOSW = /[?&]nosw(?:[=&]|$)/.test(location.search);
+      function offRegisterSW() {
+        if (!("serviceWorker" in navigator) || !/^https?:$/.test(location.protocol)) return;
+        if (OFF_NOSW) {
+          // Emergency off switch (open the site with ?nosw): remove the worker and everything it saved.
+          // The old worker may still be controlling this very page for a moment, so it is told to stop first (otherwise it
+          // would keep saving the covers this page is loading), and the saved copies are wiped again a little later.
+          const wipe = () => {
+            try {
+              if (window.caches) caches.keys().then((ks) => ks.forEach((k) => /^aml-/.test(k) && caches.delete(k))).catch(() => {});
+            } catch (e) {}
+          };
+          try {
+            if (navigator.serviceWorker.controller) navigator.serviceWorker.controller.postMessage({ type: "nosw" });
+          } catch (e) {}
+          navigator.serviceWorker
+            .getRegistrations()
+            .then((rs) => Promise.all(rs.map((r) => r.unregister())))
+            .catch(() => {})
+            .then(wipe);
+          setTimeout(wipe, 2500);
+          return;
+        }
+        navigator.serviceWorker.register("sw.js").catch((e) => console.warn("Service worker not registered:", e && e.message));
+        try {
+          if (navigator.storage && navigator.storage.persist) navigator.storage.persist(); // ask the browser not to evict the saved shelf
+        } catch (e) {}
+      }
+      // Ask the worker to keep every cover on the shelf (it fetches the missing ones in the background)
+      let offCoverKey = "";
+      function offCacheCovers() {
+        if (OFF_NOSW || OFF.active || !navigator.onLine || !("serviceWorker" in navigator)) return;
+        const urls = [...new Set(data.map((r) => r.image_url).filter((u) => typeof u === "string" && /^https?:/.test(u)))];
+        const key = urls.length + ":" + urls[0] + ":" + urls[urls.length - 1];
+        if (!urls.length || key === offCoverKey) return;
+        navigator.serviceWorker.ready
+          .then((reg) => {
+            if (reg.active) {
+              reg.active.postMessage({ type: "cache-covers", urls });
+              offCoverKey = key;
+            }
+          })
+          .catch(() => {});
+      }
+      // The libraries and fonts this page pulled from CDNs: the worker keeps them too, so the page itself opens with no
+      // connection at all (not only the saved shelf). In the Android app they are bundled, so nothing matches there.
+      let offLibsTried = false;
+      function offCacheLibs() {
+        if (OFF_NOSW || offLibsTried || OFF.active || !navigator.onLine || !("serviceWorker" in navigator)) return;
+        let urls = [];
+        try {
+          urls = performance
+            .getEntriesByType("resource")
+            .map((e) => e.name)
+            .filter((u) => /^https:\/\/(esm\.sh|cdn\.jsdelivr\.net|cdnjs\.cloudflare\.com|fonts\.googleapis\.com|fonts\.gstatic\.com|unpkg\.com)\//.test(u));
+        } catch (e) {}
+        offLibsTried = true;
+        if (!urls.length) return;
+        navigator.serviceWorker.ready
+          .then((reg) => {
+            if (reg.active) reg.active.postMessage({ type: "cache-libs", urls: [...new Set(urls)] });
+          })
+          .catch(() => {});
+      }
+      function offWarmCaches() {
+        offCacheCovers();
+        offCacheLibs();
+      }
+
+      // ============================================================
+      // aml5 SYNC: back online with offline changes -> ask what should happen to the server's copy
+      //   Overwrite server = all my changes win (anything only the server changed stays)
+      //   Keep server version = throw my offline changes away
+      //   Review = pick per item / per field
+      // ============================================================
+      const syncModal = document.getElementById("sync-modal");
+      const syncPanes = ["sync-busy", "sync-ask", "sync-review-pane", "sync-error"].map((id) => document.getElementById(id));
+      const syncBusyTitle = document.getElementById("sync-busy-title");
+      const syncBusyText = document.getElementById("sync-busy-text");
+      const syncProgress = document.getElementById("sync-progress-bar");
+      const OFF_LABELS = { title: "Title", title_romaji: "Romaji title", title_english: "English title", title_native: "Native title", kind: "Type", status: "List", season: "Season", episode: "Episode", image_url: "Cover link", notes: "Notes", cover_source: "Cover source", anilist_id: "AniList ID" };
+      let offPlan = null; // the comparison being shown
+      let offServerRows = null;
+      let offSess = null;
+
+      function syncShow(id) {
+        syncPanes.forEach((p) => p && (p.hidden = p.id !== id));
+        if (!syncModal.classList.contains("open")) openModal(syncModal);
+      }
+      function syncHide() {
+        if (syncModal.classList.contains("open")) closeModal(syncModal);
+      }
+      function syncBusy(title, text, pct) {
+        syncShow("sync-busy");
+        syncBusyTitle.textContent = title;
+        syncBusyText.textContent = text || "";
+        syncProgress.style.width = (pct == null ? 0 : Math.round(pct * 100)) + "%";
+        syncProgress.parentElement.classList.toggle("indeterminate", pct == null);
+      }
+      function syncError(msg) {
+        document.getElementById("sync-error-text").textContent = msg;
+        syncShow("sync-error");
+      }
+
+      const offFmt = (v) => {
+        if (v == null || v === "") return "(empty)";
+        const s = typeof v === "object" ? JSON.stringify(v) : String(v);
+        return s.length > 90 ? s.slice(0, 87) + "…" : s;
+      };
+
+      // Back online: compare, then ask. opts.boot = the app was just opened (nothing to ask -> go quietly online)
+      async function offGoOnline(opts = {}) {
+        if (!OFF.active || OFF.syncing) return;
+        if (!OFF.sb) {
+          location.reload(); // the online library never loaded: start over, the start-up path offers the sync
+          return;
+        }
+        OFF.syncing = true;
+        offApplyUI();
+        try {
+          syncBusy("Checking your connection…", "", null);
+          if (!(await offProbe(6000))) {
+            syncHide();
+            if (!opts.boot) showToast("error", navigator.onLine ? "Can't reach the server yet" : "Still offline");
+            return;
+          }
+          syncBusy("Signing you in…", "", null);
+          let sess = null;
+          try {
+            const r = await withTimeout(OFF.sb.auth.getSession(), 9000, "Session check");
+            sess = (r && r.data && r.data.session) || null;
+          } catch (e) {}
+          if (!sess || !sess.user) {
+            // the saved sign-in is gone (signed out elsewhere, or it expired while away): sign in again to sync
+            OFF.awaitSignIn = true;
+            syncHide();
+            showToast("info", "Sign in again to sync your offline changes.", 4000);
+            openModal(authModal);
+            return;
+          }
+          if (OFF.identity && sess.user.id !== OFF.identity.id) {
+            syncHide();
+            openConfirm("Different account", "The offline changes on this device belong to another account (" + (OFF.identity.email || "unknown") + "). Delete them and continue as " + (sess.user.email || "this account") + "?", async () => {
+              await offWipeAll();
+              location.reload();
+            });
+            return;
+          }
+          offSess = sess;
+          syncBusy("Comparing with the server…", "", null);
+          const res = await withTimeout(OFF.sb.from("entries").select("*").order("created_at", { ascending: false }), 25000, "Loading the server copy");
+          if (res.error) throw res.error;
+          offServerRows = res.data || [];
+          offPlan = offDiff([...OFF.base.values()], [...OFF.rows.values()], offServerRows);
+          if (!offPlan.items.length && !OFF.profileDirty) {
+            await offFinish(offServerRows, sess, "You're back online.");
+            return;
+          }
+          offShowChoice();
+        } catch (e) {
+          console.warn("Sync check failed:", e);
+          syncHide();
+          showToast("error", (e && e.message) || "Couldn't reach the server");
+        } finally {
+          OFF.syncing = false;
+          if (OFF.active) offApplyUI();
+        }
+      }
+
+      function offShowChoice() {
+        const s = offPlan.summary;
+        const chips = [];
+        if (s.new) chips.push(`<span class="sync-chip add"><i class="fa-solid fa-plus"></i> ${s.new} new</span>`);
+        if (s.edit) chips.push(`<span class="sync-chip edit"><i class="fa-solid fa-pen"></i> ${s.edit} edited</span>`);
+        if (s.delete) chips.push(`<span class="sync-chip del"><i class="fa-solid fa-trash"></i> ${s.delete} deleted</span>`);
+        if (OFF.profileDirty) chips.push(`<span class="sync-chip edit"><i class="fa-solid fa-sliders"></i> settings</span>`);
+        chips.push(s.conflicts ? `<span class="sync-chip warn"><i class="fa-solid fa-triangle-exclamation"></i> ${s.conflicts} conflict${s.conflicts === 1 ? "" : "s"}</span>` : `<span class="sync-chip ok"><i class="fa-solid fa-check"></i> no conflicts</span>`);
+        document.getElementById("sync-summary").innerHTML = chips.join("");
+        document.getElementById("sync-ask-text").textContent = s.conflicts
+          ? "You changed things offline, and some of them were also changed on the server. Choose what happens to the server's copy."
+          : "You changed things while offline. Do you want to overwrite the server's copy with them?";
+        document.getElementById("sync-review").disabled = !offPlan.items.length;
+        syncShow("sync-ask");
+      }
+
+      // Run the server writes for the chosen plan, then adopt the server's copy and leave offline mode
+      async function offApplyPlan(mode) {
+        OFF.syncing = true;
+        offApplyUI();
+        const sb = OFF.sb;
+        try {
+          if (mode === "server") {
+            OFF.profileDirty = false; // the server's settings win too
+          } else {
+            const ops = offBuildOps(offPlan.items, OFF.identity.id);
+            const total = ops.inserts.length + ops.updates.length + ops.deletes.length + (OFF.profileDirty ? 1 : 0);
+            let done = 0;
+            const tick = (n = 1) => {
+              done += n;
+              syncBusy("Syncing your changes…", `${done} of ${total}`, total ? done / total : 1);
+            };
+            syncBusy("Syncing your changes…", `0 of ${total}`, 0);
+
+            // 1) new rows (and re-created ones)
+            for (let i = 0; i < ops.inserts.length; i += 50) {
+              const chunk = ops.inserts.slice(i, i + 50);
+              const send = (dates) => sb.from("entries").insert(chunk.map((x) => (dates ? x.row : (({ created_at, ...r }) => r)(x.row)))).select();
+              let r = await send(true);
+              if (r.error) r = await send(false); // the database may refuse a client-chosen created_at
+              if (r.error) throw r.error;
+              if (!r.data || r.data.length !== chunk.length) throw new Error("The server answered with an unexpected result");
+              chunk.forEach((x, j) => {
+                const srv = r.data[j];
+                OFF.rows.delete(x.oldId); // the temporary (or deleted-on-server) id is replaced by the server's row
+                OFF.base.delete(x.oldId);
+                OFF.rows.set(srv.id, offClone(srv));
+                OFF.base.set(srv.id, offClone(srv));
+              });
+              offPersistRows();
+              offPersistBase();
+              tick(chunk.length);
+            }
+            // 2) edits (a few at a time). One failure stops the others from starting new work, and the error is only shown
+            //    once every request that was already on its way has finished (so a late "tick" can't paint the progress
+            //    pane over the error pane, and a retry can't race with a request still in flight).
+            const queue = ops.updates.slice();
+            let aborted = false;
+            const worker = async () => {
+              while (queue.length && !aborted) {
+                const u = queue.shift();
+                let r;
+                try {
+                  r = await sb.from("entries").update(u.patch).eq("id", u.id);
+                } catch (e) {
+                  aborted = true;
+                  throw e;
+                }
+                if (r.error) {
+                  aborted = true;
+                  throw r.error;
+                }
+                const b = OFF.base.get(u.id);
+                if (b) Object.assign(b, u.patch); // confirmed on the server: a retry must not send it again
+                if (!aborted) tick();
+              }
+            };
+            const settled = await Promise.allSettled([worker(), worker(), worker(), worker()]);
+            offPersistBase();
+            const failed = settled.find((x) => x.status === "rejected");
+            if (failed) throw failed.reason;
+            // 3) deletions
+            for (let i = 0; i < ops.deletes.length; i += 50) {
+              const chunk = ops.deletes.slice(i, i + 50);
+              const r = await sb.from("entries").delete().in("id", chunk.map((d) => d.id));
+              if (r.error) throw r.error;
+              chunk.forEach((d) => {
+                OFF.rows.delete(d.id);
+                OFF.base.delete(d.id);
+              });
+              offPersistRows();
+              offPersistBase();
+              tick(chunk.length);
+            }
+            // 4) settings
+            if (OFF.profileDirty && OFF.profile) {
+              const r = await sb.from("profiles").update({ cover_source: OFF.profile.cover_source }).eq("id", OFF.identity.id);
+              if (r.error) throw r.error;
+              OFF.profileDirty = false;
+              offPersistMeta();
+              tick();
+            }
+          }
+          syncBusy("Finishing up…", "", null);
+          const fresh = await sb.from("entries").select("*").order("created_at", { ascending: false });
+          if (fresh.error) throw fresh.error;
+          await offFinish(fresh.data || [], offSess, mode === "server" ? "Using the server's version. You're back online." : "Synced. You're back online.");
+        } catch (e) {
+          console.warn("Sync failed:", e);
+          offPersistMeta();
+          syncError((e && e.message ? e.message : "Something went wrong") + ". Nothing is lost: your changes are still saved on this device. You can try again.");
+        } finally {
+          OFF.syncing = false;
+          if (OFF.active) offApplyUI();
+        }
+      }
+
+      // Leave offline mode: the server's rows become the shelf
+      async function offFinish(rows, sess, message) {
+        OFF.active = false;
+        OFF.rows = new Map();
+        OFF.base = new Map();
+        OFF.profileDirty = false;
+        OFF.awaitSignIn = false;
+        offPlan = null;
+        offLsSet(OFF_LS_MODE, null);
+        session = sess;
+        user = sess.user;
+        data = rows || [];
+        loadFailed = false;
+        sessionPending = false;
+        try {
+          await loadProfile();
+        } catch (e) {}
+        OFF.syncing = false;
+        updateAuthUI();
+        updateMobileMenuUI();
+        render();
+        offApplyUI();
+        syncHide();
+        enqueueMissingCovers(data); // entries made offline get their covers now
+        setupPresence();
+        setupRealtime();
+        ensureChatRealtime();
+        offSnapshotNow();
+        offCacheCovers();
+        showToast("success", message || "You're back online.");
+      }
+
+      // ---- review dialog ----
+      function offBadge(kind, text) {
+        return `<span class="rv-badge ${kind}">${text}</span>`;
+      }
+      function offSeg(item, field, labelMine, labelServer, valMine, valServer) {
+        const cur = field ? item.fieldPick[field] || "mine" : item.pick;
+        const wrap = document.createElement("div");
+        wrap.className = "rv-seg";
+        [["mine", labelMine, valMine], ["server", labelServer, valServer]].forEach(([side, label, val]) => {
+          const b = document.createElement("button");
+          b.type = "button";
+          b.className = "rv-opt" + (cur === side ? " on" : "");
+          b.setAttribute("aria-pressed", cur === side ? "true" : "false");
+          b.innerHTML = `<b>${escapeHtml(label)}</b>` + (val === undefined ? "" : `<span>${escapeHtml(offFmt(val))}</span>`);
+          b.addEventListener("click", () => {
+            if (field) item.fieldPick[field] = side;
+            else item.pick = side;
+            wrap.querySelectorAll(".rv-opt").forEach((o) => {
+              const on = o === b;
+              o.classList.toggle("on", on);
+              o.setAttribute("aria-pressed", on ? "true" : "false");
+            });
+            offReviewCount();
+          });
+          wrap.appendChild(b);
+        });
+        return wrap;
+      }
+      function offReviewCount() {
+        const ops = offBuildOps(offPlan.items, OFF.identity.id);
+        const n = ops.inserts.length + ops.updates.length + ops.deletes.length;
+        document.getElementById("rv-count").textContent = n ? `${n} change${n === 1 ? "" : "s"} will be sent to the server` : "Nothing will be sent: the server's version is kept";
+      }
+      function offRenderReview() {
+        const list = document.getElementById("rv-list");
+        list.innerHTML = "";
+        // conflicts first
+        const items = offPlan.items.slice().sort((a, b) => (b.clash ? 1 : 0) - (a.clash ? 1 : 0));
+        items.forEach((it) => {
+          const sec = document.createElement("section");
+          sec.className = "rv-item" + (it.clash ? " clash" : "");
+          const title = offTitleOf(it.local || it.server || it.base);
+          let badge = "";
+          if (it.type === "new") badge = offBadge("new", "New");
+          else if (it.type === "delete") badge = offBadge("del", "Deleted");
+          else badge = offBadge("edit", it.clash === "edit-vs-delete" ? "Edited" : "Edited");
+          if (it.clash) badge += offBadge("warn", "Conflict");
+          sec.innerHTML = `<div class="rv-head">${badge}<span class="rv-title">${escapeHtml(title)}</span></div>`;
+          const body = document.createElement("div");
+          body.className = "rv-body";
+          if (it.type === "new") {
+            body.innerHTML = `<div class="rv-note">Created on this device</div>`;
+            body.appendChild(offSeg(it, null, "Add it", "Skip it"));
+          } else if (it.type === "delete") {
+            body.innerHTML = `<div class="rv-note">${it.clash ? "Deleted here, but it was changed on the server (" + escapeHtml(it.conflicts.map((f) => OFF_LABELS[f] || f).join(", ")) + ")" : "Deleted on this device"}</div>`;
+            body.appendChild(offSeg(it, null, "Delete it", "Keep it"));
+          } else if (it.clash === "edit-vs-delete") {
+            body.innerHTML = `<div class="rv-note">You edited it here, but it was deleted on the server</div>`;
+            body.appendChild(offSeg(it, null, "Restore my version", "Leave it deleted"));
+          } else {
+            it.fields.forEach((f) => {
+              const row = document.createElement("div");
+              row.className = "rv-field" + (it.conflicts.includes(f) ? " clash" : "");
+              row.innerHTML = `<div class="rv-fname">${it.conflicts.includes(f) ? '<i class="fa-solid fa-triangle-exclamation"></i> ' : ""}${escapeHtml(OFF_LABELS[f] || f)}</div>`;
+              row.appendChild(offSeg(it, f, "Mine", "Server", it.local[f], it.server ? it.server[f] : null));
+              body.appendChild(row);
+            });
+          }
+          sec.appendChild(body);
+          list.appendChild(sec);
+        });
+        offReviewCount();
+      }
+
+      // ---- wiring ----
+      document.getElementById("sync-mine").addEventListener("click", () => {
+        offPlan.items.forEach((it) => {
+          it.pick = "mine";
+          it.fieldPick = {};
+        });
+        offApplyPlan("mine");
+      });
+      document.getElementById("sync-server").addEventListener("click", () => offApplyPlan("server"));
+      document.getElementById("sync-review").addEventListener("click", () => {
+        offRenderReview();
+        syncShow("sync-review-pane");
+      });
+      document.getElementById("rv-back").addEventListener("click", () => syncShow("sync-ask"));
+      document.getElementById("rv-apply").addEventListener("click", () => offApplyPlan("review"));
+      document.getElementById("sync-later").addEventListener("click", () => {
+        syncHide();
+        offApplyUI();
+      });
+      document.getElementById("sync-error-retry").addEventListener("click", () => offGoOnline());
+      document.getElementById("sync-error-close").addEventListener("click", () => syncHide());
+
       // ---------- Offline modal initial sync ----------
-      syncOfflineModal();
+      // (a cold start with no connection but a saved shelf is picked up by offBoot() a moment later: don't flash the dialog first)
+      if (!navigator.onLine && offLsGet(OFF_LS_ID)) setTimeout(syncOfflineModal, 900);
+      else syncOfflineModal();
 
       // ---------- Init + Preloader (FIXED: no more stuck-on-reload) ----------
       async function getSessionWithTimeout(timeoutMs = 2500) {
@@ -8594,6 +10862,7 @@
         initFloatingLabels(document);
 
         try {
+          if (await offBoot()) return; // aml5: started from the shelf saved on this device
           const r = await getSessionWithTimeout(2500);
           if (r.timedOut) {
             console.warn("Supabase getSession timed out; continuing without blocking UI.");
@@ -9641,6 +11910,141 @@
         });
       }
 
+
+      // ============================================================
+      // aml5 NATIVE: the same file is the website AND the Android app (Capacitor). Everything in this block quietly does
+      // nothing on the web. The Android build (see .github/workflows/android.yml) bundles the Capacitor plugins into
+      // vendor/native.js, which exposes them as window.AmlNative.
+      // ============================================================
+      const AML_PUBLIC_URL = "https://theanonymouscrusher.github.io/AniMehList/";
+      function nativePlugin(name) {
+        try {
+          const n = window.AmlNative;
+          if (n && n[name]) return n[name];
+          const c = window.Capacitor;
+          return (c && c.Plugins && c.Plugins[name]) || null;
+        } catch (e) {
+          return null;
+        }
+      }
+      const IS_NATIVE = (() => {
+        try {
+          const c = (window.AmlNative && window.AmlNative.Capacitor) || window.Capacitor;
+          return !!(c && typeof c.isNativePlatform === "function" && c.isNativePlatform());
+        } catch (e) {
+          return false;
+        }
+      })();
+      if (IS_NATIVE) document.documentElement.classList.add("is-native");
+
+      // The app itself lives on https://localhost, which is useless inside an e-mail link: send people to the real site
+      function authRedirectUrl() {
+        return IS_NATIVE ? AML_PUBLIC_URL : window.location.origin + window.location.pathname;
+      }
+
+      // Android WebViews ignore <a download> on blob: links. The app writes the file to its cache and opens the system
+      // share sheet instead (Save to Drive / Files, send it, ...). Resolves false when that is not possible.
+      async function nativeSaveFile(filename, text) {
+        const FS = nativePlugin("Filesystem");
+        const SH = nativePlugin("Share");
+        if (!IS_NATIVE || !FS || !SH) return false;
+        try {
+          const n = window.AmlNative || {};
+          const res = await FS.writeFile({
+            path: filename,
+            data: text,
+            directory: (n.Directory && n.Directory.Cache) || "CACHE",
+            encoding: (n.Encoding && n.Encoding.UTF8) || "utf8",
+            recursive: true,
+          });
+          await SH.share({ title: filename, text: filename, url: res.uri, dialogTitle: "Save or send your list" });
+          return true;
+        } catch (e) {
+          if (e && /cancel/i.test(String(e.message || e))) return true; // the person simply closed the share sheet
+          console.warn("Native export failed, using a normal download instead:", e);
+          return false;
+        }
+      }
+
+      // Android back button / back gesture: close the top-most thing first, and only leave the app when nothing is open.
+      function nativeBack() {
+        // 1) the list that opens over a card's status button
+        if (statusMenu) {
+          statusMenuClose();
+          return true;
+        }
+        // 2) dialogs, top-most first
+        const open = [...document.querySelectorAll(".modal.open")];
+        if (open.length) {
+          const z = (el) => parseInt(getComputedStyle(el).zIndex, 10) || 0;
+          const top = open.reduce((a, b) => (z(b) >= z(a) ? b : a));
+          if (top.id === "sync-modal") {
+            // the sync dialog is "static" (a tap outside must not dismiss it), but Back should still step out of it
+            const pick = ["rv-back", "sync-later", "sync-error-close"].map((id) => document.getElementById(id)).find((b) => b && b.offsetParent !== null && !b.disabled);
+            if (pick) {
+              pick.click();
+              return true;
+            }
+            return false;
+          }
+          if (isStaticModal(top)) return false;
+          if (top === chatModal) closeChat();
+          else closeModal(top);
+          return true;
+        }
+        // 3) account panel (the Themes page first)
+        if (accountPanel.classList.contains("open")) {
+          if (themesPaneOpen) setThemesPane(false);
+          else accountPanel.classList.remove("open");
+          return true;
+        }
+        // 4) phone menu
+        if (mobileMenu.classList.contains("open")) {
+          closeMenu();
+          return true;
+        }
+        return false;
+      }
+      async function nativeBackHandler() {
+        try {
+          if (nativeBack()) return;
+        } catch (e) {
+          console.warn("back handler:", e);
+        }
+        // nothing left to close: leave like any other Android app (it stays alive in the background)
+        const App = nativePlugin("App");
+        try {
+          if (App && App.minimizeApp) await App.minimizeApp();
+          else if (App && App.exitApp) await App.exitApp();
+        } catch (e) {}
+      }
+
+      // System bar icons (clock, battery) must be light on a dark theme and dark on a light one
+      function nativeBars() {
+        if (!IS_NATIVE) return;
+        const dark = !!themeInfo(window.amlThemes ? window.amlThemes.get() : "aml")[2];
+        const SB = nativePlugin("SystemBars");
+        try {
+          const r = SB && SB.setStyle ? SB.setStyle({ style: dark ? "DARK" : "LIGHT" }) : null;
+          if (r && r.catch) r.catch(() => {});
+        } catch (e) {}
+      }
+
+      (function nativeInit() {
+        if (!IS_NATIVE) return;
+        const App = nativePlugin("App");
+        try {
+          const r = App && App.addListener ? App.addListener("backButton", () => nativeBackHandler()) : null;
+          if (r && r.catch) r.catch(() => {});
+        } catch (e) {
+          console.warn("back button listener:", e);
+        }
+        document.addEventListener("aml-theme", nativeBars);
+        nativeBars();
+      })();
+
+      // aml5: service worker (works offline) + cover caching
+      offRegisterSW();
 
       // Init
       initApp();
