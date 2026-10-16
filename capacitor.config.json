@@ -1,0 +1,16 @@
+{
+  "appId": "io.github.theanonymouscrusher.animehlist",
+  "appName": "AniMehList",
+  "webDir": "www",
+  "backgroundColor": "#0b0c10",
+  "android": {
+    "allowMixedContent": false,
+    "webContentsDebuggingEnabled": false
+  },
+  "plugins": {
+    "SystemBars": {
+      "insetsHandling": "css",
+      "style": "DARK"
+    }
+  }
+}
