@@ -1,0 +1,176 @@
+# AniMehList: builds the Android app (a real, signed .apk) in the cloud, and publishes it as a GitHub Release.
+#
+# How to use it (details in the guide):
+#   1. One time: Settings > Secrets and variables > Actions > New repository secret
+#        Name:  SIGNING_PASSWORD      Value: a long random text (at least 16 characters). Save it somewhere safe.
+#   2. Actions tab > "Build Android app" > Run workflow. Wait about 10 minutes.
+#   3. Open the finished run, or the Releases section of the repository, and download AniMehList.apk.
+#
+# Nothing here runs by itself: it only builds when you press the button.
+name: Build Android app
+
+on:
+  workflow_dispatch:
+
+# "write" lets the job (a) save your encrypted signing key the very first time and (b) publish the release.
+permissions:
+  contents: write
+
+concurrency:
+  group: android-build
+  cancel-in-progress: false
+
+jobs:
+  apk:
+    name: Build the APK
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Get the code
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false # the token is only handed to the two steps that really need it
+
+      - name: Set up Java
+        uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: 21
+
+      # The signing key is what lets every new version install OVER the old one (same key = same app).
+      # It is made once, locked with your SIGNING_PASSWORD and saved in the repository (signing/animehlist.keystore.enc).
+      # Without the password the file is useless, so keep the password long and random.
+      - name: Get the signing key
+        env:
+          SIGNING_PASSWORD: ${{ secrets.SIGNING_PASSWORD }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          if [ -z "${SIGNING_PASSWORD:-}" ]; then
+            echo "::error title=One thing is missing::Add a repository secret named SIGNING_PASSWORD first (Settings > Secrets and variables > Actions > New repository secret). Use a long random text of at least 16 characters and save it somewhere safe."
+            exit 1
+          fi
+          if [ "${#SIGNING_PASSWORD}" -lt 16 ]; then
+            echo "::error title=Password too short::SIGNING_PASSWORD must be at least 16 characters (a long random text is best, because it protects your signing key)."
+            exit 1
+          fi
+          KS="$RUNNER_TEMP/animehlist.keystore"
+          ENC="signing/animehlist.keystore.enc"
+          if [ -f "$ENC" ]; then
+            echo "Opening the saved signing key"
+            openssl enc -d -aes-256-cbc -pbkdf2 -iter 600000 -in "$ENC" -out "$KS" -pass env:SIGNING_PASSWORD 2>/dev/null || true
+            if ! keytool -list -keystore "$KS" -storepass:env SIGNING_PASSWORD >/dev/null 2>&1; then
+              echo "::error title=Wrong password::SIGNING_PASSWORD does not open $ENC. Use the original password. (Only if it is lost for good: delete that file in the repository, run again to make a NEW key, and tell your friends to uninstall the old app first, because a new key cannot update an app made with the old one.)"
+              exit 1
+            fi
+          else
+            echo "First time: making your signing key"
+            keytool -genkeypair -keystore "$KS" -storetype PKCS12 -alias animehlist -keyalg RSA -keysize 4096 -validity 36500 \
+              -dname "CN=AniMehList" -storepass:env SIGNING_PASSWORD -keypass:env SIGNING_PASSWORD
+            mkdir -p signing
+            openssl enc -aes-256-cbc -pbkdf2 -iter 600000 -salt -in "$KS" -out "$ENC" -pass env:SIGNING_PASSWORD
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add "$ENC"
+            git commit -m "Add the app signing key (locked with SIGNING_PASSWORD)"
+            git push "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" "HEAD:refs/heads/${GITHUB_REF_NAME}" \
+              || { echo "::error title=Could not save the key::GitHub refused to save the key file. Check Settings > Actions > General > Workflow permissions, and that the branch is not protected."; exit 1; }
+          fi
+          echo "KS_PATH=$KS" >> "$GITHUB_ENV"
+
+      - name: Set up Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          package-manager-cache: false # this job holds a signing password: no shared caches
+
+      - name: Install the tools
+        run: npm install --no-audit --no-fund
+
+      # copies the website into www/ and swaps every CDN link for a copy bundled inside the app, so the app opens with no internet
+      - name: Prepare the app files
+        run: node build-app.mjs www
+
+      - name: Make sure the Android SDK parts are installed
+        continue-on-error: true
+        run: |
+          SDKM="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          yes | "$SDKM" --licenses > /dev/null || true
+          "$SDKM" "platforms;android-36" "build-tools;36.0.0" > /dev/null
+
+      - name: Create the Android project
+        run: |
+          if [ -d android ]; then npx cap sync android; else npx cap add android; fi
+
+      # The app icon and the dark start-up screen are drawn from assets/logo.png. If this step fails the app still builds, with the default icon.
+      - name: Make the app icon
+        continue-on-error: true
+        run: node build-app.mjs icons
+
+      - name: Number this version
+        run: |
+          echo "AML_VERSION_NAME=$(node -p "require('./package.json').version.split('.').slice(0,2).join('.')").${{ github.run_number }}" >> "$GITHUB_ENV"
+          echo "AML_VERSION_CODE=$(( $(date +%s) / 60 ))" >> "$GITHUB_ENV"
+
+      - name: Build the app (this is the slow part)
+        run: |
+          node build-app.mjs android
+          cd android
+          chmod +x gradlew
+          ./gradlew assembleRelease --no-daemon --console=plain
+
+      - name: Sign the APK
+        env:
+          SIGNING_PASSWORD: ${{ secrets.SIGNING_PASSWORD }}
+        run: |
+          set -euo pipefail
+          BT="$ANDROID_HOME/build-tools/36.0.0"
+          if [ ! -x "$BT/apksigner" ]; then BT="$(ls -d "$ANDROID_HOME"/build-tools/*/ | grep -v -- '-rc' | sort -V | tail -n 1)"; BT="${BT%/}"; fi
+          echo "Using build tools in $BT"
+          UNSIGNED="$(find android/app/build/outputs/apk/release -name '*.apk' | head -n 1)"
+          if [ -z "$UNSIGNED" ]; then echo "::error::Gradle did not produce an APK"; exit 1; fi
+          mkdir -p out
+          "$BT/zipalign" -p -f 4 "$UNSIGNED" "$RUNNER_TEMP/aligned.apk"
+          "$BT/apksigner" sign --ks "$KS_PATH" --ks-key-alias animehlist --ks-pass env:SIGNING_PASSWORD --key-pass env:SIGNING_PASSWORD \
+            --out out/AniMehList.apk "$RUNNER_TEMP/aligned.apk"
+          "$BT/apksigner" verify --print-certs out/AniMehList.apk | tee "$RUNNER_TEMP/certs.txt"
+          ("$BT/aapt2" dump badging out/AniMehList.apk | head -n 3) || true
+          ls -l out/AniMehList.apk
+
+      - name: Publish the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          TAG="v${AML_VERSION_NAME}"
+          FPR="$(grep -m1 'SHA-256 digest' "$RUNNER_TEMP/certs.txt" | sed 's/.*: //')"
+          {
+            echo "**AniMehList $AML_VERSION_NAME** for Android"
+            echo
+            echo "**Install:** download **AniMehList.apk** below and open it. If Android asks, allow installing from this source."
+            echo "**Update:** just install the newer APK over the old one. Your list lives in your account, and the offline copy stays."
+            echo
+            echo "Signing certificate (SHA-256): \`$FPR\`"
+          } > "$RUNNER_TEMP/notes.md"
+          gh release delete "$TAG" --yes --cleanup-tag >/dev/null 2>&1 || true
+          gh release create "$TAG" out/AniMehList.apk --repo "$GITHUB_REPOSITORY" --title "AniMehList $AML_VERSION_NAME" \
+            --notes-file "$RUNNER_TEMP/notes.md" --target "$GITHUB_SHA" --latest
+          LINK="https://github.com/${GITHUB_REPOSITORY}/releases/latest/download/AniMehList.apk"
+          {
+            echo "### AniMehList $AML_VERSION_NAME is ready"
+            echo
+            echo "Download: $LINK"
+            echo
+            echo "That link always gives the newest version, so it is the one to share with friends."
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      # a spare copy on this run's page, in case the release step ever has a problem
+      - name: Keep a spare copy of the APK
+        if: always()
+        continue-on-error: true
+        uses: actions/upload-artifact@v7
+        with:
+          name: AniMehList-apk
+          path: out/AniMehList.apk
+          if-no-files-found: ignore
+          retention-days: 14
